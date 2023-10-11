@@ -1,11 +1,11 @@
 /*
     @author:    cleancoda
     @date:      10102023
-    @desc:      script to automate running various required 
+    @detail:    script to automate running various required 
                 sql scripts to create and configure sql tables
                 required for notiflyer app in destination database
     @log:
-            cc  10102023 - generated basic script file
+                cc  10102023 - generated basic script file
 */
 
 -- enable xp_cmdshell
