@@ -1,6 +1,6 @@
 # sql server documentation <a name="top"></a>
 
-## navigation <a name="navigation">
+## navigation
 - [overview](#overview)
     - [entity-relationship (er) diagram](#erdiagram)  
 - [prerequisites](#prerequisites)
@@ -13,12 +13,12 @@
         - chartjs microservice container
         - application first-run configuration
   
-## overview <a name="overview"></a>
+## overview
 todo:
 this section will describe the inner workings and setup instructions
 [scroll top](#top)
 
-## entity-relationship (er) diagram <a name="erdiagram"></a>
+## entity-relationship (er) diagram
 ```mermaid
 erDiagram
     
@@ -78,7 +78,7 @@ erDiagram
     notiflyer_tbQuery ||--o{ notiflyer_tbJobQueryGrid : defined-in
 ```
 [scroll top](#top)
-## prerequisites <a name="prerequisites"></a>
+## prerequisites
 [scroll top](#top)
-## installation guide <a name="install_guide"></a>
+## installation guide
 [scroll top](#top)
