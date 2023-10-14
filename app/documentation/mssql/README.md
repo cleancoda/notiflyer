@@ -63,6 +63,13 @@ erDiagram
 		pos_id int "email body grid cell location 2x2x..n 1=1x1, 2=1x2, 3=2x1, 4=2x2, 5=3x1, 6=3x2"
     }
 
+    notiflyer_tbJobQueryGridParameters {
+        id int pk "identity(1,1)"
+		job_query_grid_id int "foreign key reference - job query grid id"
+		name varchar(255) "grid query parameter name"
+		value varchar(255)
+    }
+
     notiflyer_tbAppConfig {
         id int pk "identity(1,1)"
         name varchar(max) "configuration name"
@@ -75,8 +82,19 @@ erDiagram
 		value varchar(max) "configuration value"
     }
 
-    notiflyer_tbJobManager ||--o{ notiflyer_tbJobQueryGrid : "many queries can be assigned to a single job"
-    notiflyer_tbQuery ||--o{ notiflyer_tbJobQueryGrid : defined-in
+    notiflyer_tbAppLog {
+        id bigint pk "identity(1,1)"
+		job_id int
+		run_date smalldatetime
+		success_yn char(1)
+		description varchar(max)
+    }
+
+    notiflyer_tbJobManager ||--o{ notiflyer_tbJobQueryGrid : "several queries can be assigned to a single job in a grid format"
+    notiflyer_tbJobQueryGrid ||--o{ notiflyer_tbJobQueryGridParameters : "each grid query can have own set of parameters"
+    notiflyer_tbQuery ||--o{ notiflyer_tbJobQueryGrid : "query definition"
+
+    notiflyer_tbAppLog ||--o{ notiflyer_tbJobManager : "logs job execution data"
 ```
 [scroll top](#top)
 ## prerequisites
