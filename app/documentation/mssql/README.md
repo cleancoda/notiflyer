@@ -95,6 +95,7 @@ erDiagram
     notiflyer_tbQuery ||--o{ notiflyer_tbJobQueryGrid : "query definition"
 
     notiflyer_tbAppLog ||--o{ notiflyer_tbJobManager : "logs job execution data"
+    notiflyer_tbAppLog ||--o{ notiflyer_tbQuery : "logs query execution data"
 ```
 [scroll top](#top)
 ## prerequisites
