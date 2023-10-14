@@ -34,7 +34,7 @@ eventually leading to maintaining focus on developing sleek and light weight pre
     * error/run logging
     * db mail setup & configuration, etc.
 * data remains at core focus - leave the visualization logic to the application
-* highly extensive configuration settings 📚
+* extensive configuration settings 📚
 
 # 🖼️ design principles & architecture
 this project is determined in keeping the need for technical know-how to a bare minimum when it comes to setup, configuring and maintaining; as most of the end-users for this application, would be focused on handling the business/analytics side and not so much the code.
@@ -74,31 +74,19 @@ and the above query can be passed to notiflyer and it can generate a quick and e
 
 now, imagine the potential..
 
-<!--
-    ## data relationship design
-        <img src ="assets/images/db_schema.png"> 
- -->
-
 # 🏗️ setup
-```sql
-build from sources
-.sql files
-```
+* TODO - add setup guide
 
 # 👩‍🏫 documentation
-- TODO - add documentation 
-- *note the current doc will be replaced with a wiki sometime soon*
-
-
+* TODO - add (temporary) documentation
+* TODO - convert documentation to wiki
 
 # 🗺️ roadmap
-the development for the overall project will continue to keep evolving as time progresses. 
-- TODO - add estimated milestones/goals dates
+* TODO - add roadmap/planned-features/release-cycles
 
 # 🙋 contribute
 * TODO - add contribution guide
 
-help notiflyer grow! - you could start with this doc itself! :)
-
 # 🪸 log
 * 10092023_cleancoda - added basic structure to readme.md
+* 10142023_cleancoda - reorganized readme.md structure
