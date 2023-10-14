@@ -1,0 +1,6 @@
+version: '3'
+services:
+  app:
+    image: docker.io/ianw/quickchart
+    ports:
+      - 3424:3400

@@ -16,6 +16,7 @@
 ## overview
 todo:
 this section will describe the inner workings and setup instructions
+
 [scroll top](#top)
 
 ## entity-relationship (er) diagram
@@ -93,3 +94,4 @@ notiflyer relies on an HTML5 javascript library [chartjs](https://github.com/cha
 
 the quickest way to deploy a runnable container in Docker would be to utilize another wrapper library called [quickchart](https://github.com/typpo/quickchart) that generates a web api for generating static charts
 #### application first-run configuration
+[scroll top](#top)
