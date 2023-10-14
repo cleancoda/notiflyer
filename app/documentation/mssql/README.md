@@ -82,3 +82,14 @@ erDiagram
 [scroll top](#top)
 ## installation guide
 [scroll top](#top)
+
+
+### quick start guide
+---
+### complete installation guide
+---
+#### chartjs microservice container
+notiflyer relies on an HTML5 javascript library [chartjs](https://github.com/chartjs/Chart.js), that accepts json payload parameters and returns an url to a dynamically generated image based off the parameters it receives.
+
+the quickest way to deploy a runnable container in Docker would be to utilize another wrapper library called [quickchart](https://github.com/typpo/quickchart) that generates a web api for generating static charts
+#### application first-run configuration
