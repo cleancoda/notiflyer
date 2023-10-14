@@ -2,7 +2,7 @@
 
 ## navigation
 - [overview](#overview)
-    - [entity-relationship (er) diagram](#erdiagram)  
+    - [entity-relationship (er) diagram](#entity-relationship-er-diagram)  
 - [prerequisites](#prerequisites)
     - cpu/memory/storage
     - mssql version
