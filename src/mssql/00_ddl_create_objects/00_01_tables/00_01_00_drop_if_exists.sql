@@ -7,5 +7,4 @@
 */
 
 -- drop tables in order of constraint keys (if exist)
-
 go

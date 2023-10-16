@@ -2,7 +2,8 @@
 
 ## navigation
 - [overview](#overview)
-    - [entity-relationship (er) diagram](#entity-relationship-er-diagram)  
+    - [entity-relationship (er) diagram](#entity-relationship-er-diagram)
+    - [custom database objects]  
 - [prerequisites](#prerequisites)
     - cpu/memory/storage
     - mssql version
@@ -97,6 +98,42 @@ erDiagram
     notiflyer_tbAppLog ||--o{ notiflyer_tbJobManager : "logs job execution data"
 ```
 [scroll top](#top)
+## custom database objects
+notiflyer relies on a set of custom sql objects that help facilitate the workflow in storing and configuring application specific settings, and setting up workflow jobs. this documentation strives to keep every custom object that notiflyer uses, documented for future upgrades/testing/debugging/maintenance. 
+
+the objective of defining these custom objects is to reaffirm it's need, definition and location/time of its utilization as part of the application
+
+### tables
+1. **notiflyer_tbAppConfig**
+    - ***purpose/mission***
+
+    this table is considered as the "entry-point" for notiflyer to store several application-level configuration parameters, that would be either prepopulated by [install.sql](/src/mssql/99_install_app/install.sql) or asked to be manually enterered on the maiden run of the application based on the end-user's environment
+
+    - ***maiden-run variables*** <a name="maiden-run-variables"></a>
+
+    when the application is installed/run for the first time (maiden-run), either by running the [install.sql](/src/mssql/99_install_app/install.sql) script or using the [notiflyer_app](https://github.com/cleancoda/notiflyer_app) (*currently in development*) gui application, it will prompt the end-user  to enter values for the following **required** configuration parameters
+
+    | config-name  | description 
+    | ------------- | ------------- |
+    | `sqlserver.name` | name of the target mssql server |
+    | `sqlserver.username` | user-name with db_owner privileges |
+    | `sqlserver.password` | password for above account |
+    | `sqlserver.database` | name of target database |
+
+
+
+
+### views
+
+### triggers
+
+### functions
+
+### stored procedures
+
+### sql jobs
+
+[scroll top](#top)
 ## prerequisites
 [scroll top](#top)
 ## installation guide
@@ -113,3 +150,9 @@ notiflyer relies on an HTML5 javascript library [chartjs](https://github.com/cha
 the quickest way to deploy a runnable container in Docker would be to utilize another wrapper library called [quickchart](https://github.com/typpo/quickchart) that generates a web api for generating static charts
 #### application first-run configuration
 [scroll top](#top)
+
+| name  | data-type | default-value | purpose 
+| ------------- | ------------- | ------------- | ------------- |
+| id  | int  | identity(1,1) | auto-incrementing unique identifier |
+| name  | varchar(max)  | `null` | name of the config variable |
+| value  | varchar(max)  | `null` | value for the config variable |
