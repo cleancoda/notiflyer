@@ -120,9 +120,13 @@ the objective of defining these custom objects is to reaffirm it's need, definit
     | `sqlserver.password` | password for above account |
     | `sqlserver.database` | name of target database |
 
+2. **notiflyer_tbAppLog**
+    - ***purpose/mission***
 
+    logging is a key part of the workflow to have a trail of breadcrumbs to follow back to the origin of the scenario. this table will capture each job run and mark down whether the run was successful and any additional notes/descriptions if necessary.
+    
 
-
+    
 ### views
 
 ### triggers
