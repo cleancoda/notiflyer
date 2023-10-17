@@ -6,6 +6,12 @@
                 cc  10112023 - generated basic script file
 */
 
--- tbNotiflyer_AppConfig
+-- notiflyer_tbAppConfig
+create table notiflyer_tbAppConfig
+(
+    id int identity(1,1)
+    ,name varchar(max) null
+    ,value varchar(max) null
+)
 
--- tbNotiflyer_AppLog
+-- notiflyer_tbAppLog
