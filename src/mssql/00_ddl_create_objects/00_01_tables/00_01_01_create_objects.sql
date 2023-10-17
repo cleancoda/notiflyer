@@ -5,3 +5,7 @@
     @log
                 cc  10112023 - generated basic script file
 */
+
+-- tbNotiflyer_AppConfig
+
+-- tbNotiflyer_AppLog
