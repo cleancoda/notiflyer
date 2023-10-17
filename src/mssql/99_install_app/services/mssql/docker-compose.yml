@@ -1,0 +1,12 @@
+# https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver16&pivots=cs1-bash#connectexternal
+# https://github.com/cleancoda/notiflyer/issues/21#issuecomment-1763401811
+version: '3'
+services:
+  sql-server-db:
+    container_name: sql-server-db
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "2342:1433"
+    environment:
+      SA_PASSWORD: "<YourNewStrong@Passw0rd>"
+      ACCEPT_EULA: "Y"

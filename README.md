@@ -70,7 +70,7 @@ order by
     DueDate desc;
 ```
 and the above query can be passed to notiflyer and it can generate a quick and easy visual chart just like:
-<img src ="assets/images/chart.webp">
+<img src ="documentation/assets/images/chart.webp">
 
 now, imagine the potential..
 
