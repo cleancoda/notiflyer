@@ -68,7 +68,7 @@ erDiagram
         id int pk "identity(1,1)"
 		job_query_grid_id int fk "foreign key reference - job query grid id"
 		name varchar(255) "grid query parameter name"
-		value varchar(255)
+		value varchar(255) "grid query parameter value"
     }
 
     notiflyer_tbAppConfig {
