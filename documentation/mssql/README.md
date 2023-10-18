@@ -86,7 +86,8 @@ erDiagram
     notiflyer_tbAppLog {
         id bigint pk "identity(1,1)"
 		job_id int
-		run_date smalldatetime
+        job_status boolean
+		log_datetime smalldatetime
 		success_yn char(1)
 		description varchar(max)
     }
