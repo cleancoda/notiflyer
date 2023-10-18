@@ -23,4 +23,5 @@ create table notiflyer_tbAppLog
     ,job_id int
     ,job_status boolean default false
     ,log_datetime smalldatetime default getdate()
+    ,log_description varchar(max)
 )

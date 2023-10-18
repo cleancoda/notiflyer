@@ -66,7 +66,7 @@ erDiagram
 
     notiflyer_tbJobQueryGridParameters {
         id int pk "identity(1,1)"
-		job_query_grid_id int "foreign key reference - job query grid id"
+		job_query_grid_id int fk "foreign key reference - job query grid id"
 		name varchar(255) "grid query parameter name"
 		value varchar(255)
     }
@@ -85,11 +85,10 @@ erDiagram
 
     notiflyer_tbAppLog {
         id bigint pk "identity(1,1)"
-		job_id int
-        job_status boolean
-		log_datetime smalldatetime
-		success_yn char(1)
-		description varchar(max)
+		job_id int fk "foreign key reference - job id"
+        job_status boolean "job run outcome - true or false"
+		log_datetime smalldatetime "defaults to current time"
+		log_description varchar(max) "describes the event log"
     }
 
     notiflyer_tbJobManager ||--o{ notiflyer_tbJobQueryGrid : "several queries can be assigned to a single job in a grid format"
