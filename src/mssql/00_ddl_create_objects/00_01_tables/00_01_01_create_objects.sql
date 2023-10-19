@@ -12,16 +12,24 @@
 create table notiflyer_tbAppConfig
 (
     id int identity(1,1)
-    ,name varchar(max) null
-    ,value varchar(max) null
+    ,name varchar(max) default null
+    ,value varchar(max) default null
 )
 
 -- notiflyer_tbAppLog
 create table notiflyer_tbAppLog
 (
     id int identity(1,1)
-    ,job_id int
+    ,job_id int default null
     ,job_status boolean default false
     ,log_datetime smalldatetime default getdate()
-    ,log_description varchar(max)
+    ,log_description varchar(max) default null
+)
+
+-- notiflyer_tbAppEmailConfig
+notiflyer_tbAppEmailConfig
+(
+    id int identity(1,1)
+    ,name varchar(max) default null
+    ,value varchar(max) default null
 )
