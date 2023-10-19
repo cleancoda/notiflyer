@@ -27,7 +27,7 @@ create table notiflyer_tbAppLog
 )
 
 -- notiflyer_tbAppEmailConfig
-notiflyer_tbAppEmailConfig
+create table notiflyer_tbAppEmailConfig
 (
     id int identity(1,1)
     ,name varchar(max) default null
