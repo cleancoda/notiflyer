@@ -123,9 +123,12 @@ the objective of defining these custom objects is to reaffirm it's need, definit
 2. **notiflyer_tbAppLog**
     - ***purpose/mission***
 
-    logging is a key part of the workflow to have a trail of breadcrumbs to follow back to the origin of the scenario. this table will capture each job run and mark down whether the run was successful and any additional notes/descriptions if necessary.
+    logging is a key part of the workflow to have a trail of breadcrumbs to follow back to the origin of the scenario. **notiflyer_tbAppLog** will capture each job run and mark down whether the run was successful and any additional notes/descriptions if necessary.
     
+3. **notiflyer_tbQuery**
+    - ***purpose/mission***
 
+    job query definitions for notiflyer will be stored in **notiflyer_tbQuery** 
     
 ### views
 
