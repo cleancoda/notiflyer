@@ -125,7 +125,14 @@ the objective of defining these custom objects is to reaffirm it's need, definit
 
     logging is a key part of the workflow to have a trail of breadcrumbs to follow back to the origin of the scenario. **notiflyer_tbAppLog** will capture each job run and mark down whether the run was successful and any additional notes/descriptions if necessary.
     
-3. **notiflyer_tbQuery**
+3. **notiflyer_tbAppEmailConfig**
+    - ***purpose/mission***
+    
+    notiflyer (*currently*) relies on using email functionality provided by built-in system functionality specific to database vendors. 
+    
+    microsoft sql server serves emails via [database mail stored procedures](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/database-mail-stored-procedures-transact-sql?view=sql-server-ver16), however, requires some preconfigured values to be passed along with the recipient/body of the email to ensure it can propagate correctly
+
+4. **notiflyer_tbQuery**
     - ***purpose/mission***
 
     job query definitions for notiflyer will be stored in **notiflyer_tbQuery** 
