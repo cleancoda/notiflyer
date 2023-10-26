@@ -171,9 +171,3 @@ notiflyer relies on an HTML5 javascript library [chartjs](https://github.com/cha
 the quickest way to deploy a runnable container in Docker would be to utilize another wrapper library called [quickchart](https://github.com/typpo/quickchart) that generates a web api for generating static charts
 #### application first-run configuration
 [scroll top](#top)
-
-| name  | data-type | default-value | purpose 
-| ------------- | ------------- | ------------- | ------------- |
-| id  | int  | identity(1,1) | auto-incrementing unique identifier |
-| name  | varchar(max)  | `null` | name of the config variable |
-| value  | varchar(max)  | `null` | value for the config variable |
