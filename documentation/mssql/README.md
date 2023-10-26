@@ -9,8 +9,8 @@
     - mssql version
     - containerization
 - [installation guide](#installation-guide)
-    - quick start guide
-    - complete installation guide
+    - [quick start guide](#quick-start-guide)
+    - [complete installation guide](#complete-installation-guide)
         - chartjs microservice container
         - application first-run configuration
   
