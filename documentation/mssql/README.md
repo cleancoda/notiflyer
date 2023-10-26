@@ -151,6 +151,13 @@ the objective of defining these custom objects is to reaffirm it's need, definit
 ## prerequisites
 [scroll top](#top)
 ## installation guide
+notiflyer has a few moving parts that need to be setup and configured prior to going live for production use. 
+
+this documentation has been split into two sections: 
+
+- [quick start guide](#quick-start-guide)
+- [complete installation guide](#complete-installation-guide)
+
 [scroll top](#top)
 
 
