@@ -6,7 +6,8 @@
                 cc  10112023 - generated basic script file
 */
 
--- TODO: normalization (3NF - every non-key attribute must provide a fact about the key attribute, the whole key, and nothing but the key. - so help me codd.) and 
+-- TODO: normalization (3NF - every non-key attribute must provide a fact about the key attribute, the whole key, and nothing but the key. - so help me codd.)
+
 
 -- notiflyer_tbAppConfig
 create table notiflyer_tbAppConfig
