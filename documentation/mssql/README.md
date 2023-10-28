@@ -101,7 +101,7 @@ erDiagram
 
 notiflyer relies on a set of custom sql objects that help facilitate the workflow in storing and configuring application specific settings, and setting up workflow jobs. this documentation strives to keep every custom object that notiflyer uses, documented for future upgrades/testing/debugging/maintenance.
 
-the objective of defining these custom objects is to reaffirm it's need, definition and location/time of its utilization as part of the application. to reduce redundancy, the object descriptions below will be limited to explaining the purpose/mission and/or any maiden-run variables that need to be setup at the first time notiflyer is run
+the objective of defining these custom objects is to reaffirm it's need, definition and location/time of its utilization as part of the application. to reduce redundancy, the object descriptions below will be limited to explaining the **_purpose/mission_**, any **_relevant columns_** that need additional explaination, and/or any **_maiden-run variables_** that need to be setup at the first time notiflyer is run
 
 ### tables
 
@@ -119,17 +119,16 @@ the objective of defining these custom objects is to reaffirm it's need, definit
 
    when the application is installed/run for the first time (maiden-run), either by running the [install.sql](/src/mssql/99_install_app/install.sql) script or using the [notiflyer_app](https://github.com/cleancoda/notiflyer_app) (_currently in development_) gui application, it will prompt the end-user to enter values for the following **required** configuration parameters
 
-   **sql server config**
-   | config-name | description |
-   | -------------------- | ---------------------------------- |
-   | `sqlserver.name` | name of the target mssql server |
+   | config-name          | application/use                         |
+   | -------------------- | --------------------------------------- |
+   | `sqlserver.name`     | name of the target mssql server         |
    | `sqlserver.username` | user-name with db_owner role privileges |
-   | `sqlserver.password` | password for above account |
-   | `sqlserver.database` | name of target database |
+   | `sqlserver.password` | password for above account              |
+   | `sqlserver.database` | name of target database                 |
 
    microsoft sql server serves emails via [database mail stored procedures](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/database-mail-stored-procedures-transact-sql?view=sql-server-ver16), however, requires some preconfigured values to be passed along with the recipient/body of the email to ensure it can propagate correctly
 
-   | config-name     | description                        |
+   | config-name     | application/use                    |
    | --------------- | ---------------------------------- |
    | `email.account` | name of the target mssql server    |
    | `email.profile` | user-name with db_owner privileges |
@@ -146,7 +145,7 @@ the objective of defining these custom objects is to reaffirm it's need, definit
 
    - **_purpose/mission_**
 
-   job query definitions for notiflyer will be stored in **notiflyer_tbQuery**
+   job query definitions for notiflyer will be stored in **notiflyer_tbQuery**. currently supports plain t-sql queries, functions, stored procedures
 
 ### views
 

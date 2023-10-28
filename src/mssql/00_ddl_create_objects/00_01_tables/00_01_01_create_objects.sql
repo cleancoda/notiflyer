@@ -28,3 +28,18 @@ create table notiflyer_tbAppLog
     ,log_description varchar(max) default null
 );
 go
+
+-- notiflyer_tbQuery
+create table notiflyer_tbQuery
+(
+    id int identity(1,1)
+    ,name varchar(max) default null
+    ,type char(1) default 'q'
+    ,query_select varchar(max) default null
+    ,query_from_where varchar(max) default null
+    ,column_legend varchar(max) default null
+    ,column_x varchar(max) default null
+    ,column_y varchar(max) default null
+    ,graphtype varchar(max) default null
+);
+go
