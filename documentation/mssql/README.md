@@ -101,7 +101,7 @@ erDiagram
 
 notiflyer relies on a set of custom sql objects that help facilitate the workflow in storing and configuring application specific settings, and setting up workflow jobs. this documentation strives to keep every custom object that notiflyer uses, documented for future upgrades/testing/debugging/maintenance.
 
-the objective of defining these custom objects is to reaffirm it's need, definition and location/time of its utilization as part of the application
+the objective of defining these custom objects is to reaffirm it's need, definition and location/time of its utilization as part of the application. to reduce redundancy, the object descriptions below will be limited to explaining the purpose/mission and/or any maiden-run variables that need to be setup at the first time notiflyer is run
 
 ### tables
 
