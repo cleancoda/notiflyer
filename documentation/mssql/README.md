@@ -1,29 +1,32 @@
 # sql server documentation <a name="top"></a>
 
 ## navigation
+
 - [overview](#overview)
-    - [entity-relationship (er) diagram](#entity-relationship-er-diagram)
-    - [custom database objects]  
+  - [entity-relationship (er) diagram](#entity-relationship-er-diagram)
+  - [custom database objects]
 - [prerequisites](#prerequisites)
-    - cpu/memory/storage
-    - mssql version
-    - containerization
+  - cpu/memory/storage
+  - mssql version
+  - containerization
 - [installation guide](#installation-guide)
-    - [quick start guide](#quick-start-guide)
-    - [complete installation guide](#complete-installation-guide)
-        - chartjs microservice container
-        - application first-run configuration
-  
+  - [quick start guide](#quick-start-guide)
+  - [complete installation guide](#complete-installation-guide)
+    - chartjs microservice container
+    - application first-run configuration
+
 ## overview
+
 todo:
 this section will describe the inner workings and setup instructions
 
 [scroll top](#top)
 
 ## entity-relationship (er) diagram
+
 ```mermaid
 erDiagram
-    
+
 
     notiflyer_tbJobManager {
         id int pk "identity(1,1)"
@@ -77,12 +80,6 @@ erDiagram
 		value varchar(max) "configuration value"
     }
 
-    notiflyer_tbAppEmailConfig {
-        id integer pk "identity(1,1)"
-		name varchar(max) "configuration name"
-		value varchar(max) "configuration value"
-    }
-
     notiflyer_tbAppLog {
         id bigint pk "identity(1,1)"
 		job_id int fk "foreign key reference - job id"
@@ -97,46 +94,50 @@ erDiagram
 
     notiflyer_tbAppLog ||--o{ notiflyer_tbJobManager : "logs job execution data"
 ```
+
 [scroll top](#top)
+
 ## custom database objects
-notiflyer relies on a set of custom sql objects that help facilitate the workflow in storing and configuring application specific settings, and setting up workflow jobs. this documentation strives to keep every custom object that notiflyer uses, documented for future upgrades/testing/debugging/maintenance. 
+
+notiflyer relies on a set of custom sql objects that help facilitate the workflow in storing and configuring application specific settings, and setting up workflow jobs. this documentation strives to keep every custom object that notiflyer uses, documented for future upgrades/testing/debugging/maintenance.
 
 the objective of defining these custom objects is to reaffirm it's need, definition and location/time of its utilization as part of the application
 
 ### tables
+
 1. **notiflyer_tbAppConfig**
-    - ***purpose/mission***
 
-    this table is considered as the "entry-point" for notiflyer to store several application-level configuration parameters, that would be either prepopulated by [install.sql](/src/mssql/99_install_app/install.sql) or asked to be manually enterered on the maiden run of the application based on the end-user's environment
+   - **_purpose/mission_**
 
-    - ***maiden-run variables*** <a name="maiden-run-variables"></a>
+   notiflyer (_currently_) relies on using email functionality provided by built-in system functionality specific to database vendors.
 
-    when the application is installed/run for the first time (maiden-run), either by running the [install.sql](/src/mssql/99_install_app/install.sql) script or using the [notiflyer_app](https://github.com/cleancoda/notiflyer_app) (*currently in development*) gui application, it will prompt the end-user  to enter values for the following **required** configuration parameters
+   **notiflyer_tbAppConfig** is considered as the "entry-point" for notiflyer to store several application-level configuration parameters, that would be either prepopulated by [install.sql](/src/mssql/99_install_app/install.sql) or asked to be manually enterered on the maiden run of the application based on the end-user's environment
 
-    | config-name  | description 
-    | ------------- | ------------- |
-    | `sqlserver.name` | name of the target mssql server |
-    | `sqlserver.username` | user-name with db_owner privileges |
-    | `sqlserver.password` | password for above account |
-    | `sqlserver.database` | name of target database |
+   microsoft sql server serves emails via [database mail stored procedures](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/database-mail-stored-procedures-transact-sql?view=sql-server-ver16), however, requires some preconfigured values to be passed along with the recipient/body of the email to ensure it can propagate correctly
+
+   - **_maiden-run variables_** <a name="maiden-run-variables"></a>
+
+   when the application is installed/run for the first time (maiden-run), either by running the [install.sql](/src/mssql/99_install_app/install.sql) script or using the [notiflyer_app](https://github.com/cleancoda/notiflyer_app) (_currently in development_) gui application, it will prompt the end-user to enter values for the following **required** configuration parameters
+
+   | config-name          | description                        |
+   | -------------------- | ---------------------------------- |
+   | `sqlserver.name`     | name of the target mssql server    |
+   | `sqlserver.username` | user-name with db_owner privileges |
+   | `sqlserver.password` | password for above account         |
+   | `sqlserver.database` | name of target database            |
 
 2. **notiflyer_tbAppLog**
-    - ***purpose/mission***
 
-    logging is a key part of the workflow to have a trail of breadcrumbs to follow back to the origin of the scenario. **notiflyer_tbAppLog** will capture each job run and mark down whether the run was successful and any additional notes/descriptions if necessary.
-    
-3. **notiflyer_tbAppEmailConfig**
-    - ***purpose/mission***
-    
-    notiflyer (*currently*) relies on using email functionality provided by built-in system functionality specific to database vendors. 
-    
-    microsoft sql server serves emails via [database mail stored procedures](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/database-mail-stored-procedures-transact-sql?view=sql-server-ver16), however, requires some preconfigured values to be passed along with the recipient/body of the email to ensure it can propagate correctly
+   - **_purpose/mission_**
+
+   logging is a key part of the workflow to have a trail of breadcrumbs to follow back to the origin of the scenario. **notiflyer_tbAppLog** will capture each job run and mark down whether the run was successful and any additional notes/descriptions if necessary.
 
 4. **notiflyer_tbQuery**
-    - ***purpose/mission***
 
-    job query definitions for notiflyer will be stored in **notiflyer_tbQuery** 
-    
+   - **_purpose/mission_**
+
+   job query definitions for notiflyer will be stored in **notiflyer_tbQuery**
+
 ### views
 
 ### triggers
@@ -148,26 +149,36 @@ the objective of defining these custom objects is to reaffirm it's need, definit
 ### sql jobs
 
 [scroll top](#top)
-## prerequisites
-[scroll top](#top)
-## installation guide
-notiflyer has a few moving parts that need to be setup and configured prior to going live for production use. 
 
-this documentation has been split into two sections: 
+## prerequisites
+
+[scroll top](#top)
+
+## installation guide
+
+notiflyer has a few moving parts that need to be setup and configured prior to going live for production use.
+
+this documentation has been split into two sections:
 
 - [quick start guide](#quick-start-guide)
 - [complete installation guide](#complete-installation-guide)
 
 [scroll top](#top)
 
-
 ### quick start guide
+
 ---
+
 ### complete installation guide
+
 ---
+
 #### chartjs microservice container
+
 notiflyer relies on an HTML5 javascript library [chartjs](https://github.com/chartjs/Chart.js), that accepts json payload parameters and returns an url to a dynamically generated image based off the parameters it receives.
 
 the quickest way to deploy a runnable container in Docker would be to utilize another wrapper library called [quickchart](https://github.com/typpo/quickchart) that generates a web api for generating static charts
+
 #### application first-run configuration
+
 [scroll top](#top)
