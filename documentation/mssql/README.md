@@ -115,18 +115,26 @@ the objective of defining these custom objects is to reaffirm it's need, definit
 
    notiflyer (_currently_) relies on using email functionality provided by built-in system functionality specific to database vendors.
 
-   microsoft sql server serves emails via [database mail stored procedures](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/database-mail-stored-procedures-transact-sql?view=sql-server-ver16), however, requires some preconfigured values to be passed along with the recipient/body of the email to ensure it can propagate correctly
-
    - **_maiden-run variables_** <a name="maiden-run-variables"></a>
 
    when the application is installed/run for the first time (maiden-run), either by running the [install.sql](/src/mssql/99_install_app/install.sql) script or using the [notiflyer_app](https://github.com/cleancoda/notiflyer_app) (_currently in development_) gui application, it will prompt the end-user to enter values for the following **required** configuration parameters
 
-   | config-name          | description                        |
+   **sql server config**
+   | config-name | description |
    | -------------------- | ---------------------------------- |
-   | `sqlserver.name`     | name of the target mssql server    |
-   | `sqlserver.username` | user-name with db_owner privileges |
-   | `sqlserver.password` | password for above account         |
-   | `sqlserver.database` | name of target database            |
+   | `sqlserver.name` | name of the target mssql server |
+   | `sqlserver.username` | user-name with db_owner role privileges |
+   | `sqlserver.password` | password for above account |
+   | `sqlserver.database` | name of target database |
+
+   microsoft sql server serves emails via [database mail stored procedures](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/database-mail-stored-procedures-transact-sql?view=sql-server-ver16), however, requires some preconfigured values to be passed along with the recipient/body of the email to ensure it can propagate correctly
+
+   | config-name     | description                        |
+   | --------------- | ---------------------------------- |
+   | `email.account` | name of the target mssql server    |
+   | `email.profile` | user-name with db_owner privileges |
+
+   if an existing account/profile is not available, notiflyer can create one for you (_currently in development_)
 
 2. **notiflyer_tbAppLog**
 
@@ -134,7 +142,7 @@ the objective of defining these custom objects is to reaffirm it's need, definit
 
    logging is a key part of the workflow to have a trail of breadcrumbs to follow back to the origin of the scenario. **notiflyer_tbAppLog** will capture each job run and mark down whether the run was successful and any additional notes/descriptions if necessary.
 
-4. **notiflyer_tbQuery**
+3. **notiflyer_tbQuery**
 
    - **_purpose/mission_**
 
