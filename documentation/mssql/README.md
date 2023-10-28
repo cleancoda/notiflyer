@@ -109,9 +109,11 @@ the objective of defining these custom objects is to reaffirm it's need, definit
 
    - **_purpose/mission_**
 
-   notiflyer (_currently_) relies on using email functionality provided by built-in system functionality specific to database vendors.
+   notiflyer requires to be instantiated with information regarding the target database that notiflyer will be working off of
 
    **notiflyer_tbAppConfig** is considered as the "entry-point" for notiflyer to store several application-level configuration parameters, that would be either prepopulated by [install.sql](/src/mssql/99_install_app/install.sql) or asked to be manually enterered on the maiden run of the application based on the end-user's environment
+
+   notiflyer (_currently_) relies on using email functionality provided by built-in system functionality specific to database vendors.
 
    microsoft sql server serves emails via [database mail stored procedures](https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/database-mail-stored-procedures-transact-sql?view=sql-server-ver16), however, requires some preconfigured values to be passed along with the recipient/body of the email to ensure it can propagate correctly
 
