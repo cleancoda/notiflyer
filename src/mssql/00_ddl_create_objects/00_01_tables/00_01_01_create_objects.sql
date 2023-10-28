@@ -28,12 +28,3 @@ create table notiflyer_tbAppLog
     ,log_description varchar(max) default null
 );
 go
-
--- notiflyer_tbAppEmailConfig
-create table notiflyer_tbAppEmailConfig
-(
-    id int identity(1,1)
-    ,name varchar(max) default null
-    ,value varchar(max) default null
-);
-go
