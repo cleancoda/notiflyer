@@ -43,3 +43,24 @@ create table notiflyer_tbQuery
     ,graphtype varchar(max) default null
 );
 go
+
+-- notiflyer_tbJobManager
+create table notiflyer_tbJobManager
+(
+    id int identity(1,1)
+    name varchar(max) default null
+    email_subject varchar(max) default null
+    email_recepient varchar(max) default null
+    email_cc varchar(max) default null
+    email_bcc varchar(max) default null
+    email_body_header varchar(max) default null
+    frequency char(1) default null
+    run_time varchar(5) default null
+    monday boolean default false
+    tuesday boolean default false
+    wednesday boolean default false
+    thursday boolean default false
+    friday boolean default false
+    saturday boolean default false
+    sunday boolean default false
+)

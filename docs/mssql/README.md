@@ -29,63 +29,63 @@ erDiagram
 
 
     notiflyer_tbJobManager {
-        id int pk "identity(1,1)"
-        name varchar(max) "job description"
-        email_subject varchar(max)
-        email_recepient varchar(max) "email recepients, separated by semi-colon"
-        email_cc varchar(max) "email cc, separated by semi-colon"
-        email_bcc varchar(max) "email bcc, separated by semi-colon"
-		email_body_header varchar(max) "email body header (message), prior to grid components below"
-        frequency char(1) "(d)aily, (w)eekly, (m)onthly"
-		run_time varchar(5) "job run time hh:mm - follows 24 hours pattern"
-		monday char(1) "enable job on day / frequency = (w)eekly"
-		tuesday char(1) "enable job on day / frequency = (w)eekly"
-		wednesday char(1) "enable job on day / frequency = (w)eekly"
-		thursday char(1) "enable job on day / frequency = (w)eekly"
-		friday char(1) "enable job on day / frequency = (w)eekly"
-		saturday char(1) "enable job on day / frequency = (w)eekly"
-		sunday char(1) "enable job on day / frequency = (w)eekly"
+      id int pk "identity(1,1)"
+      name varchar(max) "job description"
+      email_subject varchar(max)
+      email_recepient varchar(max) "email recepients, separated by semi-colon"
+      email_cc varchar(max) "email cc, separated by semi-colon"
+      email_bcc varchar(max) "email bcc, separated by semi-colon"
+      email_body_header varchar(max) "email body header (message), prior to grid components below"
+      frequency char(1) "(d)aily, (w)eekly, (m)onthly"
+      run_time varchar(5) "job run time hh:mm - follows 24 hours pattern"
+      monday boolean "enable job on day / frequency = (w)eekly"
+      tuesday boolean "enable job on day / frequency = (w)eekly"
+      wednesday boolean "enable job on day / frequency = (w)eekly"
+      thursday boolean "enable job on day / frequency = (w)eekly"
+      friday boolean "enable job on day / frequency = (w)eekly"
+      saturday boolean "enable job on day / frequency = (w)eekly"
+      sunday boolean "enable job on day / frequency = (w)eekly"
     }
 
     notiflyer_tbQuery {
-        id int pk "identity(1,1)"
-        name varchar(255) "query name"
-		type char(1) "(q)uery, (f)unction, (s)tored procedure"
-		query_select varchar(max) "SELECT statement portion of query"
-		query_from_where varchar(max) "from/where statement potion of query"
-		column_legend varchar(max) "column from select statement set as legend for dataset"
-		column_x varchar(max) "x axis for dataset"
-		column_y varchar(max) "y axis for dataset"
-		graphtype varchar(max) "graph type (b)ar, (l)ine, (p)ie"
+      id int pk "identity(1,1)"
+      name varchar(255) "query name"
+      type char(1) "(q)uery, (f)unction, (s)tored procedure"
+      query_select varchar(max) "SELECT statement portion of query"
+      query_from_where varchar(max) "from/where statement potion of query"
+      column_legend varchar(max) "column from select statement set as legend for dataset"
+      column_x varchar(max) "x axis for dataset"
+      column_y varchar(max) "y axis for dataset"
+      graphtype varchar(max) "graph type (b)ar, (l)ine, (p)ie"
     }
 
     notiflyer_tbJobQueryGrid {
-		id int pk "identity(1,1)"
-		name varchar(255) "grid cell name"
-		job_id int fk "foreign key reference - job id"
-		query_id int fk "foreign key reference - query id"
-		pos_id int "email body grid cell location 2x2x..n 1=1x1, 2=1x2, 3=2x1, 4=2x2, 5=3x1, 6=3x2"
+      id int pk "identity(1,1)"
+      name varchar(255) "grid cell name"
+      job_id int fk "foreign key reference - job id"
+      query_id int fk "foreign key reference - query id"
+      pos_id int "email body grid cell location 2x2x..n 1=1x1, 2=1x2, 3=2x1, 4=2x2, 5=3x1, 6=3x2"
     }
 
     notiflyer_tbJobQueryGridParameters {
-        id int pk "identity(1,1)"
-		job_query_grid_id int fk "foreign key reference - job query grid id"
-		name varchar(255) "grid query parameter name"
-		value varchar(255) "grid query parameter value"
+      id int pk "identity(1,1)"
+      job_query_grid_id int fk "foreign key reference - job query grid id"
+      name varchar(255) "grid query parameter name"
+      value varchar(255) "grid query parameter value"
     }
 
     notiflyer_tbAppConfig {
-        id int pk "identity(1,1)"
-        name varchar(max) "configuration name"
-		value varchar(max) "configuration value"
+      id int pk "identity(1,1)"
+      name varchar(max) "configuration name"
+      value varchar(max) "configuration value"
     }
 
     notiflyer_tbAppLog {
-        id bigint pk "identity(1,1)"
-		job_id int fk "foreign key reference - job id"
-        job_status boolean "job run outcome - true or false"
-		log_datetime smalldatetime "defaults to current time"
-		log_description varchar(max) "describes the event log"
+      id bigint pk "identity(1,1)"
+      job_id int fk "foreign key reference - job id"
+      job_status boolean "job run outcome - true or false"
+      log_datetime smalldatetime "defaults to current time"
+      log_description varchar(max) "describes the event log"
     }
 
     notiflyer_tbJobManager ||--o{ notiflyer_tbJobQueryGrid : "several queries can be assigned to a single job in a grid format"
@@ -122,7 +122,7 @@ the objective of defining these custom objects is to reaffirm it's need, definit
    | config-name          | application/use                         |
    | -------------------- | --------------------------------------- |
    | `sqlserver.name`     | name of the target mssql server         |
-   | `sqlserver.username` | user-name with db_owner role privileges |
+   | `sqlserver.username` | user-name with sysadmin role privileges |
    | `sqlserver.password` | password for above account              |
    | `sqlserver.database` | name of target database                 |
 
@@ -145,7 +145,16 @@ the objective of defining these custom objects is to reaffirm it's need, definit
 
    - **_purpose/mission_**
 
-   job query definitions for notiflyer will be stored in **notiflyer_tbQuery**. currently supports plain t-sql queries, functions, stored procedures
+   job query definitions for notiflyer will be stored in **notiflyer_tbQuery**. currently supports plain t-sql queries, support for functions, stored procedures, and in-line functions will be added soon
+
+4. **notiflyer_tbJobManager**
+
+   - **_purpose/mission_**
+
+   notiflyer works off of generating individual automated sql jobs that invoke and run procedures depending on the type of job it runs. **notiflyer_tbJobManager** allows end-users to setup individual jobs for notiflyer - which in turn generates the required sql job and associated a schedule to it.
+
+   microsoft sql server has a dedicated windows service to execute scheduled administrative tasks called as ["sql jobs"](https://learn.microsoft.com/en-us/sql/ssms/agent/sql-server-agent)
+
 
 ### views
 
