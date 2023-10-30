@@ -4,7 +4,7 @@
 
 - [overview](#overview)
   - [entity-relationship (er) diagram](#entity-relationship-er-diagram)
-  - [custom database objects]
+  - [custom database objects](#custom-database-objects)
 - [prerequisites](#prerequisites)
   - cpu/memory/storage
   - mssql version
