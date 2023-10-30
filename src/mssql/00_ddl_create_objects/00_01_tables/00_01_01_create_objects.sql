@@ -63,4 +63,25 @@ create table notiflyer_tbJobManager
     friday boolean default false
     saturday boolean default false
     sunday boolean default false
+);
+go
+
+-- notiflyer_tbJobQueryGrid
+create table notiflyer_tbJobQueryGrid
+(
+    id int identity(1,1)
+    name varchar(255) default null
+    job_id int fk default null
+    query_id int fk  default null
+    pos_id int default null
+);
+go
+
+-- notiflyer_tbJobQueryGridParameters
+create table notiflyer_tbJobQueryGridParameters
+(
+    id int identity(1,1)
+    job_query_grid_id int fk default null
+    name varchar(255) default null
+    value varchar(255) default null
 )

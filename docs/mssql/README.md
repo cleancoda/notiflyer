@@ -64,7 +64,7 @@ erDiagram
       name varchar(255) "grid cell name"
       job_id int fk "foreign key reference - job id"
       query_id int fk "foreign key reference - query id"
-      pos_id int "email body grid cell location 2x2x..n 1=1x1, 2=1x2, 3=2x1, 4=2x2, 5=3x1, 6=3x2"
+      pos_id varchar(max) "email body grid cell location in R1C1 format"
     }
 
     notiflyer_tbJobQueryGridParameters {
@@ -155,6 +155,21 @@ the objective of defining these custom objects is to reaffirm it's need, definit
 
    microsoft sql server has a dedicated windows service to execute scheduled administrative tasks called as ["sql jobs"](https://learn.microsoft.com/en-us/sql/ssms/agent/sql-server-agent) whenever a new entry is added to **notiflyer_tbJobManager** a corresponding dml trigger will fire and call upon another routine that will setup the required sql agent job for the new entry that was added.
 
+5. **notiflyer_tbJobQueryGrid**
+
+   - **_purpose/mission_**
+
+   any job setup under notiflyer can be customized per the end-user's preferences. **notiflyer_tbJobQueryGrid** allows you to break out the body of the email into a grid format, setting a cell value for each entry (R1C1 format) in the table.
+
+   every corresponding cell can be setup to utilize a separate query from **notiflyer_tbQuery** which in turn, could be either a visual, a simple table or have custom embedded objects (_coming soon_).
+
+6. **notiflyer_tbJobQueryGridParameters**
+
+   - **_purpose/mission_**
+
+   as each cell on a job can be customized to use it's own unique query, that corresponding query may require additional paramters to be passed to it at run time. **notiflyer_tbJobQueryGridParameters** stores parameters for such queries 
+   
+   using this approach, a single query can be reused on different jobs, with their own unique set of parameters, allowing us to reuse the query without having to rewrite the code again, only to change the value of parameters being passed to it.
 
 ### views
 
@@ -184,7 +199,6 @@ this documentation has been split into two sections:
 [scroll top](#top)
 
 ### quick start guide
-
 ---
 
 ### complete installation guide
