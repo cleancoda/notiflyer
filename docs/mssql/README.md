@@ -153,7 +153,7 @@ the objective of defining these custom objects is to reaffirm it's need, definit
 
    notiflyer works off of generating individual automated sql jobs that invoke and run procedures depending on the type of job it runs. **notiflyer_tbJobManager** allows end-users to setup individual jobs for notiflyer - which in turn generates the required sql job and associated a schedule to it.
 
-   microsoft sql server has a dedicated windows service to execute scheduled administrative tasks called as ["sql jobs"](https://learn.microsoft.com/en-us/sql/ssms/agent/sql-server-agent)
+   microsoft sql server has a dedicated windows service to execute scheduled administrative tasks called as ["sql jobs"](https://learn.microsoft.com/en-us/sql/ssms/agent/sql-server-agent) whenever a new entry is added to **notiflyer_tbJobManager** a corresponding dml trigger will fire and call upon another routine that will setup the required sql agent job for the new entry that was added.
 
 
 ### views
