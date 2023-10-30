@@ -78,7 +78,7 @@ order by
 the query can be passed to notiflyer "as-is" and it can generate a quick and easy visual chart such as:
 <img src ="docs/assets/images/chart.webp">
 
-the simple example above shows a bar chart represenation of the number of orders a company received by date; a much cleaner way to describe a "story" about your data, while recognizing critical "trends" in your day-to-day operations, as opposed to reading granular/tabular data, that also requires a lot more time to break down, as compared to needing just a quick glance at what notiflyer generates for you instead.
+the above example shows a bar chart representation of the number of orders a company received by date; a much cleaner way to describe a "story" about your data, while recognizing critical "trends" in your day-to-day operations, rather than spending precious time reading and analyzing granular/tabular data, that also requires a lot more time to break down, as compared to needing just a quick glance at what notiflyer just sent to your email.
 
 imagine the limitless & potential applications of such a service; from a complex business workflow to a simple reminder, it can do it all.. the best part is, you get to drive and be in control of your own data.
 
