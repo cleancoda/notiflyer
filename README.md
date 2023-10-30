@@ -72,7 +72,7 @@ where
 group by
     year(DueDate)
 order by
-    DueDate year(DueDate);
+    [year];
 ```
 
 the query can be passed to notiflyer "as-is" and it can generate a quick and easy visual chart such as:
