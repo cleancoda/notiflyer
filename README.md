@@ -62,21 +62,21 @@ consider the following structured query language script (example aims to be db-v
 
 ```sql
 select
-    DueDate as [OrderDueDate]
-    ,count(ProductID) as [TotalOrders]
+    year(DueDate) as as [year]
+    ,count(ProductID) as [totalorders]
 from
     AdventureWorks.Production.WorkOrder
 where
-    DueDate > '2014-06-01'
-    and  DueDate < '2014-06-14'
+    year(DueDate) > 2019
+    and  year(DueDate) < 2023
 group by
-    DueDate
+    year(DueDate)
 order by
-    DueDate desc;
+    DueDate year(DueDate);
 ```
 
 the query can be passed to notiflyer "as-is" and it can generate a quick and easy visual chart such as:
-<img src ="documentation/assets/images/chart.webp">
+<img src ="docs/assets/images/chart.webp">
 
 the simple example above shows a bar chart represenation of the number of orders a company received by date; a much cleaner way to describe a "story" about your data, while recognizing critical "trends" in your day-to-day operations, as opposed to reading granular/tabular data, that also requires a lot more time to break down, as compared to needing just a quick glance at what notiflyer generates for you instead.
 
