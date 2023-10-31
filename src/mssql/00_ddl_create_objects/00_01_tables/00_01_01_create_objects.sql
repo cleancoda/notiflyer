@@ -85,5 +85,3 @@ create table notiflyer_tbJobQueryGridParameters
     name varchar(255) default null
     value varchar(255) default null
 )
-
-#spooktober
