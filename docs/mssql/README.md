@@ -26,8 +26,6 @@ this section will describe the inner workings and setup instructions
 
 ```mermaid
 erDiagram
-
-
     notiflyer_tbJobManager {
       id int pk "identity(1,1)"
       name varchar(max) "job description"
@@ -167,17 +165,71 @@ the objective of defining these custom objects is to reaffirm it's need, definit
 
    - **_purpose/mission_**
 
-   as each cell on a job can be customized to use it's own unique query, that corresponding query may require additional paramters to be passed to it at run time. **notiflyer_tbJobQueryGridParameters** stores parameters for such queries 
-   
+   as each cell on a job can be customized to use it's own unique query, that corresponding query may require additional paramters to be passed to it at run time. **notiflyer_tbJobQueryGridParameters** stores parameters for such queries
+
    using this approach, a single query can be reused on different jobs, with their own unique set of parameters, allowing us to reuse the query without having to rewrite the code again, only to change the value of parameters being passed to it.
 
 ### views
 
 ### triggers
 
+1. **notiflyer_trJobManager_insert**
+
+   - **_purpose/mission_**
+
+   whenever a new entry is added to **notiflyer_tbJobManager**, an insert dml trigger labeled **notiflyer_trJobManager_insert** will fire and in turn call other stored procedure(s) **notiflyer_spCreateSQLAgentJob** followed by **notiflyer_spCreateSQLAgentJobSchedule** to setup the required sql agent job and schedule for the new entry that was added to **notiflyer_tbJobManager**
+
+2. **notiflyer_trJobManager_update**
+
+   - **_purpose/mission_**
+
+   whenever a new entry is updated on **notiflyer_tbJobManager**, an update dml trigger labeled **notiflyer_trJobManager_update** will fire and in turn call other stored procedure(s) **notiflyer_spUpdateSQLAgentJob** followed by **notiflyer_spUpdateSQLAgentJobSchedule** to setup the required sql agent job and schedule for the entry that was updated under **notiflyer_tbJobManager**
+
+3. **notiflyer_trJobManager_delete**
+
+   - **_purpose/mission_**
+
+   whenever an existing entry is deleted from **notiflyer_tbJobManager**, a delete dml trigger labeled **notiflyer_trJobManager_delete** will fire and in turn call other stored procedure(s) **notiflyer_spDeleteSQLAgentJobSchedule** followed by **notiflyer_spDeleteSQLAgentJob** to remove the existing sql agent job and schedule for the entry that was just deleted under **notiflyer_tbJobManager**
+
 ### functions
 
 ### stored procedures
+
+1. **notiflyer_spCreateSQLAgentJob**
+
+   - **_purpose/mission_**
+
+   every new job that is setup under notiflyer_tbJobManager table, will require a corresponding sql agent job and a schedule to be setup. **notiflyer_spCreateSQLAgentJob** stored procedure allows notiflyer to automatically generate a new sql job depending on the job manager configuration parameters
+
+2. **notiflyer_spCreateSQLAgentJobSchedule**
+
+   - **_purpose/mission_**
+
+   for any new job generated, a corresponding schedule is required to "automate" it's execution. **notiflyer_spCreateSQLAgentJobSchedule** stores the necessary configuration settings to automate the run
+
+3. **notiflyer_spUpdateSQLAgentJob**
+
+   - **_purpose/mission_**
+
+   any changes made to an existing job that is setup under **notiflyer_tbJobManager** table, will require a corresponding sql agent job and a schedule to be updated. **notiflyer_spUpdateSQLAgentJob** stored procedure allows notiflyer to update the existing sql job depending on the job manager configuration parameters that were updated/changed
+
+4. **notiflyer_spUpdateSQLAgentJobSchedule**
+
+   - **_purpose/mission_**
+
+   any existing job that gets updated, the matching job agent schedule needs to match those changes. **notiflyer_spUpdateSQLAgentJobSchedule** updates the necessary configuration settings
+
+5. **notiflyer_spDeleteSQLAgentJob**
+
+   - **_purpose/mission_**
+
+   any existing job that is setup under **notiflyer_tbJobManager** table gets deleted, will require a corresponding sql agent job schedule to be dropped first, followed by the job itself. **notiflyer_spDeleteSQLAgentJob** stored procedure allows notiflyer to remove any existing sql job.
+
+6. **notiflyer_spDeleteSQLAgentJobSchedule**
+
+   - **_purpose/mission_**
+
+   before deleting the job, the associated schedule needs to be removed first - **notiflyer_spDeleteSQLAgentJobSchedule** needs to be fired prior to **notiflyer_spDeleteSQLAgentJob**
 
 ### sql jobs
 
@@ -199,6 +251,7 @@ this documentation has been split into two sections:
 [scroll top](#top)
 
 ### quick start guide
+
 ---
 
 ### complete installation guide
