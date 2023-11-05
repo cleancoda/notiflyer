@@ -13,13 +13,13 @@ declare
 
 -- get current timestamp
 select
-    @backup_name = format(getdate(), 'MMddyyyy_hhmmss');
+    @backup_name = format(getdate(), '_MMddyyyy_hhmmss');
 
 if object_id('notiflyer_tbAppConfig') is not null
     begin
         -- prep sql cmd
         select
-            @sqlcmd = 'select * into notiflyer_tbAppConfig_' + @backup_name + ' from notiflyer_tbAppConfig'
+            @sqlcmd = 'select * into notiflyer_tbAppConfig' + @backup_name + ' from notiflyer_tbAppConfig'
         
         -- exec sql cmd
         exec(@sqlcmd);
