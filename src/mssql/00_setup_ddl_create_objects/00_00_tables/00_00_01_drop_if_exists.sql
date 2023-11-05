@@ -10,3 +10,27 @@
 go
 
 -- add checks and feature to backup objects labeled Notiflyer_backup_
+
+if object_id('notiflyer_tbAppConfig') is not null
+    drop table notiflyer_tbAppConfig;
+go
+
+if object_id('notiflyer_tbAppLog') is not null
+drop table notiflyer_tbAppLog;
+go
+
+if object_id('notiflyer_tbQuery') is not null
+drop table notiflyer_tbQuery;
+go
+
+if object_id('notiflyer_tbJobManager') is not null
+drop table notiflyer_tbJobManager;
+go
+
+if object_id('notiflyer_tbJobQueryGrid') is not null
+drop table notiflyer_tbJobQueryGrid;
+go
+
+if object_id('notiflyer_tbJobQueryGridParameters') is not null
+drop table notiflyer_tbJobQueryGridParameters;
+go
