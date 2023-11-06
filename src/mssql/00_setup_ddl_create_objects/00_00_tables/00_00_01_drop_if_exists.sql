@@ -84,6 +84,8 @@ while(@loopcounter <= @rowcounter)
                         + name
         from
             #notiflyer_tbTempTable
+        where   
+            rowid = @loopcounter;
         
         -- exec cmd
         exec(@sqlcmd);
