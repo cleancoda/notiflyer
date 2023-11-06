@@ -13,7 +13,7 @@ declare
 
 -- get current timestamp
 select
-    @backup_name = format(getdate(), '_MMddyyyy_hhmmss');
+    @backup_name += '_backup' + try_cast(format(getdate(), '_MMddyyyy_hhmmss') as nvarchar(15));
 
 if object_id('notiflyer_tbAppConfig') is not null
     begin
