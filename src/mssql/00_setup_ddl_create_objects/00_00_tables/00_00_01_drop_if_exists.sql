@@ -7,30 +7,88 @@
 */
 
 -- drop tables in order of constraint keys (if exist)
-go
+/*
+    if object_id('notiflyer_tbAppConfig') is not null
+        drop table notiflyer_tbAppConfig;
+    go
 
--- add checks and feature to backup objects labeled Notiflyer_backup_
+    if object_id('notiflyer_tbAppLog') is not null
+    drop table notiflyer_tbAppLog;
+    go
 
-if object_id('notiflyer_tbAppConfig') is not null
-    drop table notiflyer_tbAppConfig;
-go
+    if object_id('notiflyer_tbQuery') is not null
+    drop table notiflyer_tbQuery;
+    go
 
-if object_id('notiflyer_tbAppLog') is not null
-drop table notiflyer_tbAppLog;
-go
+    if object_id('notiflyer_tbJobManager') is not null
+    drop table notiflyer_tbJobManager;
+    go
 
-if object_id('notiflyer_tbQuery') is not null
-drop table notiflyer_tbQuery;
-go
+    if object_id('notiflyer_tbJobQueryGrid') is not null
+    drop table notiflyer_tbJobQueryGrid;
+    go
 
-if object_id('notiflyer_tbJobManager') is not null
-drop table notiflyer_tbJobManager;
-go
+    if object_id('notiflyer_tbJobQueryGridParameters') is not null
+    drop table notiflyer_tbJobQueryGridParameters;
+    go
+*/
 
-if object_id('notiflyer_tbJobQueryGrid') is not null
-drop table notiflyer_tbJobQueryGrid;
-go
+-- alternative approach
 
-if object_id('notiflyer_tbJobQueryGridParameters') is not null
-drop table notiflyer_tbJobQueryGridParameters;
-go
+-- drop if temp table exists
+if object_id('tempdb..#notiflyer_tbTempTable') is not null
+    drop table #notiflyer_tbTempTable;
+
+-- store in temp table to loop through
+select
+    [object_id]
+    ,[name]
+    ,[type]
+    ,row_number() over (order by object_id) as [rowid]
+into 
+    #notiflyer_tbTempTable
+from
+    sys.objects
+where   
+    name like 'notiflyer%'
+    and name not like '%_backup_%'
+order by 
+    [type];
+
+-- variables for loop/cmd
+declare
+    @rowcounter as int = 0
+    ,@loopcounter as int = 0
+    ,@sqlcmd as nvarchar(max);
+
+-- store number of objects to be dropped
+select
+    @rowcounter = coalesce(max([rowid]),count(1))
+from
+    #notiflyer_tbTempTable;
+
+while(@loopcounter <= @rowcounter)
+    begin
+        
+        -- prep sql statement to drop object
+        select
+            @sqlcmd = 
+                        'drop ' 
+                        + 
+                            case [type]
+                                when 'U' then 'table '
+                                when 'V' then 'view '
+                                when 'P' then 'procedure '
+                                when 'FN' then 'function '
+                            end
+                        + name
+        from
+            #notiflyer_tbTempTable
+        
+        -- exec cmd
+        exec(@sqlcmd);
+
+        -- next row
+        select
+            @loopcounter += 1;
+    end
