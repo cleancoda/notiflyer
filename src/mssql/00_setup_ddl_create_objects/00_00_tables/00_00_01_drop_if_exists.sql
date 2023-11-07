@@ -33,10 +33,10 @@ order by
 declare
     @rowcounter as int = 0
     ,@loopcounter as int = 0
-    ,@objectname as nvarchar(max)
-    ,@objecttype as nvarchar(max)
-    ,@dropcmd as nvarchar(max)
-    ,@sqlcmd as nvarchar(max);
+    ,@objectname as nvarchar(max) = ''
+    ,@objecttype as nvarchar(max) = ''
+    ,@dropcmd as nvarchar(max) = ''
+    ,@sqlcmd as nvarchar(max) = '';
 
 -- store number of objects to be dropped
 select
@@ -44,10 +44,37 @@ select
 from
     #notiflyer_tbTempTable;
 
+-- drop any existing constraints on tables
+select
+        -- prep ddl command
+        @dropcmd +=
+            'alter table ' + quotename(cs.name) + '.' + quotename(ct.name) 
+                    + ' drop constraint ' + quotename(fk.name) + '; '
+from 
+    sys.foreign_keys as fk
+    inner join sys.tables as ct on 
+        fk.parent_object_id = ct.[object_id]
+        inner join sys.schemas as cs on
+            ct.[schema_id] = cs.[schema_id]
+where
+    -- filter on notiflyer table objects
+    ct.name like 'notiflyer_tb%'
+    -- exclude backup objects
+    and ct.name not like '%_backup_%';
+
+-- drop constraints
+begin try
+    exec(@dropcmd);
+end try
+begin catch
+    print 'error occurred while attempting to drop foreign key constraints'
+    select
+        error_message(), error_line(), error_number(), error_severity(), error_state();
+end catch
+
 -- loop through objects
 while(@loopcounter <= @rowcounter)
     begin
-        
         -- prep sql statement to drop object
         select
             @sqlcmd = 
@@ -66,32 +93,21 @@ while(@loopcounter <= @rowcounter)
             #notiflyer_tbTempTable
         where   
             rowid = @loopcounter;
-
-        -- if object type is a table, check for constraints
-        -- existing constraints need to be dropped before dropping host table
-        if(@objecttype = 'U')
-        begin
-            -- prep ddl command
-            select
-                @dropcmd += 'alter table ' + quotename(cs.name) + '.' + quotename(ct.name) 
-                            + ' drop constraint ' + quotename(fk.name) + ';'
-            from sys.foreign_keys as fk
-            inner join sys.tables as ct on 
-                fk.parent_object_id = ct.[object_id]
-                inner join sys.schemas as cs on
-                    ct.[schema_id] = cs.[schema_id]
-            where
-                ct.name = @objectname;
-
-            -- drop constraints
-            print @dropcmd;
-            exec(@dropcmd);
-        end
         
         -- exec cmd
-        exec(@sqlcmd);
+        begin try
+            exec(@sqlcmd);
+        end try
+        begin catch
+            print 'error occurred while attempting to drop ' + @objectname;
+            select
+                error_message(), error_line(), error_number(), error_severity(), error_state();
+        end catch
 
         -- next object
         select
             @loopcounter += 1;
     end
+
+-- print # of objects dropped (reduce 1 for array starting index)
+print try_cast(@loopcounter - 1 as nvarchar(max)) + ' objects successfully dropped';
