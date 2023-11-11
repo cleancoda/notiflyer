@@ -6,38 +6,10 @@
                 cc  10112023 - generated basic script file
 */
 
--- drop tables in order of constraint keys (if exist)
-/*
-    if object_id('notiflyer_tbAppConfig') is not null
-        drop table notiflyer_tbAppConfig;
-    go
-
-    if object_id('notiflyer_tbAppLog') is not null
-    drop table notiflyer_tbAppLog;
-    go
-
-    if object_id('notiflyer_tbQuery') is not null
-    drop table notiflyer_tbQuery;
-    go
-
-    if object_id('notiflyer_tbJobManager') is not null
-    drop table notiflyer_tbJobManager;
-    go
-
-    if object_id('notiflyer_tbJobQueryGrid') is not null
-    drop table notiflyer_tbJobQueryGrid;
-    go
-
-    if object_id('notiflyer_tbJobQueryGridParameters') is not null
-    drop table notiflyer_tbJobQueryGridParameters;
-    go
-*/
-
--- alternative approach
-
 -- drop if temp table exists
 if object_id('tempdb..#notiflyer_tbTempTable') is not null
     drop table #notiflyer_tbTempTable;
+go
 
 -- store in temp table to loop through
 select
@@ -50,7 +22,9 @@ into
 from
     sys.objects
 where   
+    -- filter on notiflyer labeled objects
     name like 'notiflyer%'
+    -- ignore any backup objects if exist
     and name not like '%_backup_%'
 order by 
     [type];
@@ -59,7 +33,10 @@ order by
 declare
     @rowcounter as int = 0
     ,@loopcounter as int = 0
-    ,@sqlcmd as nvarchar(max);
+    ,@objectname as nvarchar(max) = ''
+    ,@objecttype as nvarchar(max) = ''
+    ,@dropcmd as nvarchar(max) = ''
+    ,@sqlcmd as nvarchar(max) = '';
 
 -- store number of objects to be dropped
 select
@@ -67,9 +44,37 @@ select
 from
     #notiflyer_tbTempTable;
 
+-- drop any existing constraints on tables
+select
+        -- prep ddl command
+        @dropcmd +=
+            'alter table ' + quotename(cs.name) + '.' + quotename(ct.name) 
+                    + ' drop constraint ' + quotename(fk.name) + '; '
+from 
+    sys.foreign_keys as fk
+    inner join sys.tables as ct on 
+        fk.parent_object_id = ct.[object_id]
+        inner join sys.schemas as cs on
+            ct.[schema_id] = cs.[schema_id]
+where
+    -- filter on notiflyer table objects
+    ct.name like 'notiflyer_tb%'
+    -- exclude backup objects
+    and ct.name not like '%_backup_%';
+
+-- drop constraints
+begin try
+    exec(@dropcmd);
+end try
+begin catch
+    print 'error occurred while attempting to drop foreign key constraints'
+    select
+        error_message(), error_line(), error_number(), error_severity(), error_state();
+end catch
+
+-- loop through objects
 while(@loopcounter <= @rowcounter)
     begin
-        
         -- prep sql statement to drop object
         select
             @sqlcmd = 
@@ -82,13 +87,27 @@ while(@loopcounter <= @rowcounter)
                                 when 'FN' then 'function '
                             end
                         + name
+            ,@objectname = [name]
+            ,@objecttype = [type]
         from
             #notiflyer_tbTempTable
+        where   
+            rowid = @loopcounter;
         
         -- exec cmd
-        exec(@sqlcmd);
+        begin try
+            exec(@sqlcmd);
+        end try
+        begin catch
+            print 'error occurred while attempting to drop ' + @objectname;
+            select
+                error_message(), error_line(), error_number(), error_severity(), error_state();
+        end catch
 
-        -- next row
+        -- next object
         select
             @loopcounter += 1;
     end
+
+-- print # of objects dropped (reduce 1 for array starting index)
+print try_cast(@loopcounter - 1 as nvarchar(max)) + ' objects successfully dropped';

@@ -1,6 +1,6 @@
 <!--🔥 🐦 -->
 <h1>
-🔥 notiflyer 🐦
+💎 notiflyer 
 </h1> 
 an inspiring new way of sending KPIs, alerts, or simple tabular data as emails powered by chart.js by converting raw data into meaningful visual graphs and charts.
 
@@ -20,7 +20,7 @@ notiflyer is an attempt to prove that ETL operations can be left out from the pr
 -->
 
 
-# 💎 features
+# 🔥 features
 
 - automates overhead tasks for sql such as:
   - sql agent jobs, maintenance
