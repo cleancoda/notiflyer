@@ -1,7 +1,7 @@
 /*
     @author     cleancoda
     @date       10172023
-    @detail     drops base sql stored procedures executed by app
+    @detail     creates new sql tables
     @log
                 cc  10112023 - generated basic script file
 */
@@ -23,7 +23,7 @@ begin
         ,value varchar(max) default null
     );
 end
-    go
+go
 
 -- notiflyer_tbAppLog
 print 'creating table notiflyer_tbAppLog'
