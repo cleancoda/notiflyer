@@ -1,3 +1,10 @@
+if object_id('notiflyer_spGetMetaData') is not null
+    print 'notiflyer_spGetMetaData stored procedure exists, skipping create attempt..'
+    print 'ignore error below, cannot create exception handling on ddl statements'
+    return;
+go
+
+create procedure notiflyer_spGetMetaData
 /*
     @author     cleancoda
     @date       11112023
@@ -7,8 +14,6 @@
     @log
                 cc  11112023 - generated basic script file
 */
-
-create procedure notiflyer_spGetMetaData
 (
     @query as nvarchar(max) = ''
 )
