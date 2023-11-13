@@ -22,8 +22,8 @@ into
 from
     sys.objects
 where   
-    -- filter on notiflyer labeled objects
-    name like 'notiflyer%'
+    -- filter on notiflyer labeled table objects
+    name like 'notiflyer_tb%'
     -- ignore any backup objects if exist
     and name not like '%_backup_%'
 order by 
