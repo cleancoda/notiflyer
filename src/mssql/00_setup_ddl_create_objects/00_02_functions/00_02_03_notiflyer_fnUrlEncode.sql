@@ -9,6 +9,8 @@ create function notiflyer_fnUrlEncode
     @author     cleancoda
     @date       11122023
     @detail     converts passed argument of @url into clean/encoded html format
+    @log
+                cc  11122023 - generated basic script file
 */
 (
     @url varchar(max)
