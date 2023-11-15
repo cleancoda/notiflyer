@@ -71,8 +71,10 @@ while(@loopcounter <= @rowcounter)
         where   
             rowid = @loopcounter;
         
-        -- exec cmd
+        -- exec cmd if objects found
+        if @@rowcount > 0
         begin try
+            print 'dropping object: ' + @objectname;
             exec(@sqlcmd);
         end try
         begin catch

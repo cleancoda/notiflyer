@@ -82,9 +82,6 @@ while(@loopcounter <= @rowcounter)
                         + 
                             case [type]
                                 when 'U' then 'table '
-                                when 'V' then 'view '
-                                when 'P' then 'procedure '
-                                when 'FN' then 'function '
                             end
                         + name
             ,@objectname = [name]
@@ -94,8 +91,10 @@ while(@loopcounter <= @rowcounter)
         where   
             rowid = @loopcounter;
         
-        -- exec cmd
+        -- exec cmd if objects found
+        if @@rowcount > 0
         begin try
+            print 'dropping object: ' + @objectname;
             exec(@sqlcmd);
         end try
         begin catch
