@@ -26,15 +26,15 @@ begin
     begin try
 
     /*
-        ------------------------------
+        ------------------------------------------------------------
         procedure logic
-        ------------------------------
+        ------------------------------------------------------------
         mssql provides access to http services via WinHttp 
         utilize WinHttp objects for making api calls from t-sql
 
-        ------------------------------
-        relevant documentation:
-        ------------------------------
+        ------------------------------------------------------------
+        relevant objects documentation
+        ------------------------------------------------------------
         WinHttp object -
         - https://learn.microsoft.com/en-us/windows/win32/winhttp/winhttp-start-page
         - https://learn.microsoft.com/en-us/windows/win32/winhttp/about-winhttp
@@ -42,7 +42,9 @@ begin
         WinHttpRequest object -
         - https://learn.microsoft.com/en-us/windows/win32/winhttp/winhttprequest
 
+        ------------------------------------------------------------
         workflow:
+        ------------------------------------------------------------
             1.  init WinHttp object using version 5.1
             2.  open a new http connection using sp_OAMethod and pass url at time of init
             3.  init depending on whether api requests auth code or switch header content type from json to xml
