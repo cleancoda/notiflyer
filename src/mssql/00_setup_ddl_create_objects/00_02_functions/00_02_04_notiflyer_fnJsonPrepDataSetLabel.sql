@@ -23,7 +23,7 @@ create function notiflyer_fnJsonPrepDataSetLabel
     @log
                 cc  11132023 - generated basic script file             
                 
-                select dbo.notiflyer_fnJsonPrepDataSetLabel('pie','January, February, March, April, May','','','','','')
+                select dbo.notiflyer_fnJsonPrepDataSetLabel('''pie''','January, February, March, April, May','','','','','')
                                     
 */
 (
@@ -85,7 +85,9 @@ as
                     ,'data: {'
                         ,'labels: [',@x_column_label,']',','
                         ,'datasets: [{'
-                    )
+                    );
+
+        --
 
         return @jsonPayload;
     end
