@@ -11,6 +11,9 @@ create procedure notiflyer_spGetMetaData
     @detail     procedure to accept several parameters, including sql queries to 
                 generate and return a table as output containing metadata about the query
                 passed as a parameter
+    @sample
+                exec notiflyer_spGetMetaData
+                    @query = '';
     @log
                 cc  11112023 - generated basic script file
 */

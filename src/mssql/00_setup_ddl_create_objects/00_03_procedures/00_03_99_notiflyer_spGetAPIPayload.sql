@@ -10,6 +10,13 @@ create procedure notiflyer_spGetAPIPayload
     @date       11162023
     @detail     future feature set for notiflyer - currently setup as default placeholder
                 accepts rest api parameters for performing get,post,delete operations on the api
+    @sample
+                exec notiflyer_spGetAPIPayload
+                    @api_url = 'https://reqres.in/api/users?page=2'
+                    ,@api_payload_type = 'application/json'
+                    ,@api_method = 'GET'
+                    ,@api_key = NULL
+                    ,@api_bodydata_type = NULL
     @log
                 cc  11162023 - generated basic script file
 */
@@ -19,13 +26,35 @@ create procedure notiflyer_spGetAPIPayload
     ,@api_payload_type nvarchar(255) = 'application/json'   -- application/json, application/xml
     ,@api_method nvarchar(5) = 'GET'                        -- GET, POST, PUT, DELETE
     ,@api_key varchar(8000) = NULL                          -- authorization key, api key, bearer key
-    ,@api_bodydata_type nvarchar(255) = ''                  -- json string - parse using key/value pair definition '{"key":"value"}'
+    ,@api_bodydata_type nvarchar(255) = NULL                -- json string - parse using key/value pair definition '{"key":"value"}'
 )
 as 
 begin
     begin try
 
     /*
+        ------------------------------------------------------------
+        prerequisites
+        ------------------------------------------------------------
+        in order for the following procedure to work, the target server must 
+        have 'ole automation procedures' system configuration property enabled
+
+        note: sql servers hosted on linux do not support ole automation routines
+        doc: https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-editions-and-components-2022
+
+        =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        script to enable sp_OA methods:
+        =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            exec sp_configure 'show advanced options', 1;
+            go
+            reconfigure;
+            go
+
+            sp_configure 'Ole Automation Procedures', 1;
+            go
+            reconfigure;
+            go
+
         ------------------------------------------------------------
         procedure logic
         ------------------------------------------------------------
@@ -49,12 +78,12 @@ begin
             2.  open a new http connection using sp_OAMethod and pass url at time of init
             3.  init object depending on whether api requests auth code or switch header 
                 content type from json to xml update the WinHttp object using sp_OAMethod calls
-
-        
-        
             4.  send request to api endpoint using iwinhttprequest-send
+            5.  store response/error and return to calling code
 
     */
+
+    -- p
 
     -- global vars
     declare
@@ -80,12 +109,12 @@ begin
         begin catch
             -- handle exceptions while initializing WinHttp.WinHttpRequest object
             select
-                error_line()
-                ,error_number()
-                ,error_severity()
-                ,error_message()
-                ,error_procedure()
-                ,error_state()
+                error_line() as 'error_line'
+                ,error_number() as 'error_number'
+                ,error_severity() as 'error_severity'
+                ,error_message() as 'error_message'
+                ,error_procedure() as 'error_procedure'
+                ,error_state() as 'error_state'
 
             -- exit routine
             return;
@@ -141,12 +170,12 @@ begin
         begin catch
             -- handle exceptions while initializing WinHttp.WinHttpRequest object
             select
-                error_line()
-                ,error_number()
-                ,error_severity()
-                ,error_message()
-                ,error_procedure()
-                ,error_state()
+                error_line() as 'error_line'
+                ,error_number() as 'error_number'
+                ,error_severity() as 'error_severity'
+                ,error_message() as 'error_message'
+                ,error_procedure() as 'error_procedure'
+                ,error_state() as 'error_state'
 
             -- exit routine
             return;
@@ -212,20 +241,22 @@ begin
 					) as ResponseText;
         end
 
-        -- garbage collection
+        -- garbage collection & cleanup
         -- doc: https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-oadestroy-transact-sql
         if @WinHttpRequest is not null
             exec sp_OADestroy @WinHttpRequest;
+
     end try
     begin catch
         -- handle global exceptions
         select
-            error_line()
-            ,error_number()
-            ,error_severity()
-            ,error_message()
-            ,error_procedure()
-            ,error_state()
+            error_line() as 'error_line'
+            ,error_number() as 'error_number'
+            ,error_severity() as 'error_severity'
+            ,error_message() as 'error_message'
+            ,error_procedure() as 'error_procedure'
+            ,error_state() as 'error_state'
+
         -- exit routine
         return;
     end catch
