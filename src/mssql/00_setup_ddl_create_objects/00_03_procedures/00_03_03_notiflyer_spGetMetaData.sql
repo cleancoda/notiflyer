@@ -30,7 +30,7 @@ begin
 
     -- test
     EXEC sp_describe_first_result_set 
-            @tsql = N'SELECT * FROM Sales.Orders', 
+            @tsql = @query, 
             @params = null, 
             @browse_information_mode = 0;
 
