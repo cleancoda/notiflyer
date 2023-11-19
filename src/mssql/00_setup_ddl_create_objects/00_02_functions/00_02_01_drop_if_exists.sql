@@ -80,7 +80,12 @@ while(@loopcounter <= @rowcounter)
         begin catch
             print 'error occurred while attempting to drop ' + @objectname;
             select
-                error_message(), error_line(), error_number(), error_severity(), error_state();
+                error_line() as 'error_line'
+                ,error_number() as 'error_number'
+                ,error_severity() as 'error_severity'
+                ,error_message() as 'error_message'
+                ,error_procedure() as 'error_procedure'
+                ,error_state() as 'error_state';
         end catch
 
         -- next object
