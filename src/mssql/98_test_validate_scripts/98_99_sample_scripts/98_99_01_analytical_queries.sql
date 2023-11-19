@@ -71,23 +71,3 @@ FROM
 ) AS D
 WHERE D.RowNo <=1
 ORDER BY D.MaxLoss DESC
-
-
-SELECT C.CustomerName --, SUM(PH.Qty) 
-FROM	dbo.Customer as C, dbo.Purchase AS PH
-WHERE NOT EXISTS(
-		SELECT *
-		FROM	dbo.Product as P
-		WHERE NOT EXISTS
-		(
-			SELECT *
-			FROM
-				dbo.Purchase as PU
-			WHERE
-				PU.CustomerID = C.CustomerID
-				AND PU.ProductID = P.ProductId
-		)
-)
-AND C.CustomerId = PH.CustomerId
-GROUP BY C.CustomerName
-HAVING SUM(PH.Qty) > 50
