@@ -23,7 +23,13 @@ create procedure notiflyer_spExecuteQuery
 as
 begin
     begin try
-        
+    -- if no query passed end routine
+    if(@query_select = '' or @query_from = '')
+        begin
+            return;
+        end
+
+    
     end try
     begin catch
         select

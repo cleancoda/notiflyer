@@ -101,6 +101,7 @@ begin
                 @params = null, 
                 @browse_information_mode = 0;
 
+        -- return metadata columns
         select
             column_ordinal as id
             ,name
@@ -123,11 +124,4 @@ begin
             ,error_state() as 'error_state';
     end catch    
 end
-
 go 
-
--- delete past below this line
-
-exec notiflyer_spGetMetaData
-                    @query_select = 'select *'
-                    ,@query_from = 'from Sales.Customers' ;
