@@ -26,8 +26,8 @@ create procedure notiflyer_spGetMetaData
     ,@column_legend nvarchar(max) = ''
     ,@column_x nvarchar(max) = ''
     ,@column_y nvarchar(max) = ''
-    ,@returnvalue int = 0 output
-    ,@returnmessage nvarchar(255) = '' output
+    ,@returnvalue as int = 0 output
+    ,@returnmessage as nvarchar(255) = '' output
 )
 as
 begin

@@ -10,7 +10,20 @@ create procedure notiflyer_spExecuteQuery
     @date       11202023
     @detail     procedure processes and generates dataset from the query passed as a parameter to
                 returns a dataset table with only the columns required
+
+                this procedure should receive a pre-compiled "where" clause with the parameters and their
+                corresponding values from notiflyer_tbJobQueryGridParameters table from the main procedure that 
+                is calling this in turn to receive a table containing output of the query execution results  
     @sample
+                declare @queryexecuted as int = 0,  @queryoutput nvarchar(max) = '';
+
+                exec notiflyer_spExecuteQuery
+                    @query_select = 'select *'
+                    ,@query_from = 'from Sales.Customers'
+                    ,@query_executed = @queryexecuted output
+                    ,@query_output = @queryoutput output ;
+
+                select @queryexecuted, @queryoutput;
     @log
                 cc  11202023 - generated basic script file
 */
@@ -19,6 +32,9 @@ create procedure notiflyer_spExecuteQuery
     ,@query_from as nvarchar(max) = ''
     ,@query_where as nvarchar(max) = ''
     ,@query_groupby as nvarchar(max) = ''
+    ,@display_results as int = 0
+    ,@query_executed as int = 0 output
+    ,@query_output as nvarchar(255) = '' output
 ) 
 as
 begin
@@ -28,17 +44,58 @@ begin
         begin
             return;
         end
-
     
+     -- variables
+    declare
+        @query_prefix as nvarchar(max)
+        ,@query as nvarchar(max)
+        ,@query_suffix as nvarchar(max);
+
+    -- drop if temp physical table 
+    if object_id('notiflyer_tmpQueryResults') is not null
+        drop table notiflyer_tmpQueryResults;
+
+    -- prepare backup statement
+    select  
+        @query_prefix = 'select * into notiflyer_tmpQueryResults from ( '
+        ,@query_suffix = ' ) a;';
+
+    -- prepare query to store results in new physical table    
+    -- build local query
+    select
+        @query = @query_prefix + @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_groupby + @query_suffix;
+
+    -- handle exceptions for sp_executesql
+    begin try
+        -- execute query
+        exec sp_executesql
+            @query
+            ,@queryoutput = @query_output output;
+        
+        -- mark parse results as success
+        select 
+            @query_executed = 0
+            ,@query_output = 'query successfully executed and stored to table notiflyer_tmpQueryResults.';
     end try
     begin catch
         select
-            error_line() as 'error_line'
-            ,error_number() as 'error_number'
-            ,error_severity() as 'error_severity'
-            ,error_message() as 'error_message'
-            ,error_procedure() as 'error_procedure'
-            ,error_state() as 'error_state';
+            -- mark parse results as error
+            @query_executed = 1
+            ,@query_output = 'error occured: ['
+                            +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                            +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                            +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                            +  ' ]'
+    end catch    
+    end try
+    begin catch
+         -- mark parse results as error
+         select
+            @query_executed = 1
+            ,@query_output = 'error occured: ['
+                            +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                            +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                            +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                            +  ' ]'
     end catch
-
 end

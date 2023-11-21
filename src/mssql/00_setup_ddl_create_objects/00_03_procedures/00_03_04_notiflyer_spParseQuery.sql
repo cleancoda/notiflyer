@@ -11,7 +11,8 @@ create procedure notiflyer_spParseQuery
     @detail     procedure processes and validates the query to be executed to ensure
                 no syntax errors occur at run-time
     @sample
-                declare @queryparsed as int = 0,  @queryoutput nvarchar(max) = ''
+                declare @queryparsed as int = 0,  @queryoutput nvarchar(max) = '';
+                
                 exec notiflyer_spParseQuery
                     @query_select = 'select *'
                     ,@query_from = 'from Sales.Customerss'
@@ -47,30 +48,13 @@ begin
     select
         @query = @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_groupby;
 
-    print @query;
-
     -- parse query and validate
     -- enable sandbox to execute query 
     -- ref: https://github.com/cleancoda/notiflyer/issues/45#issuecomment-1806892559
-    /*
-        set parseonly on;
-        go
-        set noexec on;
-        go
-        set fmtonly on;
-        go
-
-        set parseonly off;
-        go
-        set noexec off;
-        go
-        set fmtonly off;
-        go
-    */
-
+    -- alternative: using 'set' - parseonly, noexec, fmtonly - however capturing error messages in dynamic sql is challenging
     
         begin try
-            -- execute query in sandbox (no results, except error or success message)
+            -- execute query in sandbox (ignore results, except error or success message)
             exec sp_executesql
                 @query
                 ,@queryoutput = @query_output output;

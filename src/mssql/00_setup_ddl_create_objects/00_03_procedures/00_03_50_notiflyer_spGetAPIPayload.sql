@@ -22,11 +22,11 @@ create procedure notiflyer_spGetAPIPayload
 */
 (
 
-    @api_url varchar(8000) = ''                             -- api endpoint url
-    ,@api_payload_type nvarchar(255) = 'application/json'   -- application/json, application/xml
-    ,@api_method nvarchar(5) = 'GET'                        -- GET, POST, PUT, DELETE
-    ,@api_key varchar(8000) = NULL                          -- authorization key, api key, bearer key
-    ,@api_bodydata_type nvarchar(255) = NULL                -- json string - parse using key/value pair definition '{"key":"value"}'
+    @api_url as varchar(8000) = ''                             -- api endpoint url
+    ,@api_payload_type as nvarchar(255) = 'application/json'   -- application/json, application/xml
+    ,@api_method as nvarchar(5) = 'GET'                        -- GET, POST, PUT, DELETE
+    ,@api_key as varchar(8000) = NULL                          -- authorization key, api key, bearer key
+    ,@api_bodydata_type as nvarchar(255) = NULL                -- json string - parse using key/value pair definition '{"key":"value"}'
 )
 as 
 begin
