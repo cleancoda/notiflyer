@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: notiflyer
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Pranav
+    family-names: Shirodkar
+    email: pranav.shirodkar@protonmail.com
+repository-code: 'https://github.com/cleancoda/notiflyer'
+abstract: >-
+  an inspiring and refreshing new way of sending KPIs,
+  alerts, or simple tabular data as emails
+keywords:
+  - sql
+  - charts
+  - graphs
+  - visuals
+license: Apache-2.0
