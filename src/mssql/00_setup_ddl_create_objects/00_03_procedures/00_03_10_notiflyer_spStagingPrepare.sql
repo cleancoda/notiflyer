@@ -10,7 +10,51 @@ create procedure notiflyer_spStagingPrepare
     @date       11212023
     @detail     
     @sample
-                exec notiflyer_spStagingPrepare;
+                exec notiflyer_spStagingPrepare
+                    @returnvalue = 0
+                    ,@returnmessage = '';
     @log
                 cc  11212023 - generated basic script file
 */
+(
+    @returnvalue as int = 0 output
+    ,@returnmessage as nvarchar(255) = '' output
+)
+as
+begin
+    begin try
+
+        -- generate and store metadata into global temp table ##tmpNotiflyer_tbMetaDataColumns
+        exec notiflyer_spGetMetaData
+                    @query_select = 'select *'
+                    ,@query_from = 'from Sales.Customers' ;
+
+        select * from ##tmpNotiflyer_tbMetaDataColumns;
+
+        declare @queryexecuted as int = 0,  @queryoutput nvarchar(max) = '';
+
+        exec notiflyer_spExecuteQuery
+            @query_select = 'select *'
+            ,@query_from = 'from Sales.Customers'
+            ,@query_executed = @queryexecuted output
+            ,@query_output = @queryoutput output ;
+
+        select @queryexecuted, @queryoutput;
+
+        -- mark parse results as success
+        select 
+            @returnvalue = 0
+            ,@returnmessage = 'query staging successfully completed.';
+    end try
+
+    begin catch
+        select
+            -- mark staging process as error
+            @returnvalue = 1
+            ,@returnmessage = 'error occured: ['
+                            +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                            +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                            +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                            +  ' ]'
+    end catch 
+end
