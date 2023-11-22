@@ -71,14 +71,21 @@ while(@loopcounter <= @rowcounter)
         where   
             rowid = @loopcounter;
         
-        -- exec cmd
+        -- exec cmd if objects found
+        if @@rowcount > 0
         begin try
+            print 'dropping object: ' + @objectname;
             exec(@sqlcmd);
         end try
         begin catch
             print 'error occurred while attempting to drop ' + @objectname;
             select
-                error_message(), error_line(), error_number(), error_severity(), error_state();
+                error_line() as 'error_line'
+                ,error_number() as 'error_number'
+                ,error_severity() as 'error_severity'
+                ,error_message() as 'error_message'
+                ,error_procedure() as 'error_procedure'
+                ,error_state() as 'error_state';
         end catch
 
         -- next object

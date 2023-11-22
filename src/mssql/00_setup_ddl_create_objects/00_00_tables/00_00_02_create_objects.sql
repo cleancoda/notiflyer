@@ -58,7 +58,9 @@ begin
         ,name varchar(max) default null
         ,type char(1) default 'q'
         ,query_select varchar(max) default null
-        ,query_from_where varchar(max) default null
+        ,query_from varchar(max) default null
+        ,query_where varchar(max) default null
+        ,query_group varchar(max) default null
         ,column_legend varchar(max) default null
         ,column_x varchar(max) default null
         ,column_y varchar(max) default null
