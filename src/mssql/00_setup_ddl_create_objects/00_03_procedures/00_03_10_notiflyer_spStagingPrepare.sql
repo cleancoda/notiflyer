@@ -17,7 +17,13 @@ create procedure notiflyer_spStagingPrepare
                 cc  11212023 - generated basic script file
 */
 (
-    @returnvalue as int = 0 output
+    @query_select as nvarchar(max) = ''
+    ,@query_from as nvarchar(max) = ''
+    ,@query_where as nvarchar(max) = ''
+    ,@query_groupby as nvarchar(max) = ''
+    ,@column_axes_x as nvarchar(max) = ''
+    ,@column_axes_y as nvarchar(max) = ''
+    ,@returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
 )
 as
@@ -26,7 +32,7 @@ begin
 
         -- generate and store metadata into global temp table ##tmpNotiflyer_tbMetaDataColumns
         exec notiflyer_spGetMetaData
-                    @query_select = 'select *'
+                    @query_select = 'select [CustomerCategoryID], count([CustomerID]) as [NumOfCust] '
                     ,@query_from = 'from Sales.Customers' ;
 
         select * from ##tmpNotiflyer_tbMetaDataColumns;
@@ -40,6 +46,8 @@ begin
             ,@query_output = @queryoutput output ;
 
         select @queryexecuted, @queryoutput;
+
+        select * from ##tmpNotiflyer_tbQueryResults;
 
         -- mark parse results as success
         select 

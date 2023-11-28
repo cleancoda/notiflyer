@@ -51,13 +51,17 @@ begin
         ,@query as nvarchar(max)
         ,@query_suffix as nvarchar(max);
 
+    -- clear tempdb
+    if object_id('tempdb..##tmpNotiflyer_tbQueryResults') is not null 
+    drop table ##tmpNotiflyer_tbQueryResults;
+
     -- drop if temp physical table 
     if object_id('notiflyer_tmpQueryResults') is not null
         drop table notiflyer_tmpQueryResults;
 
     -- prepare backup statement
     select  
-        @query_prefix = 'select * into notiflyer_tmpQueryResults from ( '
+        @query_prefix = 'select * into ##tmpNotiflyer_tbQueryResults from ( '
         ,@query_suffix = ' ) a;';
 
     -- prepare query to store results in new physical table    
@@ -75,7 +79,7 @@ begin
         -- mark parse results as success
         select 
             @query_executed = 0
-            ,@query_output = 'query successfully executed and stored to table notiflyer_tmpQueryResults.';
+            ,@query_output = 'query successfully executed and stored to table ##tmpNotiflyer_tbQueryResults.';
     end try
     begin catch
         select
