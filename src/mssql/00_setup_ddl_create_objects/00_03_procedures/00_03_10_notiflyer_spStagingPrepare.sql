@@ -10,13 +10,21 @@ create procedure notiflyer_spStagingPrepare
     @date       11212023
     @detail     
     @sample
+                declare
+                    @returnvalue as int = 0
+                    ,@returnmessage as nvarchar(255) = '';
+
                 exec notiflyer_spStagingPrepare
-                    @query_select = ''
-                    ,@query_from = ''
+                    @query_select = 'select *'
+                    ,@query_from = 'from Sales.Customers'
                     ,@query_where = ''
                     ,@query_groupby = ''
-                    ,@returnvalue = 0
-                    ,@returnmessage = '';
+                    ,@returnvalue = @returnvalue output
+                    ,@returnmessage = @returnmessage output;
+
+                select  
+                    @returnvalue
+                    ,@returnmessage;
     @log
                 cc  11212023 - generated basic script file
 */
@@ -34,7 +42,12 @@ as
 begin
     begin try
 
-        -- parse query to ensure no errors occur past this point        
+        -- global variables
+        declare 
+            @column_axes_x_datatype as nvarchar(max)
+            ,@column_axes_y_datatype as nvarchar(max);
+
+        -- parse query to ensure no errors occur past this point      
         exec notiflyer_spParseQuery
             @query_select = @query_select
             ,@query_from = @query_from
@@ -59,12 +72,13 @@ begin
         exec notiflyer_spExecuteQuery
             @query_select = 'select *'
             ,@query_from = 'from Sales.Customers'
+            ,@display_results = 0
             ,@query_executed = @queryexecuted output
             ,@query_output = @queryoutput output ;
 
         select @queryexecuted, @queryoutput;
 
-        select * from ##tmpNotiflyer_tbQueryResults;
+        -- select * from ##tmpNotiflyer_tbQueryResults;
 
         -- mark parse results as success
         select 
