@@ -11,7 +11,11 @@ create procedure notiflyer_spStagingPrepare
     @detail     
     @sample
                 exec notiflyer_spStagingPrepare
-                    @returnvalue = 0
+                    @query_select = ''
+                    ,@query_from = ''
+                    ,@query_where = ''
+                    ,@query_groupby = ''
+                    ,@returnvalue = 0
                     ,@returnmessage = '';
     @log
                 cc  11212023 - generated basic script file
@@ -30,10 +34,23 @@ as
 begin
     begin try
 
+        -- parse query to ensure no errors occur past this point        
+        exec notiflyer_spParseQuery
+            @query_select = @query_select
+            ,@query_from = @query_from
+            ,@query_parsed = @returnvalue output
+            ,@query_output = @returnmessage output ;
+
+        -- if query does not parse, return an error
+        if(@returnvalue <> 0)
+        begin
+            return;
+        end;
+
         -- generate and store metadata into global temp table ##tmpNotiflyer_tbMetaDataColumns
         exec notiflyer_spGetMetaData
-                    @query_select = 'select [CustomerCategoryID], count([CustomerID]) as [NumOfCust] '
-                    ,@query_from = 'from Sales.Customers' ;
+                    @query_select = @query_select
+                    ,@query_from = @query_from;
 
         select * from ##tmpNotiflyer_tbMetaDataColumns;
 

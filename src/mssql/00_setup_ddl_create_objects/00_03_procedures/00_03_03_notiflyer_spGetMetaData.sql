@@ -94,12 +94,26 @@ begin
             tds_collation_sort_id tinyint null
         );
 
-        -- insert results of query metadata columns into new temp table
-        insert ##tmpNotiflyer_tbMetaDataColumns
-        exec sp_describe_first_result_set 
-                @tsql = @query, 
-                @params = null, 
-                @browse_information_mode = 0;
+        begin try
+            -- insert results of query metadata columns into new temp table
+            insert ##tmpNotiflyer_tbMetaDataColumns
+            exec sp_describe_first_result_set 
+                    @tsql = @query, 
+                    @params = null, 
+                    @browse_information_mode = 0;
+        end try
+        begin catch
+            -- mark metadata scrape process as error
+            select
+                @returnvalue = 1
+                ,@returnmessage = 'error occured: ['
+                                +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                                +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                                +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                                +  ' ]'
+
+        end catch
+
 
         -- return metadata columns
         select
@@ -120,7 +134,7 @@ begin
 
     begin catch
         -- mark metadata scrape process as error
-         select
+        select
             @returnvalue = 1
             ,@returnmessage = 'error occured: ['
                             +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
