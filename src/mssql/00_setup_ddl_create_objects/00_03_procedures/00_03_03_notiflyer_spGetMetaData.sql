@@ -4,6 +4,7 @@ if object_id('notiflyer_spGetMetaData') is not null
     return;
 go
 
+-- drop procedure notiflyer_spGetMetaData 
 create procedure notiflyer_spGetMetaData
 /*
     @author     cleancoda
@@ -23,6 +24,7 @@ create procedure notiflyer_spGetMetaData
     ,@query_from as nvarchar(max) = ''
     ,@query_where as nvarchar(max) = ''
     ,@query_groupby as nvarchar(max) = ''
+    ,@query_orderby as nvarchar(max) = ''
     ,@column_legend nvarchar(max) = ''
     ,@column_x nvarchar(max) = ''
     ,@column_y nvarchar(max) = ''
@@ -44,7 +46,7 @@ begin
 
         -- build local query
         select
-            @query = @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_groupby;
+            @query = @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_groupby + ' ' + @query_orderby;
 
         -- clear tempdb
         if object_id('tempdb..##tmpNotiflyer_tbMetaDataColumns') is not null 
@@ -115,16 +117,16 @@ begin
         end catch
 
 
-        -- return metadata columns
-        select
-            column_ordinal as id
-            ,name
-            ,system_type_name as data_type
-            ,max_length
-            ,precision
-            ,scale
-        from
-            ##tmpNotiflyer_tbMetaDataColumns;
+        -- return metadata columns in temp table form
+        -- select
+        --     column_ordinal as id
+        --     ,name
+        --     ,system_type_name as data_type
+        --     ,max_length
+        --     ,precision
+        --     ,scale
+        -- from
+        --     ##tmpNotiflyer_tbMetaDataColumns;
 
         select
             @returnvalue = 0

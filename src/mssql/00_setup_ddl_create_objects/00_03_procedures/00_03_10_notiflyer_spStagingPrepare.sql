@@ -4,6 +4,7 @@ if object_id('notiflyer_spStagingPrepare') is not null
     return;
 go
 
+-- drop procedure notiflyer_spStagingPrepare
 create procedure notiflyer_spStagingPrepare
 /*
     @author     cleancoda
@@ -15,16 +16,35 @@ create procedure notiflyer_spStagingPrepare
                     ,@returnmessage as nvarchar(255) = '';
 
                 exec notiflyer_spStagingPrepare
-                    @query_select = 'select *'
-                    ,@query_from = 'from Sales.Customers'
-                    ,@query_where = ''
-                    ,@query_groupby = ''
+                    @query_select = 'SELECT A.CustomerId, C.CustomerName,  COUNT( DISTINCT A.OrderId) TotalNBOrders, COUNT( DISTINCT A.InvoiceId) TotalNBInvoices,
+                                        SUM(A.UnitPrice*A.Quantity)AS OrdersTotalValue,  SUM(A.UnitPriceI * A.QuantityI) AS InvoicesTotalValue,
+                                        ABS(SUM(A.UnitPrice * A.Quantity) -  SUM(A.UnitPriceI*A.QuantityI)) AS AbsoluteValueDifference'
+                    ,@query_from = 'FROM 
+                                    (
+                                        SELECT O.CustomerID, O.OrderId, NULL AS InvoiceID, OL.UnitPrice, OL.Quantity, 0 AS UnitPriceI, 0 AS QuantityI, OL.OrderLineID, NULL AS InvoiceLineID 
+                                        FROM Sales.Orders As O, Sales.OrderLines AS OL
+                                        WHERE O.OrderId = OL.OrderID AND EXISTS
+                                        (	SELECT II.OrderId
+                                            FROM Sales.Invoices AS II
+                                            WHERE II.OrderID = O.OrderID
+                                        )
+                                        UNION
+                                        SELECT I.CustomerID, NULL AS OrderId, I.InvoiceID, 0 AS UnitPriceO, 0 AS QuantityO, IL.UnitPrice, IL.Quantity, NULL AS OrderLineID, InvoiceLineID
+                                        FROM Sales.Invoices AS I, Sales.InvoiceLines AS IL
+                                        WHERE I.InvoiceID = IL.InvoiceID
+                                    ) AS A, Sales.Customers As C'
+                    ,@query_where = 'WHERE A.CustomerID = C.CustomerID'
+                    ,@query_groupby = 'GROUP BY A.CustomerID, C.CustomerName'
+                    --,@query_orderby = 'ORDER BY AbsoluteValueDifference DESC, TotalNBOrders, CustomerName'
+                    ,@column_axes_x = 'AbsoluteValueDifference'
+                    ,@column_axes_y = 'TotalNBOrders'
                     ,@returnvalue = @returnvalue output
-                    ,@returnmessage = @returnmessage output;
+                    ,@returnmessage = @returnmessage output;                    
 
                 select  
                     @returnvalue
                     ,@returnmessage;
+                
     @log
                 cc  11212023 - generated basic script file
 */
@@ -33,6 +53,7 @@ create procedure notiflyer_spStagingPrepare
     ,@query_from as nvarchar(max) = ''
     ,@query_where as nvarchar(max) = ''
     ,@query_groupby as nvarchar(max) = ''
+    ,@query_orderby as nvarchar(max) = ''
     ,@column_axes_x as nvarchar(max) = ''
     ,@column_axes_y as nvarchar(max) = ''
     ,@returnvalue as int = 0 output
@@ -51,8 +72,11 @@ begin
         exec notiflyer_spParseQuery
             @query_select = @query_select
             ,@query_from = @query_from
+            ,@query_where = @query_where
+            ,@query_groupby = @query_groupby
+            ,@query_orderby = @query_orderby
             ,@query_parsed = @returnvalue output
-            ,@query_output = @returnmessage output ;
+            ,@query_output = @returnmessage output;
 
         -- if query does not parse, return an error
         if(@returnvalue <> 0)
@@ -62,22 +86,51 @@ begin
 
         -- generate and store metadata into global temp table ##tmpNotiflyer_tbMetaDataColumns
         exec notiflyer_spGetMetaData
-                    @query_select = @query_select
-                    ,@query_from = @query_from;
+            @query_select = @query_select
+            ,@query_from = @query_from
+            ,@query_where = @query_where
+            ,@query_groupby = @query_groupby
+            ,@query_orderby = @query_orderby
+            ,@returnvalue = @returnvalue output
+            ,@returnmessage = @returnmessage output ;
 
-        select * from ##tmpNotiflyer_tbMetaDataColumns;
+        -- results stored in ##tmpNotiflyer_tbMetaDataColumns
+        -- select * from ##tmpNotiflyer_tbMetaDataColumns;                    
 
-        declare @queryexecuted as int = 0,  @queryoutput nvarchar(max) = '';
+        -- capture data types for cartesian axes columns
+        -- x axes
+        select
+            @column_axes_x_datatype = system_type_name
+        from
+            ##tmpNotiflyer_tbMetaDataColumns
+        where
+            name = @column_axes_x;
 
+        -- y axes
+        select
+            @column_axes_y_datatype = system_type_name
+        from
+            ##tmpNotiflyer_tbMetaDataColumns
+        where
+            name = @column_axes_y;
+
+        select  
+            @column_axes_x_datatype, @column_axes_y_datatype
+
+        -- execute query and store results into global temp table ##tmpNotiflyer_tbQueryResults
         exec notiflyer_spExecuteQuery
-            @query_select = 'select *'
-            ,@query_from = 'from Sales.Customers'
-            ,@display_results = 0
-            ,@query_executed = @queryexecuted output
-            ,@query_output = @queryoutput output ;
+            @query_select = @query_select
+            ,@query_from = @query_from
+            ,@query_where = @query_where
+            ,@query_groupby = @query_groupby
+            ,@query_orderby = @query_orderby
+            ,@display_query = 1
+            ,@query_executed = @returnvalue output
+            ,@query_output = @returnmessage output ;
 
-        select @queryexecuted, @queryoutput;
+        select @returnvalue, @returnmessage;
 
+        -- results stored in ##tmpNotiflyer_tbQueryResults;
         -- select * from ##tmpNotiflyer_tbQueryResults;
 
         -- mark parse results as success
