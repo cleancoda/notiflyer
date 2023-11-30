@@ -60,66 +60,71 @@ create procedure notiflyer_spExecuteQuery
 as
 begin
     begin try
-    -- if no query passed end routine
-    if(@query_select = '' or @query_from = '')
-        begin
-            return;
-        end
-    
-     -- variables
-    declare
-        @query_prefix as nvarchar(max)
-        ,@query as nvarchar(max)
-        ,@query_suffix as nvarchar(max);
-
-    -- clear tempdb
-    if object_id('tempdb..##tmpNotiflyer_tbQueryResults') is not null 
-    drop table ##tmpNotiflyer_tbQueryResults;
-
-    -- drop if temp physical table 
-    if object_id('notiflyer_tmpQueryResults') is not null
-        drop table notiflyer_tmpQueryResults;
-
-    -- prepare backup statement
-    select  
-        @query_prefix = 'select * into ##tmpNotiflyer_tbQueryResults from ( '
-        ,@query_suffix = ' ) a';
-
-    -- append order by to final select using alias
-    select
-        @query_suffix += @query_orderby;
-
-    -- prepare query to store results in new physical table    
-    -- build local query
-    select
-        @query = @query_prefix + @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_groupby + ' ' + @query_orderby + @query_suffix;
-
-    -- print/return query statement if bit flag = 1
-    if(@display_query = 1)
-        select @query;
-
-    -- handle exceptions for sp_executesql
-    begin try
-        -- execute query
-        exec sp_executesql
-            @query
-            ,@queryoutput = @query_output output;
+        -- if no query passed end routine
+        if(@query_select = '' or @query_from = '')
+            begin
+                return;
+            end
         
-        -- mark parse results as success
-        select 
-            @query_executed = 0
-            ,@query_output = 'query successfully executed and stored to table ##tmpNotiflyer_tbQueryResults.';
-    end try
-    begin catch
+        -- variables
+        declare
+            @query_prefix as nvarchar(max)
+            ,@query as nvarchar(max)
+            ,@query_suffix as nvarchar(max);
+
+        -- clear tempdb
+        if object_id('tempdb..##tmpNotiflyer_tbTempQueryResults') is not null 
+        drop table ##tmpNotiflyer_tbTempQueryResults;
+
+        if object_id('tempdb..##tmpNotiflyer_tbQueryResults') is not null 
+        drop table ##tmpNotiflyer_tbQueryResults;
+
+        -- prepare backup statement
+        select  
+            @query_prefix = 'select * into ##tmpNotiflyer_tbTempQueryResults from ( '
+            ,@query_suffix = ' ) a';
+
+        -- append order by to final select using alias
         select
-            -- mark parse results as error
-            @query_executed = 1
-            ,@query_output = 'error occured: ['
-                            +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
-                            +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
-                            +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
-                            +  ' ]'
-    end catch    
+            @query_suffix += @query_orderby;
+
+        -- prepare query to store results in new physical table    
+        -- build local query
+        select
+            @query = @query_prefix + @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_groupby + ' ' + @query_orderby + @query_suffix;
+
+        -- print/return query statement if bit flag = 1
+        if(@display_query = 1)
+            select @query;
+
+        -- handle exceptions for sp_executesql
+        begin try
+            -- execute query
+            exec sp_executesql
+                @query
+                ,@queryoutput = @query_output output;
+
+            -- since batch execute will not carry over to calling stored procedure
+            -- scope is lost past the dynamic execute and needs to be recopied into a new 
+            -- global scope table
+            select * into ##tmpNotiflyer_tbQueryResults from ##tmpNotiflyer_tbTempQueryResults;
+            
+            -- mark parse results as success
+            select 
+                @query_executed = 0
+                ,@query_output = 'query successfully executed and stored to table ##tmpNotiflyer_tbQueryResults.';
+            
+        end try
+        begin catch
+            select
+                -- mark parse results as error
+                @query_executed = 1
+                ,@query_output = 'error occured: ['
+                                +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                                +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                                +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                                +  ' ]'
+        end catch
     end try
     begin catch
          -- mark parse results as error
@@ -131,4 +136,7 @@ begin
                             +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
                             +  ' ]'
     end catch
+
+    select * from ##tmpNotiflyer_tbQueryResults;
+    return;
 end

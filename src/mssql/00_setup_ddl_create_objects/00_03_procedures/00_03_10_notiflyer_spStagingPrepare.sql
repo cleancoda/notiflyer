@@ -35,7 +35,7 @@ create procedure notiflyer_spStagingPrepare
                                     ) AS A, Sales.Customers As C'
                     ,@query_where = 'WHERE A.CustomerID = C.CustomerID'
                     ,@query_groupby = 'GROUP BY A.CustomerID, C.CustomerName'
-                    --,@query_orderby = 'ORDER BY AbsoluteValueDifference DESC, TotalNBOrders, CustomerName'
+                    ,@query_orderby = 'ORDER BY AbsoluteValueDifference DESC, TotalNBOrders, CustomerName'
                     ,@column_axes_x = 'AbsoluteValueDifference'
                     ,@column_axes_y = 'TotalNBOrders'
                     ,@returnvalue = @returnvalue output
@@ -92,10 +92,10 @@ begin
             ,@query_groupby = @query_groupby
             ,@query_orderby = @query_orderby
             ,@returnvalue = @returnvalue output
-            ,@returnmessage = @returnmessage output ;
+            ,@returnmessage = @returnmessage output;
 
         -- results stored in ##tmpNotiflyer_tbMetaDataColumns
-        -- select * from ##tmpNotiflyer_tbMetaDataColumns;                    
+        select * from ##tmpNotiflyer_tbMetaDataColumns;                    
 
         -- capture data types for cartesian axes columns
         -- x axes
@@ -114,9 +114,6 @@ begin
         where
             name = @column_axes_y;
 
-        select  
-            @column_axes_x_datatype, @column_axes_y_datatype
-
         -- execute query and store results into global temp table ##tmpNotiflyer_tbQueryResults
         exec notiflyer_spExecuteQuery
             @query_select = @query_select
@@ -124,14 +121,15 @@ begin
             ,@query_where = @query_where
             ,@query_groupby = @query_groupby
             ,@query_orderby = @query_orderby
-            ,@display_query = 1
             ,@query_executed = @returnvalue output
-            ,@query_output = @returnmessage output ;
+            ,@query_output = @returnmessage output;
 
-        select @returnvalue, @returnmessage;
-
-        -- results stored in ##tmpNotiflyer_tbQueryResults;
-        -- select * from ##tmpNotiflyer_tbQueryResults;
+        -- allow execution for large queries to complete
+        -- if this trick doesn't work, create a physical table with unique name
+        -- and return name of table as variable to this staging routine
+        begin
+            waitfor delay '00:00:15';
+        end
 
         -- mark parse results as success
         select 
@@ -149,4 +147,6 @@ begin
                             +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
                             +  ' ]'
     end catch 
+
+    select * from ##tmpNotiflyer_tbQueryResults;
 end
