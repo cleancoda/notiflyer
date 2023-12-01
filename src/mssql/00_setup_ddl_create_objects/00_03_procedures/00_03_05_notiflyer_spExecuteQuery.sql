@@ -19,9 +19,10 @@ create procedure notiflyer_spExecuteQuery
                 declare @queryexecuted as int = 0,  @queryoutput nvarchar(max) = '';
 
                 exec notiflyer_spExecuteQuery
-                    @query_select = 'SELECT A.CustomerId, C.CustomerName,  COUNT( DISTINCT A.OrderId) TotalNBOrders, COUNT( DISTINCT A.InvoiceId) TotalNBInvoices,
-                                        SUM(A.UnitPrice*A.Quantity)AS OrdersTotalValue,  SUM(A.UnitPriceI * A.QuantityI) AS InvoicesTotalValue,
-                                        ABS(SUM(A.UnitPrice * A.Quantity) -  SUM(A.UnitPriceI*A.QuantityI)) AS AbsoluteValueDifference'
+                    @query_select = 'SELECT
+                                            C.CustomerName
+                                            ,COUNT( DISTINCT A.OrderId) TotalNBOrders' 
+                                            
                     ,@query_from = 'FROM 
                                     (
                                         SELECT O.CustomerID, O.OrderId, NULL AS InvoiceID, OL.UnitPrice, OL.Quantity, 0 AS UnitPriceI, 0 AS QuantityI, OL.OrderLineID, NULL AS InvoiceLineID 
@@ -37,9 +38,9 @@ create procedure notiflyer_spExecuteQuery
                                         WHERE I.InvoiceID = IL.InvoiceID
                                     ) AS A, Sales.Customers As C'
                     ,@query_where = 'WHERE A.CustomerID = C.CustomerID'
-                    ,@query_groupby = 'GROUP BY A.CustomerID, C.CustomerName'
+                    ,@query_groupby = 'GROUP BY C.CustomerName'
+                    ,@query_orderby = 'ORDER BY TotalNBOrders DESC, CustomerName'
                     ,@display_query = 1
-                    ,@output_table = 'notiflyer_tbOutputTable_12012023104303'
                     ,@query_executed = @queryexecuted output
                     ,@query_output = @queryoutput output ;
 
@@ -55,11 +56,11 @@ create procedure notiflyer_spExecuteQuery
     ,@query_groupby as nvarchar(max) = ''
     ,@query_orderby as nvarchar(max) = ''
     ,@display_query as int = 0
-    ,@output_table as nvarchar(max) = '' output
     ,@query_executed as int = 0 output
     ,@query_output as nvarchar(255) = '' output
 ) 
-with execute as owner as
+-- with execute as owner as
+as
 begin
     begin try
         -- if no query passed end routine
@@ -74,26 +75,16 @@ begin
             ,@query as nvarchar(max)
             ,@query_suffix as nvarchar(max)
             ,@sqlcmd as nvarchar(max);
-
-        -- delete output table if exists
-        if object_id(@output_table) is not null
-        begin
-            select
-                @sqlcmd = 'drop table ' + @output_table;
-            begin try
-                exec(@sqlcmd);
-            end try
-            begin catch
-                select
-                    @query_executed = 1
-                    ,@query_output = 'error occurred while dropping table: ' + @output_table;
-            end catch
-        end
         
+        -- clear tempdb
+        if object_id('tempdb..##tmpNotiflyer_tbQueryExecuteResults') is not null 
+        drop table ##tmpNotiflyer_tbQueryExecuteResults;
+
         -- prepare backup statement
         select  
-            @query_prefix = 'select * into ' + @output_table + ' from ( '
-            ,@query_suffix = ' ) a';
+            --@query_prefix = 'select * into ' + @output_table + ' from ( '
+            @query_prefix = 'select * into ##tmpNotiflyer_tbQueryExecuteResults from ( '
+            ,@query_suffix = ' ) a ';
 
         -- append order by to final select using alias
         select
@@ -108,18 +99,17 @@ begin
         if(@display_query = 1)
             select @query;
 
-        -- handle exceptions for sp_executesql
+        -- handle exceptions for exec
         begin try
-            -- execute query
-            exec sp_executesql
-                @query
-                ,@queryoutput = @query_output output;
-
-            select @sqlcmd = 'select * from ' + @output_table;
-            exec sp_executesql
-                @sqlcmd
-                ,@queryoutput = @query_output output;
+            -- wasted quite a while on this challenge - 
+            -- sp_executesql (creates own batch) vs. exec (same session)
+            -- scope for global temp tables
+            exec(@query);
             
+            -- mark parse results as success
+            select 
+                @query_executed = 0
+                ,@query_output = 'query successfully executed and stored to table ##tmpNotiflyer_tbQueryExecuteResults';
         end try
         begin catch
             select
@@ -142,9 +132,4 @@ begin
                             +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
                             +  ' ]'
     end catch
-
-    -- mark parse results as success
-    select 
-        @query_executed = 0
-        ,@query_output = 'query successfully executed and stored to table ' + @output_table;
 end

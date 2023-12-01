@@ -16,9 +16,10 @@ create procedure notiflyer_spStagingPrepare
                     ,@returnmessage as nvarchar(255) = '';
 
                 exec notiflyer_spStagingPrepare
-                    @query_select = 'SELECT A.CustomerId, C.CustomerName,  COUNT( DISTINCT A.OrderId) TotalNBOrders, COUNT( DISTINCT A.InvoiceId) TotalNBInvoices,
-                                        SUM(A.UnitPrice*A.Quantity)AS OrdersTotalValue,  SUM(A.UnitPriceI * A.QuantityI) AS InvoicesTotalValue,
-                                        ABS(SUM(A.UnitPrice * A.Quantity) -  SUM(A.UnitPriceI*A.QuantityI)) AS AbsoluteValueDifference'
+                    @query_select = 'SELECT
+                                            C.CustomerName
+                                            ,COUNT( DISTINCT A.OrderId) TotalNBOrders' 
+                                            
                     ,@query_from = 'FROM 
                                     (
                                         SELECT O.CustomerID, O.OrderId, NULL AS InvoiceID, OL.UnitPrice, OL.Quantity, 0 AS UnitPriceI, 0 AS QuantityI, OL.OrderLineID, NULL AS InvoiceLineID 
@@ -34,9 +35,9 @@ create procedure notiflyer_spStagingPrepare
                                         WHERE I.InvoiceID = IL.InvoiceID
                                     ) AS A, Sales.Customers As C'
                     ,@query_where = 'WHERE A.CustomerID = C.CustomerID'
-                    ,@query_groupby = 'GROUP BY A.CustomerID, C.CustomerName'
-                    ,@query_orderby = 'ORDER BY AbsoluteValueDifference DESC, TotalNBOrders, CustomerName'
-                    ,@column_axes_x = 'AbsoluteValueDifference'
+                    ,@query_groupby = 'GROUP BY C.CustomerName'
+                    ,@query_orderby = 'ORDER BY TotalNBOrders DESC, CustomerName'
+                    ,@column_axes_x = 'CustomerName'
                     ,@column_axes_y = 'TotalNBOrders'
                     ,@returnvalue = @returnvalue output
                     ,@returnmessage = @returnmessage output;                    
@@ -67,7 +68,6 @@ begin
         declare 
             @column_axes_x_datatype as nvarchar(max)
             ,@column_axes_y_datatype as nvarchar(max)
-            ,@output_table as nvarchar(max) -- output of executing query stored in new temp table
             ,@sqlcmd as nvarchar(max); -- temporary commands
 
         -- parse query to ensure no errors occur past this point      
@@ -97,7 +97,7 @@ begin
             ,@returnmessage = @returnmessage output;
 
         -- results stored in ##tmpNotiflyer_tbMetaDataColumns
-        select * from ##tmpNotiflyer_tbMetaDataColumns;                    
+        -- select * from ##tmpNotiflyer_tbMetaDataColumns;                    
 
         -- capture data types for cartesian axes columns
         -- x axes
@@ -116,27 +116,17 @@ begin
         where
             name = @column_axes_y;
 
-        -- generate output table name for current instance
-        select
-            @output_table = concat('notiflyer_tbOutputTable_',format(getdate(),'MMddyyyyhhmmss'));
-
-        -- execute query and store results into global temp table ##tmpNotiflyer_tbQueryResults
+        -- execute query and store results into global temp table ##tmpNotiflyer_tbQueryExecuteResults
         exec notiflyer_spExecuteQuery
             @query_select = @query_select
             ,@query_from = @query_from
             ,@query_where = @query_where
             ,@query_groupby = @query_groupby
             ,@query_orderby = @query_orderby
-            ,@output_table = @output_table output
             ,@query_executed = @returnvalue output
             ,@query_output = @returnmessage output;
 
-        -- select
-        --     @sqlcmd = 'select * from ' + @output_table;
-
-        -- exec(@sqlcmd);      
-
-        select @output_table;  
+        select * from ##tmpNotiflyer_tbQueryExecuteResults;
 
         -- mark parse results as success
         select 
