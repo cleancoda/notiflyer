@@ -66,7 +66,9 @@ begin
         -- global variables
         declare 
             @column_axes_x_datatype as nvarchar(max)
-            ,@column_axes_y_datatype as nvarchar(max);
+            ,@column_axes_y_datatype as nvarchar(max)
+            ,@output_table as nvarchar(max) -- output of executing query stored in new temp table
+            ,@sqlcmd as nvarchar(max); -- temporary commands
 
         -- parse query to ensure no errors occur past this point      
         exec notiflyer_spParseQuery
@@ -114,6 +116,10 @@ begin
         where
             name = @column_axes_y;
 
+        -- generate output table name for current instance
+        select
+            @output_table = concat('notiflyer_tbOutputTable_',format(getdate(),'MMddyyyyhhmmss'));
+
         -- execute query and store results into global temp table ##tmpNotiflyer_tbQueryResults
         exec notiflyer_spExecuteQuery
             @query_select = @query_select
@@ -121,15 +127,16 @@ begin
             ,@query_where = @query_where
             ,@query_groupby = @query_groupby
             ,@query_orderby = @query_orderby
+            ,@output_table = @output_table output
             ,@query_executed = @returnvalue output
             ,@query_output = @returnmessage output;
 
-        -- allow execution for large queries to complete
-        -- if this trick doesn't work, create a physical table with unique name
-        -- and return name of table as variable to this staging routine
-        begin
-            waitfor delay '00:00:15';
-        end
+        -- select
+        --     @sqlcmd = 'select * from ' + @output_table;
+
+        -- exec(@sqlcmd);      
+
+        select @output_table;  
 
         -- mark parse results as success
         select 
@@ -147,6 +154,4 @@ begin
                             +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
                             +  ' ]'
     end catch 
-
-    select * from ##tmpNotiflyer_tbQueryResults;
 end

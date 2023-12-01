@@ -38,12 +38,13 @@ create procedure notiflyer_spExecuteQuery
                                     ) AS A, Sales.Customers As C'
                     ,@query_where = 'WHERE A.CustomerID = C.CustomerID'
                     ,@query_groupby = 'GROUP BY A.CustomerID, C.CustomerName'
+                    ,@display_query = 1
+                    ,@output_table = 'notiflyer_tbOutputTable_12012023104303'
                     ,@query_executed = @queryexecuted output
                     ,@query_output = @queryoutput output ;
 
                 select @queryexecuted, @queryoutput;
 
-                select * from ##tmpNotiflyer_tbQueryResults;
     @log
                 cc  11202023 - generated basic script file
 */
@@ -54,10 +55,11 @@ create procedure notiflyer_spExecuteQuery
     ,@query_groupby as nvarchar(max) = ''
     ,@query_orderby as nvarchar(max) = ''
     ,@display_query as int = 0
+    ,@output_table as nvarchar(max) = '' output
     ,@query_executed as int = 0 output
     ,@query_output as nvarchar(255) = '' output
 ) 
-as
+with execute as owner as
 begin
     begin try
         -- if no query passed end routine
@@ -70,18 +72,27 @@ begin
         declare
             @query_prefix as nvarchar(max)
             ,@query as nvarchar(max)
-            ,@query_suffix as nvarchar(max);
+            ,@query_suffix as nvarchar(max)
+            ,@sqlcmd as nvarchar(max);
 
-        -- clear tempdb
-        if object_id('tempdb..##tmpNotiflyer_tbTempQueryResults') is not null 
-        drop table ##tmpNotiflyer_tbTempQueryResults;
-
-        if object_id('tempdb..##tmpNotiflyer_tbQueryResults') is not null 
-        drop table ##tmpNotiflyer_tbQueryResults;
-
+        -- delete output table if exists
+        if object_id(@output_table) is not null
+        begin
+            select
+                @sqlcmd = 'drop table ' + @output_table;
+            begin try
+                exec(@sqlcmd);
+            end try
+            begin catch
+                select
+                    @query_executed = 1
+                    ,@query_output = 'error occurred while dropping table: ' + @output_table;
+            end catch
+        end
+        
         -- prepare backup statement
         select  
-            @query_prefix = 'select * into ##tmpNotiflyer_tbTempQueryResults from ( '
+            @query_prefix = 'select * into ' + @output_table + ' from ( '
             ,@query_suffix = ' ) a';
 
         -- append order by to final select using alias
@@ -91,7 +102,7 @@ begin
         -- prepare query to store results in new physical table    
         -- build local query
         select
-            @query = @query_prefix + @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_groupby + ' ' + @query_orderby + @query_suffix;
+            @query = @query_prefix + @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_groupby + @query_suffix;
 
         -- print/return query statement if bit flag = 1
         if(@display_query = 1)
@@ -104,15 +115,10 @@ begin
                 @query
                 ,@queryoutput = @query_output output;
 
-            -- since batch execute will not carry over to calling stored procedure
-            -- scope is lost past the dynamic execute and needs to be recopied into a new 
-            -- global scope table
-            select * into ##tmpNotiflyer_tbQueryResults from ##tmpNotiflyer_tbTempQueryResults;
-            
-            -- mark parse results as success
-            select 
-                @query_executed = 0
-                ,@query_output = 'query successfully executed and stored to table ##tmpNotiflyer_tbQueryResults.';
+            select @sqlcmd = 'select * from ' + @output_table;
+            exec sp_executesql
+                @sqlcmd
+                ,@queryoutput = @query_output output;
             
         end try
         begin catch
@@ -137,6 +143,8 @@ begin
                             +  ' ]'
     end catch
 
-    select * from ##tmpNotiflyer_tbQueryResults;
-    return;
+    -- mark parse results as success
+    select 
+        @query_executed = 0
+        ,@query_output = 'query successfully executed and stored to table ' + @output_table;
 end
