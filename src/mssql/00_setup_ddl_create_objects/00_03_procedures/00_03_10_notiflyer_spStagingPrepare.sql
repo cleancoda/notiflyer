@@ -126,7 +126,18 @@ begin
             ,@query_executed = @returnvalue output
             ,@query_output = @returnmessage output;
 
-        select * from ##tmpNotiflyer_tbQueryExecuteResults;
+        -- build convert command for results
+        select  
+            @sqlcmd = 
+                        'select '
+                        + 'try_cast(' + @column_axes_x + ' as nvarchar(max)) as [' + @column_axes_x + ']'
+                        + ', '
+                        + 'try_cast(' + @column_axes_y + ' as nvarchar(max)) as [' + @column_axes_y + ']'
+                        + 'from '
+                        + '##tmpNotiflyer_tbQueryExecuteResults';
+
+        -- execute
+        exec(@sqlcmd);
 
         -- mark parse results as success
         select 
