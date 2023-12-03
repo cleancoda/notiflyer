@@ -166,14 +166,17 @@ begin
         -- execute create statement
         exec(@sqlcmd);
 
-        -- prep insert select statement for copying data plot points from ##tmpNotiflyer_tbQueryExecuteResults into ##tmpnotiflyer_tbChartData
-		select @sqlcmd = 'select ' + @column_axes_x + ' ,' + case when isnull(@column_axes_y,'') <> '' then + @column_axes_y else '''''' end +  ' from ##tmpNotiflyer_tbQueryExecuteResults a ';
+        -- prep insert select statement for copying data plot points from ##tmpNotiflyer_tbQueryExecuteResults into ##tmpnotiflyer_tbChartData -- order by query
+		select @sqlcmd = 'select ' + @column_axes_x + ' ,' + case when isnull(@column_axes_y,'') <> '' then + @column_axes_y else '''''' end +  ' from ##tmpNotiflyer_tbQueryExecuteResults ' + @query_orderby;
 
         print 'insert: ' + @sqlcmd;
 
 		-- insert data for X/Y values into new temp table
 		insert into ##tmpnotiflyer_tbChartData
 		exec(@sqlcmd);
+
+        select * from ##tmpnotiflyer_tbChartData
+
         -- 
         /*
             append ' on string values for axes labels
