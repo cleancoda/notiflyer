@@ -64,6 +64,16 @@ as
 begin
     begin try
 
+        -- clear up temp tables
+        if object_id('tempdb..##tmpNotiflyer_tbMetaDataColumns') is not null 
+            drop table ##tmpNotiflyer_tbMetaDataColumns
+
+        if object_id('tempdb..##tmpNotiflyer_tbMetaDataColumns') is not null 
+            drop table ##tmpNotiflyer_tbMetaDataColumns
+
+        if object_id('tempdb..##tmpnotiflyer_tbChartData') is not null 
+            drop table ##tmpnotiflyer_tbChartData
+
         -- global variables
         declare 
             @column_axes_x_datatype as nvarchar(max)
@@ -130,14 +140,45 @@ begin
         select  
             @sqlcmd = 
                         'select '
-                        + 'try_cast(' + @column_axes_x + ' as nvarchar(max)) as [' + @column_axes_x + ']'
+                        + case 
+                            when @column_axes_x_datatype like '%varchar%' then
+                                '''' + @column_axes_x + ''''
+                            else
+                                @column_axes_x
+                        end + 'as [' + @column_axes_x + ']'
                         + ', '
-                        + 'try_cast(' + @column_axes_y + ' as nvarchar(max)) as [' + @column_axes_y + ']'
+                        + case 
+                            when @column_axes_y_datatype like '%varchar%' then
+                                '''' + @column_axes_y + ''''
+                            else
+                                @column_axes_y
+                        end + 'as [' + @column_axes_y + ']'
                         + 'from '
                         + '##tmpNotiflyer_tbQueryExecuteResults';
 
-        -- execute
+
+        -- prep create table statement for chart data
+		select
+			@sqlcmd = 'create table ##tmpnotiflyer_tbChartData ( datacolumn_x ' + @column_axes_x_datatype + ' , datacolumn_Y ' + case when isnull(@column_axes_y_datatype,'') <> '' then  + @column_axes_y_datatype else 'varchar(10)' end  + ' );';
+
+        print 'create: ' + @sqlcmd;
+
+        -- execute create statement
         exec(@sqlcmd);
+
+        -- prep insert select statement for copying data plot points from ##tmpNotiflyer_tbQueryExecuteResults into ##tmpnotiflyer_tbChartData
+		select @sqlcmd = 'select ' + @column_axes_x + ' ,' + case when isnull(@column_axes_y,'') <> '' then + @column_axes_y else '''''' end +  ' from ##tmpNotiflyer_tbQueryExecuteResults a ';
+
+        print 'insert: ' + @sqlcmd;
+
+		-- insert data for X/Y values into new temp table
+		insert into ##tmpnotiflyer_tbChartData
+		exec(@sqlcmd);
+        -- 
+        /*
+            append ' on string values for axes labels
+            + case when @column_axes_x_datatype like '%varchar%' then '''' else '' end
+        */
 
         -- mark parse results as success
         select 
