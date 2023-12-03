@@ -1,11 +1,11 @@
-if object_id('notiflyer_spStagingPrepare') is not null
-    print 'notiflyer_spStagingPrepare stored procedure exists, skipping create attempt..'
+if object_id('notiflyer_spPrepareChartData') is not null
+    print 'notiflyer_spPrepareChartData stored procedure exists, skipping create attempt..'
     print 'ignore error below, cannot create exception handling on ddl statements'
     return;
 go
 
--- drop procedure notiflyer_spStagingPrepare
-create procedure notiflyer_spStagingPrepare
+-- drop procedure notiflyer_spPrepareChartData
+create procedure notiflyer_spPrepareChartData
 /*
     @author     cleancoda
     @date       11212023
@@ -15,7 +15,7 @@ create procedure notiflyer_spStagingPrepare
                     @returnvalue as int = 0
                     ,@returnmessage as nvarchar(255) = '';
 
-                exec notiflyer_spStagingPrepare
+                exec notiflyer_spPrepareChartData
                     @query_select = 'SELECT
                                             C.CustomerName
                                             ,COUNT( DISTINCT A.OrderId) TotalNBOrders' 
@@ -78,6 +78,7 @@ begin
         declare 
             @column_axes_x_datatype as nvarchar(max)
             ,@column_axes_y_datatype as nvarchar(max)
+            ,@sqlvar as nvarchar(max) -- temporary variable
             ,@sqlcmd as nvarchar(max); -- temporary commands
 
         -- parse query to ensure no errors occur past this point      
@@ -175,13 +176,25 @@ begin
 		insert into ##tmpnotiflyer_tbChartData
 		exec(@sqlcmd);
 
-        select * from ##tmpnotiflyer_tbChartData
+        -- append ' on string values for axes labels
+        -- x axes
+        select
+            @sqlvar = case when @column_axes_x_datatype like '%char%' then '''' else '' end;
 
-        -- 
-        /*
-            append ' on string values for axes labels
-            + case when @column_axes_x_datatype like '%varchar%' then '''' else '' end
-        */
+        update ##tmpnotiflyer_tbChartData
+        set
+            datacolumn_x = @sqlvar + datacolumn_x + @sqlvar;
+
+        -- append ' on string values for axes labels
+        -- y axes
+        select
+            @sqlvar = case when @column_axes_y_datatype like '%char%' then '''' else '' end;
+
+        update ##tmpnotiflyer_tbChartData
+        set
+            datacolumn_y = @sqlvar + datacolumn_y + @sqlvar;
+
+        select * from ##tmpnotiflyer_tbChartData
 
         -- mark parse results as success
         select 
