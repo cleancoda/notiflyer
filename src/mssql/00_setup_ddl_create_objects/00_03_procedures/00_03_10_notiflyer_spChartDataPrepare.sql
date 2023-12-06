@@ -1,11 +1,11 @@
-if object_id('notiflyer_spPrepareChartData') is not null
-    print 'notiflyer_spPrepareChartData stored procedure exists, skipping create attempt..'
+if object_id('notiflyer_spChartDataPrepare') is not null
+    print 'notiflyer_spChartDataPrepare stored procedure exists, skipping create attempt..'
     print 'ignore error below, cannot create exception handling on ddl statements'
     return;
 go
 
--- drop procedure notiflyer_spPrepareChartData
-create procedure notiflyer_spPrepareChartData
+-- drop procedure notiflyer_spChartDataPrepare
+create procedure notiflyer_spChartDataPrepare
 /*
     @author     cleancoda
     @date       11212023
@@ -15,7 +15,7 @@ create procedure notiflyer_spPrepareChartData
                     @returnvalue as int = 0
                     ,@returnmessage as nvarchar(255) = '';
 
-                exec notiflyer_spPrepareChartData
+                exec notiflyer_spChartDataPrepare
                     @query_select = 'SELECT
                                             C.CustomerName
                                             ,COUNT( DISTINCT A.OrderId) TotalNBOrders' 
@@ -142,14 +142,14 @@ begin
             @sqlcmd = 
                         'select '
                         + case 
-                            when @column_axes_x_datatype like '%varchar%' then
+                            when @column_axes_x_datatype like '%char%' then
                                 '''' + @column_axes_x + ''''
                             else
                                 @column_axes_x
                         end + 'as [' + @column_axes_x + ']'
                         + ', '
                         + case 
-                            when @column_axes_y_datatype like '%varchar%' then
+                            when @column_axes_y_datatype like '%char%' then
                                 '''' + @column_axes_y + ''''
                             else
                                 @column_axes_y
@@ -162,15 +162,14 @@ begin
 		select
 			@sqlcmd = 'create table ##tmpnotiflyer_tbChartData ( datacolumn_x ' + @column_axes_x_datatype + ' , datacolumn_Y ' + case when isnull(@column_axes_y_datatype,'') <> '' then  + @column_axes_y_datatype else 'varchar(10)' end  + ' );';
 
-        print 'create: ' + @sqlcmd;
-
         -- execute create statement
         exec(@sqlcmd);
 
+        -- TODO:
+        -- issue #64 - https://github.com/cleancoda/notiflyer/issues/64
+        -- replace with cursor to loop through multiple series of data;
         -- prep insert select statement for copying data plot points from ##tmpNotiflyer_tbQueryExecuteResults into ##tmpnotiflyer_tbChartData -- order by query
 		select @sqlcmd = 'select ' + @column_axes_x + ' ,' + case when isnull(@column_axes_y,'') <> '' then + @column_axes_y else '''''' end +  ' from ##tmpNotiflyer_tbQueryExecuteResults ' + @query_orderby;
-
-        print 'insert: ' + @sqlcmd;
 
 		-- insert data for X/Y values into new temp table
 		insert into ##tmpnotiflyer_tbChartData
