@@ -1,23 +1,46 @@
-if object_id('notiflyer_spChartDataConvertToJSON') is not null
-    print 'notiflyer_spChartDataConvertToJSON stored procedure exists, skipping create attempt..'
+if object_id('notiflyer_spChartDataPrepJSONObjects') is not null
+    print 'notiflyer_spChartDataPrepJSONObjects stored procedure exists, skipping create attempt..'
     print 'ignore error below, cannot create exception handling on ddl statements'
     return;
 go
 
--- drop procedure notiflyer_spChartDataConvertToJSON
-create procedure notiflyer_spChartDataConvertToJSON
+-- drop procedure notiflyer_spChartDataPrepJSONObjects
+create procedure notiflyer_spChartDataPrepJSONObjects
 /*
     @author     cleancoda
     @date       12062023
     @detail     
     @sample
-                exec notiflyer_spChartDataConvertToJSON
+                declare
+                    @returnvalue as int = 0
+                    ,@returnmessage as nvarchar(255) = '';
+                
+                exec notiflyer_spChartDataPrepJSONObjects
+                    @column_axes_x_axes_data_type = 'varchar(max)'
+                    ,@column_axes_x_axes_label = ''
+                    ,@column_axes_x_data_label = ''
+                    ,@column_axes_y_axes_data_type = 'int'
+                    ,@column_axes_y_axes_label = ''
+                    ,@column_axes_y_data_label = ''
+                    ,@returnvalue = 0
+                    ,@returnmessage = ''
+
+                select  
+                    @returnvalue
+                    ,@returnmessage;
+
     @log
                 cc  12062023 - generated basic script file
 */
 (
-    @column_axes_x_axes_label as nvarchar(max) = '' output
+    -- describe x-axes
+    @column_axes_x_axes_data_type as nvarchar(max) = '' output
+    ,@column_axes_x_axes_label as nvarchar(max) = '' output
     ,@column_axes_x_data_label as nvarchar(max) = '' output
+    -- describe y-axes
+    ,@column_axes_y_axes_data_type as nvarchar(max) = '' output
+    ,@column_axes_y_axes_label as nvarchar(max) = '' output
+    ,@column_axes_y_data_label as nvarchar(max) = '' output
     ,@returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
 )
@@ -25,7 +48,39 @@ as
 begin
     begin try
 
-            
+        -- TODO:
+        -- when multiple data series support is added, convert the following alter table statement
+        -- into a loop for  generating dynamic alter table statement depending on number 
+        -- of data series columns being utilized
+
+        -- temporary mvp logic:
+        -- ensure table columns are in varchar
+        alter table tempdb..##tmpnotiflyer_tbChartData
+            alter column datacolumn_x nvarchar(max);
+
+        -- ensure table columns are in varchar
+        alter table tempdb..##tmpnotiflyer_tbChartData
+            alter column datacolumn_y nvarchar(max);
+
+        -- variables
+        declare
+            @x_axes_data_series as nvarchar(max) = ''
+            ,@y_axes_data_series as nvarchar(max) = '';
+
+        -- combine all records into single string using coalesce
+        select
+            @x_axes_data_series = coalesce (@x_axes_data_series , '')  + datacolumn_x + ','
+            ,@y_axes_data_series = coalesce (@y_axes_data_series, '') +  datacolumn_y + ','
+        from
+            ##tmpnotiflyer_tbChartData;
+
+        -- trim extra comma , at the end of string
+        select  
+            @x_axes_data_series = case when left(reverse(@x_axes_data_series),1) = ',' then left(@x_axes_data_series,len(@x_axes_data_series)-1) else @x_axes_data_series end
+            ,@y_axes_data_series = case when left(reverse(@y_axes_data_series),1) = ',' then left(@y_axes_data_series,len(@y_axes_data_series)-1) else @y_axes_data_series end;
+
+        select @x_axes_data_series, @y_axes_data_series;
+
     end try
 
     begin catch

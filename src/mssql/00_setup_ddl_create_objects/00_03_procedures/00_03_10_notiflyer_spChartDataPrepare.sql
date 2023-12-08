@@ -160,7 +160,7 @@ begin
 
         -- prep create table statement for chart data
 		select
-			@sqlcmd = 'create table ##tmpnotiflyer_tbChartData ( datacolumn_x ' + @column_axes_x_datatype + ' , datacolumn_Y ' + case when isnull(@column_axes_y_datatype,'') <> '' then  + @column_axes_y_datatype else 'varchar(10)' end  + ' );';
+			@sqlcmd = 'create table ##tmpnotiflyer_tbChartData ( datacolumn_x ' + @column_axes_x_datatype + ' , datacolumn_y ' + case when isnull(@column_axes_y_datatype,'') <> '' then  + @column_axes_y_datatype else 'varchar(10)' end  + ' );';
 
         -- execute create statement
         exec(@sqlcmd);
