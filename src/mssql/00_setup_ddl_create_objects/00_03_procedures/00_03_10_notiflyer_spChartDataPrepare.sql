@@ -193,6 +193,20 @@ begin
         set
             datacolumn_y = @sqlvar + datacolumn_y + @sqlvar;
 
+        -- TODO:
+        -- when multiple data series support is added, convert the following alter table statement
+        -- into a loop for  generating dynamic alter table statement depending on number 
+        -- of data series columns being utilized
+
+        -- temporary mvp logic:
+        -- ensure table columns are in varchar
+        alter table tempdb..##tmpnotiflyer_tbChartData
+            alter column datacolumn_x nvarchar(max);
+
+        -- ensure table columns are in varchar
+        alter table tempdb..##tmpnotiflyer_tbChartData
+            alter column datacolumn_y nvarchar(max);
+            
         select * from ##tmpnotiflyer_tbChartData
 
         -- mark parse results as success
