@@ -28,6 +28,7 @@ create procedure notiflyer_spParseQuery
     ,@query_from as nvarchar(max) = ''
     ,@query_where as nvarchar(max) = ''
     ,@query_groupby as nvarchar(max) = ''
+    ,@query_orderby as nvarchar(max) = ''
     ,@query_parsed as int = 0 output
     ,@query_output as nvarchar(max) output
 )
@@ -46,7 +47,7 @@ begin
     
      -- build local query
     select
-        @query = @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_groupby;
+        @query = @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_groupby + ' ' + @query_orderby;
 
     -- parse query and validate
     -- enable sandbox to execute query 

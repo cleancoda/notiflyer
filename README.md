@@ -112,7 +112,7 @@ imagine the limitless & potential applications of such a service; from a complex
 _----_
 
 - database vendors
-  - [microsoft sql server](https://github.com/cleancoda/notiflyer/tree/development/documentation/mssql)
+  - [microsoft sql server](https://github.com/cleancoda/notiflyer/blob/development/docs/mssql/README.md)
 
 # 🗺️ roadmap
 
