@@ -18,7 +18,7 @@ create procedure notiflyer_spChartDataPrepJSONObjects
                 exec notiflyer_spChartDataPrepJSONObjects
                     @column_axes_x_axes_data_type = 'varchar(max)'
                     ,@column_axes_x_axes_label = ''
-                    ,@column_axes_x_data_label = ''
+                    ,@column_axes_x_data_label = 'Customer'
                     ,@column_axes_y_axes_data_type = 'int'
                     ,@column_axes_y_axes_label = ''
                     ,@column_axes_y_data_label = ''
@@ -48,6 +48,11 @@ as
 begin
     begin try
 
+        -- TODO:
+        -- when multiple data series support is added, convert the following alter table statement
+        -- into a loop for  generating dynamic alter table statement depending on number 
+        -- of data series columns being utilized
+        
         -- variables
         declare
             @x_axes_data_series as nvarchar(max) = ''
@@ -65,7 +70,33 @@ begin
             @x_axes_data_series = case when left(reverse(@x_axes_data_series),1) = ',' then left(@x_axes_data_series,len(@x_axes_data_series)-1) else @x_axes_data_series end
             ,@y_axes_data_series = case when left(reverse(@y_axes_data_series),1) = ',' then left(@y_axes_data_series,len(@y_axes_data_series)-1) else @y_axes_data_series end;
 
-        select @x_axes_data_series, @y_axes_data_series;
+        -- prepare series in json
+        -- x axes data label
+        set
+            @column_axes_x_axes_label = 'labels: [' + @x_axes_data_series + ']';
+            
+        -- TODO:
+        -- when multiple data series support is added, convert the following set statement
+        -- into a loop for number of columns in the series and build the datasets query
+        -- of data series columns being utilized
+
+        -- y axes data label
+        set
+            @column_axes_y_axes_label = '{ label: ''' + @column_axes_x_data_label + ''', data: [' + @x_axes_data_series + '] },';
+
+        select
+            @column_axes_x_axes_label
+            ,@column_axes_y_axes_label;
+
+        -- TODO:
+        -- chart design/options/colors/fonts/configurations/plugins
+        -- the 'label' section of the json string will contain
+        -- config values required to customize the chart it produces
+        -- these values will be stored on the notiflyer_tbJobManager or 
+        -- a new additional table/grid will be created and linked to the job
+        -- use that table and call another stored procedure at this point to 
+        -- add those config values to the json string
+
 
     end try
 
