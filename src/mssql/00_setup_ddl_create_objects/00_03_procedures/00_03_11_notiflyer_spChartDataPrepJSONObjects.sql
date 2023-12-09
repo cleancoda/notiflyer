@@ -17,11 +17,10 @@ create procedure notiflyer_spChartDataPrepJSONObjects
                 
                 exec notiflyer_spChartDataPrepJSONObjects
                     @column_axes_x_axes_data_type = 'varchar(max)'
-                    ,@column_axes_x_axes_label = ''
-                    ,@column_axes_x_data_label = 'Customer'
-                    ,@column_axes_y_axes_data_type = 'int'
-                    ,@column_axes_y_axes_label = ''
-                    ,@column_axes_y_data_label = ''
+                    ,@column_axes_x_axes_json_label = 'OrderMth'
+                    ,@column_axes_y_axes_data_type = 'smalldatetime'
+                    ,@column_axes_y_axes_json_label = ''
+                    ,@column_axes_y_data_label = 'NumOfOrders'
                     ,@returnvalue = 0
                     ,@returnmessage = ''
 
@@ -33,14 +32,13 @@ create procedure notiflyer_spChartDataPrepJSONObjects
                 cc  12062023 - generated basic script file
 */
 (
-    -- describe x-axes
-    @column_axes_x_axes_data_type as nvarchar(max) = '' output
-    ,@column_axes_x_axes_label as nvarchar(max) = '' output
-    ,@column_axes_x_data_label as nvarchar(max) = '' output
-    -- describe y-axes
-    ,@column_axes_y_axes_data_type as nvarchar(max) = '' output
-    ,@column_axes_y_axes_label as nvarchar(max) = '' output
-    ,@column_axes_y_data_label as nvarchar(max) = '' output
+    -- describe cartesian axes - x/y axes and data-types
+    @column_axes_x_axes_data_type as nvarchar(max) = '' 
+    ,@column_axes_y_axes_data_type as nvarchar(max) = ''
+    ,@column_axes_y_data_label as nvarchar(max) = ''
+    
+    ,@column_axes_x_axes_json_label as nvarchar(max) = '' output
+    ,@column_axes_y_axes_json_label as nvarchar(max) = '' output
     ,@returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
 )
@@ -73,7 +71,7 @@ begin
         -- prepare series in json
         -- x axes data label
         set
-            @column_axes_x_axes_label = 'labels: [' + @x_axes_data_series + ']';
+            @column_axes_x_axes_json_label = 'labels: [' + @x_axes_data_series + ']';
             
         -- TODO:
         -- when multiple data series support is added, convert the following set statement
@@ -82,11 +80,11 @@ begin
 
         -- y axes data label
         set
-            @column_axes_y_axes_label = '{ label: ''' + @column_axes_x_data_label + ''', data: [' + @x_axes_data_series + '] },';
+            @column_axes_y_axes_json_label = '{ label: "' + @column_axes_y_data_label + '", data: [' + @y_axes_data_series + '] }';
 
         select
-            @column_axes_x_axes_label
-            ,@column_axes_y_axes_label;
+            @column_axes_x_axes_json_label
+            ,@column_axes_y_axes_json_label;
 
         -- TODO:
         -- chart design/options/colors/fonts/configurations/plugins

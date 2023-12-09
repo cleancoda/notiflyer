@@ -16,35 +16,65 @@ create procedure notiflyer_spChartDataPrepare
                     ,@returnmessage as nvarchar(255) = '';
 
                 exec notiflyer_spChartDataPrepare
-                    @query_select = 'SELECT
-                                            C.CustomerName
-                                            ,COUNT( DISTINCT A.OrderId) TotalNBOrders' 
+                    @query_select = 'select top 10
+                        dateadd(dd, -( day(o.OrderDate) -1 ), o.OrderDate) as [OrderMth]
+                        ,sum(o.OrderID) as [NumOfOrders]' 
                                             
-                    ,@query_from = 'FROM 
-                                    (
-                                        SELECT O.CustomerID, O.OrderId, NULL AS InvoiceID, OL.UnitPrice, OL.Quantity, 0 AS UnitPriceI, 0 AS QuantityI, OL.OrderLineID, NULL AS InvoiceLineID 
-                                        FROM Sales.Orders As O, Sales.OrderLines AS OL
-                                        WHERE O.OrderId = OL.OrderID AND EXISTS
-                                        (	SELECT II.OrderId
-                                            FROM Sales.Invoices AS II
-                                            WHERE II.OrderID = O.OrderID
-                                        )
-                                        UNION
-                                        SELECT I.CustomerID, NULL AS OrderId, I.InvoiceID, 0 AS UnitPriceO, 0 AS QuantityO, IL.UnitPrice, IL.Quantity, NULL AS OrderLineID, InvoiceLineID
-                                        FROM Sales.Invoices AS I, Sales.InvoiceLines AS IL
-                                        WHERE I.InvoiceID = IL.InvoiceID
-                                    ) AS A, Sales.Customers As C'
-                    ,@query_where = 'WHERE A.CustomerID = C.CustomerID'
-                    ,@query_groupby = 'GROUP BY C.CustomerName'
-                    ,@query_orderby = 'ORDER BY TotalNBOrders DESC, CustomerName'
-                    ,@column_axes_x = 'CustomerName'
-                    ,@column_axes_y = 'TotalNBOrders'
+                    ,@query_from = 'from
+                        Sales.Orders o
+                        left outer join Sales.Customers c on    
+                            o.CustomerID = c.CustomerID'
+                    ,@query_where = ''
+                    ,@query_groupby = 'group by dateadd(dd, -( day(o.OrderDate) -1 ), o.OrderDate)'
+                    ,@query_orderby = 'order by    
+                        [OrderMth] asc'
+                    ,@column_axes_x = 'OrderMth'
+                    ,@column_axes_y = 'NumOfOrders'
                     ,@returnvalue = @returnvalue output
                     ,@returnmessage = @returnmessage output;                    
 
                 select  
                     @returnvalue
                     ,@returnmessage;
+
+                /*
+                    additional queries:
+
+                    select top 10
+                        format(dateadd(dd, -( day(o.OrderDate) -1 ), o.OrderDate), "MMM-yyyy", "en-US") as [OrderMth]
+                        ,sum(o.OrderID) as [NumOfOrders]
+                    from
+                        Sales.Orders o
+                        left outer join Sales.Customers c on    
+                            o.CustomerID = c.CustomerID
+                    group by
+                    dateadd(dd, -( day(o.OrderDate) -1 ), o.OrderDate)
+                    order by    
+                        [OrderMth] asc
+
+                    ----
+
+                    SELECT top 5
+                        C.CustomerName
+                        ,COUNT( DISTINCT A.OrderId) TotalNBOrders
+                    FROM 
+                    (
+                        SELECT O.CustomerID, O.OrderId, NULL AS InvoiceID, OL.UnitPrice, OL.Quantity, 0 AS UnitPriceI, 0 AS QuantityI, OL.OrderLineID, NULL AS InvoiceLineID 
+                        FROM Sales.Orders As O, Sales.OrderLines AS OL
+                        WHERE O.OrderId = OL.OrderID AND EXISTS
+                        (	SELECT II.OrderId
+                            FROM Sales.Invoices AS II
+                            WHERE II.OrderID = O.OrderID
+                        )
+                        UNION
+                        SELECT I.CustomerID, NULL AS OrderId, I.InvoiceID, 0 AS UnitPriceO, 0 AS QuantityO, IL.UnitPrice, IL.Quantity, NULL AS OrderLineID, InvoiceLineID
+                        FROM Sales.Invoices AS I, Sales.InvoiceLines AS IL
+                        WHERE I.InvoiceID = IL.InvoiceID
+                    ) AS A, Sales.Customers As C
+                    WHERE A.CustomerID = C.CustomerID
+                    GROUP BY C.CustomerName
+                    ORDER BY TotalNBOrders DESC, CustomerName
+                */
                 
     @log
                 cc  11212023 - generated basic script file
@@ -137,27 +167,6 @@ begin
             ,@query_executed = @returnvalue output
             ,@query_output = @returnmessage output;
 
-        -- build convert command for results
-        select  
-            @sqlcmd = 
-                        'select '
-                        + case 
-                            when @column_axes_x_datatype like '%char%' then
-                                '''' + @column_axes_x + ''''
-                            else
-                                @column_axes_x
-                        end + 'as [' + @column_axes_x + ']'
-                        + ', '
-                        + case 
-                            when @column_axes_y_datatype like '%char%' then
-                                '''' + @column_axes_y + ''''
-                            else
-                                @column_axes_y
-                        end + 'as [' + @column_axes_y + ']'
-                        + 'from '
-                        + '##tmpNotiflyer_tbQueryExecuteResults';
-
-
         -- prep create table statement for chart data
 		select
 			@sqlcmd = 'create table ##tmpnotiflyer_tbChartData ( datacolumn_x ' + @column_axes_x_datatype + ' , datacolumn_y ' + case when isnull(@column_axes_y_datatype,'') <> '' then  + @column_axes_y_datatype else 'varchar(10)' end  + ' );';
@@ -175,24 +184,6 @@ begin
 		insert into ##tmpnotiflyer_tbChartData
 		exec(@sqlcmd);
 
-        -- append ' on string values for axes labels
-        -- x axes
-        select
-            @sqlvar = case when @column_axes_x_datatype like '%char%' then '''' else '' end;
-
-        update ##tmpnotiflyer_tbChartData
-        set
-            datacolumn_x = @sqlvar + datacolumn_x + @sqlvar;
-
-        -- append ' on string values for axes labels
-        -- y axes
-        select
-            @sqlvar = case when @column_axes_y_datatype like '%char%' then '''' else '' end;
-
-        update ##tmpnotiflyer_tbChartData
-        set
-            datacolumn_y = @sqlvar + datacolumn_y + @sqlvar;
-
         -- TODO:
         -- when multiple data series support is added, convert the following alter table statement
         -- into a loop for  generating dynamic alter table statement depending on number 
@@ -206,6 +197,24 @@ begin
         -- ensure table columns are in varchar
         alter table tempdb..##tmpnotiflyer_tbChartData
             alter column datacolumn_y nvarchar(max);
+
+        -- append ' on string values for axes labels
+        -- x axes
+        select
+            @sqlvar = case when @column_axes_x_datatype like '%char%' then '"' when @column_axes_x_datatype like '%date%' then '"' else '' end;
+
+        update ##tmpnotiflyer_tbChartData
+        set
+            datacolumn_x = @sqlvar + datacolumn_x + @sqlvar;
+
+        -- append ' on string values for axes labels
+        -- y axes
+        select
+            @sqlvar = case when @column_axes_y_datatype like '%char%' then '"' when @column_axes_x_datatype like '%date%' then '"' else '' end;
+
+        update ##tmpnotiflyer_tbChartData
+        set
+            datacolumn_y = @sqlvar + datacolumn_y + @sqlvar;
             
         select * from ##tmpnotiflyer_tbChartData
 
