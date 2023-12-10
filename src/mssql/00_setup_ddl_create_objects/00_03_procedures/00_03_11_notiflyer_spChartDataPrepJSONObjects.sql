@@ -18,7 +18,7 @@ create procedure notiflyer_spChartDataPrepJSONObjects
                 exec notiflyer_spChartDataPrepJSONObjects
                     @column_axes_x_axes_data_type = 'varchar(max)'
                     ,@column_axes_x_axes_json_label = 'OrderMth'
-                    ,@column_axes_y_axes_data_type = 'smalldatetime'
+                    ,@column_axes_y_axes_data_type = 'numeric(12,2)'
                     ,@column_axes_y_axes_json_label = ''
                     ,@column_axes_y_data_label = 'NumOfOrders'
                     ,@returnvalue = 0

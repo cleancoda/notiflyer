@@ -210,7 +210,7 @@ begin
         -- append ' on string values for axes labels
         -- y axes
         select
-            @sqlvar = case when @column_axes_y_datatype like '%char%' then '"' when @column_axes_x_datatype like '%date%' then '"' else '' end;
+            @sqlvar = case when @column_axes_y_datatype like '%char%' then '"' when @column_axes_y_datatype like '%date%' then '"' else '' end;
 
         update ##tmpnotiflyer_tbChartData
         set
