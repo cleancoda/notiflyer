@@ -71,7 +71,7 @@ begin
         -- prepare series in json
         -- x axes data label
         set
-            @column_axes_x_axes_json_label = 'labels: [' + @x_axes_data_series + ']';
+            @column_axes_x_axes_json_label = '[' + @x_axes_data_series + ']';
             
         -- TODO:
         -- when multiple data series support is added, convert the following set statement
@@ -80,7 +80,7 @@ begin
 
         -- y axes data label
         set
-            @column_axes_y_axes_json_label = '{ label: "' + @column_axes_y_data_label + '", data: [' + @y_axes_data_series + '] }';
+            @column_axes_y_axes_json_label = '"' + @column_axes_y_data_label + '", data: [' + @y_axes_data_series + ']';
 
         select
             @column_axes_x_axes_json_label
