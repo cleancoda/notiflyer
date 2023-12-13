@@ -25,6 +25,28 @@ this section will describe the inner workings and setup instructions
 ## entity-relationship (er) diagram
 
 ```mermaid
+%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+
+      'primaryColor': '#10002B',
+      'secondaryColor': '#3C096C',
+      'tertiaryColor': '#240046',
+
+      'primaryTextColor': '#ffd60a',
+      'secondaryTextColor': '#ffd60a',
+      'tertiaryTextColor': '#ffd60a',
+
+      'primaryBorderColor': '#f72585',
+      'secondaryBorderColor': '#f72585',
+      'tertiaryBorderColor': '#f72585',
+      'noteBorderColor': '#f72585',
+
+      'lineColor': '#bfd200'
+    }
+  }
+}%%
 erDiagram
     notiflyer_tbJobManager {
       id int pk "identity(1,1)"
