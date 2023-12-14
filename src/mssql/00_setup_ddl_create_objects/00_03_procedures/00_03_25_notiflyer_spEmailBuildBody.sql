@@ -32,10 +32,19 @@ as
 begin
     begin try
         /*
+            maintain following email body structure parameters
+            recommended parameters:
+            width
+                -- 640px desktop
+                -- 320px phone vertical
+            header-height
+                -- 70px
+            footer-height
+                -- 100px
+            
             prepare html body of the email
 
-            parameters
-                - 
+            
         */
     end try
     begin catch
