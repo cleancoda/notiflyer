@@ -31,6 +31,12 @@ create procedure notiflyer_spEmailBuildBody
 as
 begin
     begin try
+        /*
+            prepare html body of the email
+
+            parameters
+                - 
+        */
     end try
     begin catch
         select
