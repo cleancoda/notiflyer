@@ -16,12 +16,16 @@ create procedure notiflyer_spSetupDBMailXPs
                     ,@returnmessage as nvarchar(255) = '';
                 
                 exec notiflyer_spSetupDBMailXPs
-                    ,@returnvalue = 0
+                    @returnvalue = 0
                     ,@returnmessage = ''
 
     @log
                 cc  12162023 - generated basic script file
 */
+(
+    @returnvalue as int = 0 output
+    ,@returnmessage as nvarchar(max) = '' output
+)
 as
 begin
     begin try
@@ -30,6 +34,10 @@ begin
         reconfigure;
         exec sp_configure 'Database Mail XPs', 1;
         reconfigure;
+        
+        select
+            @returnvalue = 0
+            ,@returnmessage = 'configuration completed successfully'
     end try
     begin catch
         select

@@ -27,6 +27,8 @@ create procedure notiflyer_spGetAPIPayload
     ,@api_method as nvarchar(5) = 'GET'                        -- GET, POST, PUT, DELETE
     ,@api_key as varchar(8000) = NULL                          -- authorization key, api key, bearer key
     ,@api_bodydata_type as nvarchar(255) = NULL                -- json string - parse using key/value pair definition '{"key":"value"}'
+    ,@returnvalue as int = 0 output
+    ,@returnmessage as nvarchar(255) = '' output
 )
 as 
 begin
@@ -245,6 +247,10 @@ begin
         -- doc: https://learn.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-oadestroy-transact-sql
         if @WinHttpRequest is not null
             exec sp_OADestroy @WinHttpRequest;
+
+        select
+            @returnvalue = 0
+            ,@returnmessage = 'operation completed successfully'
 
     end try
     begin catch

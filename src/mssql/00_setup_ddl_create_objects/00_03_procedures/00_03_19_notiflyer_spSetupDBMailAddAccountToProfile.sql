@@ -12,13 +12,51 @@ create procedure notiflyer_spSetupDBMailAddAccountToProfile
     @detail     
     @sample
                 declare
-                    @returnvalue as int = 0
+                    @account_id as int = 1
+                    ,@profile_id as int = 1
+                    ,@returnvalue as int = 0
                     ,@returnmessage as nvarchar(255) = '';
                 
                 exec notiflyer_spSetupDBMailAddAccountToProfile
+                    @account_id = @account_id
+                    ,@profile_id = @profile_id
                     ,@returnvalue = 0
                     ,@returnmessage = ''
 
     @log
                 cc  12162023 - generated basic script file
 */
+(
+    @account_id int = 0
+    ,@profile_id int = 0
+    ,@returnvalue as int = 0 output
+    ,@returnmessage as nvarchar(255) = '' output
+)
+as
+begin
+    begin try
+
+        -- attach account to profile
+        exec 
+            msdb.dbo.sysmail_add_profileaccount_sp
+                @profile_id = @profile_id
+                ,@account_id = @account_id
+                ,@sequence_number = 1;
+
+        -- add access to profile to DBMailUsers security role
+        exec msdb.dbo.sysmail_add_principalprofile_sp
+            @profile_id = @profile_id,
+            @principal_name = 'public',
+            @is_default = 1;
+    end try
+    begin catch
+        select
+            -- mark staging process as error
+            @returnvalue = 1
+            ,@returnmessage = 'error occured: ['
+                            +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                            +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                            +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                            +  ' ]'
+    end catch
+end

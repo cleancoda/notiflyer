@@ -22,5 +22,22 @@ create procedure notiflyer_spEmailConfigureStyle
     @log
                 cc  12122023 - generated basic script file
 */
-
-
+(
+    ,@returnvalue as int = 0 output
+    ,@returnmessage as nvarchar(255) = '' output
+)
+as
+begin
+    begin try
+    end try
+    begin catch
+        select
+            -- mark staging process as error
+            @returnvalue = 1
+            ,@returnmessage = 'error occured: ['
+                            +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                            +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                            +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                            +  ' ]'
+    end catch
+end
