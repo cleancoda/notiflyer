@@ -23,12 +23,43 @@ create procedure notiflyer_spSetupDBMailConfig
                 cc  12132023 - generated basic script file
 */
 (
-    ,@returnvalue as int = 0 output
+    @returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
 )
 as
 begin
     begin try
+
+        -- setup new profile
+        EXECUTE msdb.dbo.sysmail_add_profile_sp  
+            @profile_name = '',  
+            @description = '' ;  
+
+        -- add profile to db role for emails, and set as default profile
+        EXECUTE msdb.dbo.sysmail_add_principalprofile_sp  
+            @profile_name = '',  
+            @principal_name = 'public',  
+            @is_default = 1 ;
+            
+        -- add a new smtp account
+        EXECUTE msdb.dbo.sysmail_add_account_sp  
+            @account_name = '',  
+            @description = '',  
+            @email_address = '',  
+            @display_name = '',  
+            @mailserver_name = '',
+            @port = 587,
+            @enable_ssl = 1,
+            @username = '',
+            @password = '' ;  
+
+        -- attach profile to new smtp account
+        EXECUTE msdb.dbo.sysmail_add_profileaccount_sp  
+            @profile_name = '',  
+            @account_name = '',  
+            @sequence_number =1 ;            
+
+            
     end try
     begin catch
         select
