@@ -16,48 +16,81 @@ create procedure notiflyer_spSetupDBMailConfig
                     ,@returnmessage as nvarchar(255) = '';
                 
                 exec notiflyer_spSetupDBMailConfig
-                    ,@returnvalue = 0
-                    ,@returnmessage = ''
+                    @profilename = 'test'
+                    ,@profile_description = 'profile description'
+                    ,@accountname = 'test'
+                    ,@account_description = 'account description'
+                    ,@emailaddress = '@gmail.com'
+                    ,@displayname = 'test'
+                    ,@mailservername = 'smtp.gmail.com'
+                    ,@port = 587
+                    ,@enablessl = 1
+                    ,@username  = '@gmail.com'
+                    ,@password  = ''
+                    ,@returnvalue = 0 
+                    ,@returnmessage = '' ;
+
+                -- send sample email
+                EXEC msdb.dbo.sp_send_dbmail
+                    @profile_name = 'test'
+                    ,@recipients = '@gmail.com'
+                    ,@body = 'The stored procedure finished successfully.'
+                    ,@subject = 'Test Email from SQL';
 
     @log
                 cc  12132023 - generated basic script file
 */
 (
-    @returnvalue as int = 0 output
+    @profilename nvarchar(50) = 'profilename'
+    ,@profile_description nvarchar(100) = 'profiledescription'
+    ,@accountname nvarchar(50) = 'accountname'
+    ,@account_description nvarchar(100) = 'profiledescription'
+    ,@emailaddress nvarchar(100) = 'emailaddress'
+    ,@displayname nvarchar(50) = 'displayname'
+    ,@mailservername nvarchar(50) = 'mailservername'
+    ,@port int = 587
+    ,@enablessl bit = 1
+    ,@username nvarchar(50) = 'username'
+    ,@password nvarchar(50) = 'password'
+    ,@returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
 )
 as
 begin
     begin try
 
+        -- TODO:
+        -- issue #80
+        -- add try/cast checks to see if exists prior to create
+
         -- setup new profile
-        EXECUTE msdb.dbo.sysmail_add_profile_sp  
-            @profile_name = '',  
-            @description = '' ;  
+        execute msdb.dbo.sysmail_add_profile_sp  
+            @profile_name = @profilename,  
+            @description = @profile_description;  
 
         -- add profile to db role for emails, and set as default profile
-        EXECUTE msdb.dbo.sysmail_add_principalprofile_sp  
-            @profile_name = '',  
+        execute msdb.dbo.sysmail_add_principalprofile_sp  
+            @profile_name = @profilename,  
             @principal_name = 'public',  
-            @is_default = 1 ;
-            
+            @is_default = 1;
+                    
         -- add a new smtp account
-        EXECUTE msdb.dbo.sysmail_add_account_sp  
-            @account_name = '',  
-            @description = '',  
-            @email_address = '',  
-            @display_name = '',  
-            @mailserver_name = '',
-            @port = 587,
-            @enable_ssl = 1,
-            @username = '',
-            @password = '' ;  
+        execute msdb.dbo.sysmail_add_account_sp  
+            @account_name = @accountname,  
+            @description = @account_description,  
+            @email_address = @emailaddress,  
+            @display_name = @displayname,  
+            @mailserver_name = @mailservername,
+            @port = @port,
+            @enable_ssl = @enablessl,
+            @username = @username,
+            @password = @password;  
 
         -- attach profile to new smtp account
-        EXECUTE msdb.dbo.sysmail_add_profileaccount_sp  
-            @profile_name = '',  
-            @account_name = '',  
-            @sequence_number =1 ;            
+        execute msdb.dbo.sysmail_add_profileaccount_sp  
+            @profile_name = @profilename,  
+            @account_name = @accountname,  
+            @sequence_number = 1;   
 
             
     end try
