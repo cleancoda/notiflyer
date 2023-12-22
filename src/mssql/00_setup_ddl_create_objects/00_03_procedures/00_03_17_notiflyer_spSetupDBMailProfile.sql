@@ -39,6 +39,7 @@ as
 begin
     begin try
         exec 
+            -- add mail profile
             msdb.dbo.sysmail_add_profile_sp
                 @profile_name = @profile_name
                 ,@description = @profile_description

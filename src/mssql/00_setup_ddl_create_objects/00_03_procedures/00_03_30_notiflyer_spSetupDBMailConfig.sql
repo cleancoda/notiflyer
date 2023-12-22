@@ -64,12 +64,12 @@ begin
         -- add try/cast checks to see if exists prior to create
 
         -- setup new profile
-        execute msdb.dbo.sysmail_add_profile_sp  
+        execute notiflyer_spSetupDBMailProfile
             @profile_name = @profilename,  
             @description = @profile_description;  
 
         -- add profile to db role for emails, and set as default profile
-        execute msdb.dbo.sysmail_add_principalprofile_sp  
+        execute notiflyer_sp
             @profile_name = @profilename,  
             @principal_name = 'public',  
             @is_default = 1;

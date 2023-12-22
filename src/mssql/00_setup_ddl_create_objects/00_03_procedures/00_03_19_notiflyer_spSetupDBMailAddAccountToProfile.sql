@@ -27,8 +27,8 @@ create procedure notiflyer_spSetupDBMailAddAccountToProfile
                 cc  12162023 - generated basic script file
 */
 (
-    @account_id int = 0
-    ,@profile_id int = 0
+    @account_name nvarchar(100) = ''
+    ,@profile_name nvarchar(255) = ''
     ,@returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
 )
@@ -39,13 +39,13 @@ begin
         -- attach account to profile
         exec 
             msdb.dbo.sysmail_add_profileaccount_sp
-                @profile_id = @profile_id
-                ,@account_id = @account_id
+                @profile_name = @profile_name
+                ,@account_name = @account_name
                 ,@sequence_number = 1;
 
         -- add access to profile to DBMailUsers security role
         exec msdb.dbo.sysmail_add_principalprofile_sp
-            @profile_id = @profile_id,
+            @profile_name = @profile_name,
             @principal_name = 'public',
             @is_default = 1;
     end try
