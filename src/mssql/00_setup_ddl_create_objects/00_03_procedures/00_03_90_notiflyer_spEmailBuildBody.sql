@@ -25,7 +25,9 @@ create procedure notiflyer_spEmailBuildBody
 
 */
 (
-    @returnvalue as int = 0 output
+    @html_header as nvarchar(max) output
+    ,@html_footer as nvarchar(max) output
+    ,@returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
 )
 as

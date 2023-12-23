@@ -1,11 +1,11 @@
-if object_id('notiflyer_spEmailSendTest') is not null
-    print 'notiflyer_spEmailSendTest stored procedure exists, skipping create attempt..'
+if object_id('notiflyer_spTestDBMailSendEmail') is not null
+    print 'notiflyer_spTestDBMailSendEmail stored procedure exists, skipping create attempt..'
     print 'ignore error below, cannot create exception handling on ddl statements'
     return;
 go
 
--- drop procedure notiflyer_spEmailSendTest
-create procedure notiflyer_spEmailSendTest
+-- drop procedure notiflyer_spTestDBMailSendEmail
+create procedure notiflyer_spTestDBMailSendEmail
 /*
     @author     cleancoda
     @date       12122023
@@ -15,7 +15,7 @@ create procedure notiflyer_spEmailSendTest
                     @returnvalue as int = 0
                     ,@returnmessage as nvarchar(255) = '';
                 
-                exec notiflyer_spEmailSendTest
+                exec notiflyer_spTestDBMailSendEmail
                     ,@returnvalue = 0
                     ,@returnmessage = ''
 
@@ -23,17 +23,22 @@ create procedure notiflyer_spEmailSendTest
                 cc  12132023 - generated basic script file
 */
 (
-    @returnvalue as int = 0 output
+        
+    @profile_name as nvarchar(50) = ''
+    ,@recipients as nvarchar(max) = ''
+    ,@body as nvarchar(max) = ''
+    ,@subject as nvarchar(255) = ''
+    ,@returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
 )
 as
 begin
     begin try
-        EXEC msdb.dbo.sp_send_dbmail
-            @profile_name = '',
-            @recipients = '',
-            @body = '',
-            @subject = '';
+        exec msdb.dbo.sp_send_dbmail
+            @profile_name = @profile_name,
+            @recipients = @recipients,
+            @body = @body,
+            @subject = @subject;
     end try
     begin catch
         select

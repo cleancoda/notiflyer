@@ -16,7 +16,7 @@ create procedure notiflyer_spSetupDBMailConfig
                     ,@returnmessage as nvarchar(255) = '';
                 
                 exec notiflyer_spSetupDBMailConfig
-                    @profilename = 'test'
+                    @profile_name = 'test'
                     ,@profile_description = 'profile description'
                     ,@accountname = 'test'
                     ,@account_description = 'account description'
@@ -41,15 +41,15 @@ create procedure notiflyer_spSetupDBMailConfig
                 cc  12132023 - generated basic script file
 */
 (
-    @profilename nvarchar(50) = 'profilename'
+    @profile_name nvarchar(50) = 'profilename'
     ,@profile_description nvarchar(100) = 'profiledescription'
-    ,@accountname nvarchar(50) = 'accountname'
+    ,@account_name nvarchar(50) = 'accountname'
     ,@account_description nvarchar(100) = 'profiledescription'
-    ,@emailaddress nvarchar(100) = 'emailaddress'
-    ,@displayname nvarchar(50) = 'displayname'
-    ,@mailservername nvarchar(50) = 'mailservername'
+    ,@email_address nvarchar(100) = 'emailaddress'
+    ,@display_name nvarchar(50) = 'displayname'
+    ,@mail_server_name nvarchar(50) = 'mailservername'
     ,@port int = 587
-    ,@enablessl bit = 1
+    ,@enable_ssl bit = 1
     ,@username nvarchar(50) = 'username'
     ,@password nvarchar(50) = 'password'
     ,@returnvalue as int = 0 output
@@ -65,32 +65,29 @@ begin
 
         -- setup new profile
         execute notiflyer_spSetupDBMailProfile
-            @profile_name = @profilename,  
-            @description = @profile_description;  
+            @profile_name = @profile_name
+            ,@profile_description = @profile_description;  
 
         -- add profile to db role for emails, and set as default profile
-        execute notiflyer_sp
-            @profile_name = @profilename,  
-            @principal_name = 'public',  
-            @is_default = 1;
+        execute notiflyer_spSetupDBMailProfileDefault
+            @profile_name = @profile_name;
                     
         -- add a new smtp account
-        execute msdb.dbo.sysmail_add_account_sp  
-            @account_name = @accountname,  
-            @description = @account_description,  
-            @email_address = @emailaddress,  
-            @display_name = @displayname,  
-            @mailserver_name = @mailservername,
-            @port = @port,
-            @enable_ssl = @enablessl,
-            @username = @username,
-            @password = @password;  
+        execute notiflyer_spSetupDBMailAccount --msdb.dbo.sysmail_add_account_sp  
+            @account_name = @account_name
+            ,@account_description = @account_description
+            ,@email_address = @email_address
+            ,@display_name = @display_name 
+            ,@mail_server_name = @mail_server_name
+            ,@port = @port
+            ,@enable_ssl = @enable_ssl
+            ,@username = @username
+            ,@password = @password;  
 
         -- attach profile to new smtp account
-        execute msdb.dbo.sysmail_add_profileaccount_sp  
-            @profile_name = @profilename,  
-            @account_name = @accountname,  
-            @sequence_number = 1;   
+        execute notiflyer_spSetupDBMailAddAccountToProfile --msdb.dbo.sysmail_add_profileaccount_sp  
+            @account_name = @account_name
+            ,@profile_name = @profile_name;   
 
             
     end try

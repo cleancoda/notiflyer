@@ -31,14 +31,15 @@ create procedure notiflyer_spSetupDBMailAccount
                 cc  12162023 - generated basic script file
 */
 (
-    @account_name nvarchar(100) = 'account_name'
-    ,@email_address nvarchar(100) = 'example@example.com'
-    ,@display_name nvarchar(100) = 'account_display_name'
-    ,@mail_server_name nvarchar(100) = 'mail.example.com'
+    @account_name nvarchar(100) = ''
+    ,@account_description nvarchar(max) = ''
+    ,@email_address nvarchar(100) = ''
+    ,@display_name nvarchar(100) = ''
+    ,@mail_server_name nvarchar(100) = ''
     ,@port int = 25
     ,@enable_ssl int = 1
-    ,@username nvarchar(100) = 'username'
-    ,@password nvarchar(100) = 'password'
+    ,@username nvarchar(100) = ''
+    ,@password nvarchar(100) = ''
     ,@use_default_credentials bit = 0
     ,@returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
@@ -50,6 +51,7 @@ begin
         exec 
             msdb.dbo.sysmail_add_account_sp
                 @account_name = @account_name
+                ,@description = @account_description
                 ,@email_address = @email_address
                 ,@display_name = @display_name
                 ,@mailserver_name = @mail_server_name

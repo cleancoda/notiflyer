@@ -42,12 +42,6 @@ begin
                 @profile_name = @profile_name
                 ,@account_name = @account_name
                 ,@sequence_number = 1;
-
-        -- add access to profile to DBMailUsers security role
-        exec msdb.dbo.sysmail_add_principalprofile_sp
-            @profile_name = @profile_name,
-            @principal_name = 'public',
-            @is_default = 1;
     end try
     begin catch
         select
