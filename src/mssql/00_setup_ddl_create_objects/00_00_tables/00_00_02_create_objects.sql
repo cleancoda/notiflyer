@@ -19,27 +19,8 @@ begin
     create table notiflyer_tbAppConfig
     (
         id int identity(1,1) primary key
-        ,name varchar(max) default null
-        ,value varchar(max) default null
-    );
-end
-go
-
--- notiflyer_tbAppLog
-print 'creating table notiflyer_tbAppLog'
-if object_id('notiflyer_tbAppLog') is not null
-begin
-    print 'table exists skipping create attempt..'
-end
-else
-    begin
-    create table notiflyer_tbAppLog
-    (
-        id int identity(1,1) primary key
-        ,job_id int default null
-        ,job_status bit default 0
-        ,log_datetime smalldatetime default getdate()
-        ,log_description varchar(max) default null
+        ,name varchar(max) default ''
+        ,value varchar(max) default ''
     );
 end
 go
@@ -55,17 +36,17 @@ begin
     create table notiflyer_tbQuery
     (
         id int identity(1,1) primary key
-        ,name varchar(max) default null
+        ,name varchar(max) default ''
         ,type char(1) default 'q'
-        ,query_select varchar(max) default null
-        ,query_from varchar(max) default null
-        ,query_where varchar(max) default null
-        ,query_group_by varchar(max) default null
-        ,query_order_by varchar(max) default null
-        ,column_legend varchar(max) default null
-        ,column_x varchar(max) default null
-        ,column_y varchar(max) default null
-        ,graphtype varchar(max) default null
+        ,query_select varchar(max) default ''
+        ,query_from varchar(max) default ''
+        ,query_where varchar(max) default ''
+        ,query_group_by varchar(max) default ''
+        ,query_order_by varchar(max) default ''
+        ,chart_column_legend varchar(max) default ''
+        ,chart_column_axes_x varchar(max) default ''
+        ,chart_column_axes_y varchar(max) default ''
+        ,chart_graphtype varchar(max) default ''
     );
 end
 go
@@ -81,21 +62,21 @@ begin
     create table notiflyer_tbJobManager
     (
         id int identity(1,1) primary key
-        ,name varchar(max) default null
-        ,email_subject varchar(max) default null
-        ,email_recepient varchar(max) default null
-        ,email_cc varchar(max) default null
-        ,email_bcc varchar(max) default null
-        ,email_body_header varchar(max) default null
-        ,frequency char(1) default null
-        ,run_time varchar(5) default null
-        ,monday bit default 0
-        ,tuesday bit default 0
-        ,wednesday bit default 0
-        ,thursday bit default 0
-        ,friday bit default 0
-        ,saturday bit default 0
-        ,sunday bit default 0
+        ,name varchar(max) default ''
+        ,email_subject varchar(max) default ''
+        ,email_recepient varchar(max) default ''
+        ,email_cc varchar(max) default ''
+        ,email_bcc varchar(max) default ''
+        ,email_body_header varchar(max) default ''
+        ,frequency char(1) default 'd'  -- (d)aily, (w)eekly, (m)onthly
+        ,run_time varchar(5) default '02:00' -- job run time hh:mm - follows 24 hours pattern
+        ,run_day_monday bit default 0
+        ,run_day_tuesday bit default 0
+        ,run_day_wednesday bit default 0
+        ,run_day_thursday bit default 0
+        ,run_day_friday bit default 0
+        ,run_day_saturday bit default 0
+        ,run_day_sunday bit default 0
     );
 end
 go
@@ -111,10 +92,10 @@ begin
     create table notiflyer_tbJobQueryGrid
     (
         id int identity(1,1) primary key
-        ,name varchar(255) default null
+        ,name varchar(255) default ''
         ,job_id int foreign key references notiflyer_tbJobManager(id)
         ,query_id int default null foreign key references notiflyer_tbQuery(id)
-        ,pos_id int default null
+        ,pos_id int default 0
     );
 end
 go
@@ -131,8 +112,27 @@ begin
     (
         id int identity(1,1) primary key
         ,job_query_grid_id int foreign key references notiflyer_tbJobQueryGrid(id)
-        ,parameter_name varchar(255) default null
-        ,parameter_value varchar(255) default null
+        ,parameter_name varchar(255) default ''
+        ,parameter_value varchar(255) default ''
+    );
+end
+go
+
+-- notiflyer_tbAppLog
+print 'creating table notiflyer_tbAppLog'
+if object_id('notiflyer_tbAppLog') is not null
+begin
+    print 'table exists skipping create attempt..'
+end
+else
+    begin
+    create table notiflyer_tbAppLog
+    (
+        id int identity(1,1) primary key
+        ,job_id int foreign key references notiflyer_tbJobManager(id)
+        ,job_status bit default 0
+        ,log_datetime smalldatetime default getdate()
+        ,log_description varchar(max) default ''
     );
 end
 go

@@ -33,12 +33,12 @@ create procedure notiflyer_spChartDataPrepJSONObjects
 */
 (
     -- describe cartesian axes - x/y axes and data-types
-    @column_axes_x_axes_data_type as nvarchar(max) = '' 
-    ,@column_axes_y_axes_data_type as nvarchar(max) = ''
-    ,@column_axes_y_data_label as nvarchar(max) = ''
-    
+    @column_axes_x_axes_label as nvarchar(max) = ''
+    ,@column_axes_y_axes_label as nvarchar(max) = ''
+    -- return values only below
     ,@column_axes_x_axes_json_label as nvarchar(max) = '' output
     ,@column_axes_y_axes_json_label as nvarchar(max) = '' output
+    -- execution return variables
     ,@returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
 )
@@ -80,7 +80,7 @@ begin
 
         -- y axes data label
         set
-            @column_axes_y_axes_json_label = '"' + @column_axes_y_data_label + '", data: [' + @y_axes_data_series + ']';
+            @column_axes_y_axes_json_label = '"' + @column_axes_y_axes_label + '", data: [' + @y_axes_data_series + ']';
 
         select
             @column_axes_x_axes_json_label

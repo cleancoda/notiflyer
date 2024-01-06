@@ -14,6 +14,7 @@
 -- top 10 customers by order month
 select top 10 CustomerID,dateadd(month, datediff(month, 0, OrderDate), 0) as OrderMonth,count(1) as TotalAmount
 from WideWorldImporters.Sales.Orders
+-- where PickedByPersonID = @PickedByPersonID
 group by CustomerID ,dateadd(month, datediff(month, 0, OrderDate), 0)
 order by TotalAmount desc
 

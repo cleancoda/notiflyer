@@ -38,8 +38,8 @@ create procedure notiflyer_spExecuteQuery
                                         WHERE I.InvoiceID = IL.InvoiceID
                                     ) AS A, Sales.Customers As C'
                     ,@query_where = 'WHERE A.CustomerID = C.CustomerID'
-                    ,@query_groupby = 'GROUP BY C.CustomerName'
-                    ,@query_orderby = 'ORDER BY TotalNBOrders DESC, CustomerName'
+                    ,@query_group_by = 'GROUP BY C.CustomerName'
+                    ,@query_order_by = 'ORDER BY TotalNBOrders DESC, CustomerName'
                     ,@display_query = 1
                     ,@query_executed = @queryexecuted output
                     ,@query_output = @queryoutput output ;
@@ -53,8 +53,8 @@ create procedure notiflyer_spExecuteQuery
     @query_select as nvarchar(max) = ''
     ,@query_from as nvarchar(max) = ''
     ,@query_where as nvarchar(max) = ''
-    ,@query_groupby as nvarchar(max) = ''
-    ,@query_orderby as nvarchar(max) = ''
+    ,@query_group_by as nvarchar(max) = ''
+    ,@query_order_by as nvarchar(max) = ''
     ,@display_query as int = 0
     ,@query_executed as int = 0 output
     ,@query_output as nvarchar(255) = '' output
@@ -88,12 +88,12 @@ begin
 
         -- append order by to final select using alias
         select
-            @query_suffix += @query_orderby;
+            @query_suffix += @query_order_by;
 
         -- prepare query to store results in new physical table    
         -- build local query
         select
-            @query = @query_prefix + @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_groupby + @query_suffix;
+            @query = @query_prefix + @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_group_by + @query_suffix;
 
         -- print/return query statement if bit flag = 1
         if(@display_query = 1)

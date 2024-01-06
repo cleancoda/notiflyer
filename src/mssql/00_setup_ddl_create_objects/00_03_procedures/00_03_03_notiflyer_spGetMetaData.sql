@@ -14,8 +14,14 @@ create procedure notiflyer_spGetMetaData
                 passed as a parameter
     @sample
                 exec notiflyer_spGetMetaData
-                    @query_select = 'select *'
-                    ,@query_from = 'from Sales.Customers' ;
+                    @query_select = 'select top 10 CustomerID,dateadd(month, datediff(month, 0, OrderDate), 0) as OrderMonth,count(1) as TotalAmount'
+                    ,@query_from = 'from WideWorldImporters.Sales.Orders'
+                    ,@query_where = 'where PickedByPersonID = 2'
+                    ,@query_group_by = 'group by CustomerID ,dateadd(month, datediff(month, 0, OrderDate), 0)'
+                    ,@query_order_by = 'order by TotalAmount desc'
+                    ,@returnmessage = '';
+
+                select * from ##tmpNotiflyer_tbMetaDataColumns
     @log
                 cc  11112023 - generated basic script file
 */
@@ -23,11 +29,8 @@ create procedure notiflyer_spGetMetaData
     @query_select as nvarchar(max) = ''
     ,@query_from as nvarchar(max) = ''
     ,@query_where as nvarchar(max) = ''
-    ,@query_groupby as nvarchar(max) = ''
-    ,@query_orderby as nvarchar(max) = ''
-    ,@column_legend nvarchar(max) = ''
-    ,@column_x nvarchar(max) = ''
-    ,@column_y nvarchar(max) = ''
+    ,@query_group_by as nvarchar(max) = ''
+    ,@query_order_by as nvarchar(max) = ''
     ,@returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
 )
@@ -46,9 +49,10 @@ begin
 
         -- build local query
         select
-            @query = @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_groupby + ' ' + @query_orderby;
+            @query = @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_group_by + ' ' + @query_order_by;
 
         -- clear tempdb
+        -- TODO: ADD JOB ID TO THE GLOBAL TEMP TABLE TO ENSURE NO CONFLICTS
         if object_id('tempdb..##tmpNotiflyer_tbMetaDataColumns') is not null 
         drop table ##tmpNotiflyer_tbMetaDataColumns;
 
