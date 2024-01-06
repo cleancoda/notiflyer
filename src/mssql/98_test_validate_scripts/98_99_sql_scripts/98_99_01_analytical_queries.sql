@@ -11,6 +11,12 @@
 */
 
 
+-- top 10 customers by order month
+select top 10 CustomerID,dateadd(month, datediff(month, 0, OrderDate), 0) as OrderMonth,count(1) as TotalAmount
+from WideWorldImporters.Sales.Orders
+group by CustomerID ,dateadd(month, datediff(month, 0, OrderDate), 0)
+order by TotalAmount desc
+
 
 -- consistency between orders and their attached invoices
 SELECT A.CustomerId, C.CustomerName,  COUNT( DISTINCT A.OrderId) TotalNBOrders, COUNT( DISTINCT A.InvoiceId) TotalNBInvoices,

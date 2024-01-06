@@ -60,7 +60,8 @@ begin
         ,query_select varchar(max) default null
         ,query_from varchar(max) default null
         ,query_where varchar(max) default null
-        ,query_group varchar(max) default null
+        ,query_group_by varchar(max) default null
+        ,query_order_by varchar(max) default null
         ,column_legend varchar(max) default null
         ,column_x varchar(max) default null
         ,column_y varchar(max) default null
@@ -130,8 +131,8 @@ begin
     (
         id int identity(1,1) primary key
         ,job_query_grid_id int foreign key references notiflyer_tbJobQueryGrid(id)
-        ,name varchar(255) default null
-        ,value varchar(255) default null
+        ,parameter_name varchar(255) default null
+        ,parameter_value varchar(255) default null
     );
 end
 go
