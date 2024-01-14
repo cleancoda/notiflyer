@@ -68,8 +68,8 @@ begin
         ,email_cc varchar(max) default ''
         ,email_bcc varchar(max) default ''
         ,email_body_header varchar(max) default ''
-        ,frequency char(1) default 'd'  -- (d)aily, (w)eekly, (m)onthly
-        ,run_time varchar(5) default '02:00' -- job run time hh:mm - follows 24 hours pattern
+        ,frequency char(1) default 'd'  -- (h)ourly, (d)aily, (w)eekly, (m)onthly
+        ,run_time varchar(5) default '02:00' -- job run time hh:mm - follows 24 hours pattern -- hourly jobs will use this as an interval
         ,run_day_monday bit default 0
         ,run_day_tuesday bit default 0
         ,run_day_wednesday bit default 0
@@ -95,7 +95,8 @@ begin
         ,name varchar(255) default ''
         ,job_id int foreign key references notiflyer_tbJobManager(id)
         ,query_id int default null foreign key references notiflyer_tbQuery(id)
-        ,pos_id int default 0
+        ,grid_row int default 0
+        ,grid_column int default 0
     );
 end
 go
