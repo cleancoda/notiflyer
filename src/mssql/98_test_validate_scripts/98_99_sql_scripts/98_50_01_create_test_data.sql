@@ -94,7 +94,7 @@ insert into notiflyer_tbJobQueryGridParameters
 select
     @job_query_grid_id
     ,'@PickedByPersonID'
-    ,'1'
+    ,'17'
 
 select * from notiflyer_tbJobManager where id = @jobid;
 select * from notiflyer_tbQuery where id = @queryid;

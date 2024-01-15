@@ -58,8 +58,8 @@ begin
 
         -- combine all records into single string using coalesce
         select
-            @x_axes_data_series = coalesce (@x_axes_data_series , '')  + datacolumn_x + ','
-            ,@y_axes_data_series = coalesce (@y_axes_data_series, '') +  datacolumn_y + ','
+            @x_axes_data_series = coalesce (@x_axes_data_series , '') + datacolumn_x + ','
+            ,@y_axes_data_series = coalesce (@y_axes_data_series, '') + datacolumn_y + ','
         from
             ##tmpnotiflyer_tbChartData;
 
