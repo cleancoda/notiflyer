@@ -88,8 +88,7 @@ begin
             ,name varchar(255)
             ,job_id int
             ,query_id int
-            ,grid_row int
-            ,grid_column int
+            ,pos_id int
         );
 
         -- populate temp table
@@ -99,16 +98,14 @@ begin
             ,name
             ,job_id
             ,query_id
-            ,grid_row
-            ,grid_column
+            ,pos_id
         )
         select
             id as job_query_grid_id
             ,name
             ,job_id
             ,query_id
-            ,grid_row
-            ,grid_column
+            ,pos_id
         from
             notiflyer_tbJobQueryGrid
         where
@@ -126,8 +123,7 @@ begin
             id int identity(1,1)            -- used for looping through queries
             ,job_query_grid_id int
             ,job_id int
-            ,grid_row int
-            ,grid_column int
+            ,pos_id int
             ,query_id int
             ,query_select nvarchar(max) default ''
             ,query_from nvarchar(max) default ''
@@ -147,8 +143,7 @@ begin
         (
             job_query_grid_id
             ,job_id
-            ,grid_row
-            ,grid_column
+            ,pos_id
             ,query_id
             ,query_select
             ,query_from
@@ -163,8 +158,7 @@ begin
         select
             g.id
             ,g.job_id
-            ,g.grid_row
-            ,g.grid_column
+            ,g.pos_id
             ,g.query_id
             ,q.query_select
             ,q.query_from
@@ -192,8 +186,7 @@ begin
         create table #tempQueryParameters
         (
             job_id int
-            ,grid_row int
-            ,grid_column int
+            ,pos_id int
             ,query_id int
             ,parameter_name nvarchar(max)
             ,parameter_value nvarchar(max)
@@ -203,8 +196,7 @@ begin
         insert into #tempQueryParameters
         select
             q.job_id
-            ,q.grid_row
-            ,q.grid_column
+            ,q.pos_id
             ,q.query_id
             ,gp.parameter_name
             ,gp.parameter_value
@@ -223,8 +215,7 @@ begin
             #tempQuery q
             left outer join #tempQueryParameters p on
                 q.job_id = p.job_id
-                and q.grid_row = p.grid_row
-                and q.grid_column = p.grid_column
+                and q.pos_id = p.pos_id
                 and q.query_id = p.query_id;
 
     -- 6. loop through #tempQuery and execute query
@@ -445,7 +436,7 @@ declare
                     ,@returnmessage as nvarchar(max) = '';
                 
                 exec notiflyer_spExecuteJob
-                    @job_id = 5
+                    @job_id = 1
                     ,@returnvalue = 0
                     ,@returnmessage = ''
 

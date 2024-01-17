@@ -4,7 +4,9 @@ if object_id('notiflyer_spChartDataPrepare') is not null
     return;
 go
 
--- drop procedure notiflyer_spChartDataPrepare
+drop procedure notiflyer_spChartDataPrepare
+go
+
 create procedure notiflyer_spChartDataPrepare
 /*
     @author     cleancoda
@@ -156,54 +158,103 @@ begin
             ,@query_executed = @returnvalue output
             ,@query_output = @returnmessage output;
 
+
+        -- TODO:
+        -- issue #84 - https://github.com/cleancoda/notiflyer/issues/84
         -- prep create table statement for chart data
-		select
-			@sqlcmd = 'create table ##tmpnotiflyer_tbChartData ( datacolumn_x ' + @chart_column_axes_x_datatype + ' , datacolumn_y ' + case when isnull(@chart_column_axes_y_datatype,'') <> '' then  + @chart_column_axes_y_datatype else 'varchar(10)' end  + ' );';
+		
+        -- original code below prior to #84
+        -- select
+		-- 	@sqlcmd = 'create table ##tmpnotiflyer_tbChartData ( datacolumn_x ' + @chart_column_axes_x_datatype + ' , datacolumn_y ' + case when isnull(@chart_column_axes_y_datatype,'') <> '' then  + @chart_column_axes_y_datatype else 'varchar(10)' end  + ' );';
+
+        -- new attempt #84
+        select
+        @sqlcmd = 'create table ##tmpnotiflyer_tbChartData ( datacolumn_x nvarchar(max), datacolumn_y nvarchar(max));';
 
         -- execute create statement
         exec(@sqlcmd);
-
-        -- TODO:
-        -- issue #64 - https://github.com/cleancoda/notiflyer/issues/64
-        -- replace with cursor to loop through multiple series of data;
-        -- prep insert select statement for copying data plot points from ##tmpNotiflyer_tbQueryExecuteResults into ##tmpnotiflyer_tbChartData -- order by query
-		select @sqlcmd = 'select ' + @chart_column_axes_x + ' ,' + case when isnull(@chart_column_axes_y,'') <> '' then + @chart_column_axes_y else '''''' end +  ' from ##tmpNotiflyer_tbQueryExecuteResults ' + @query_order_by;
-
-		-- insert data for X/Y values into new temp table
-		insert into ##tmpnotiflyer_tbChartData
-		exec(@sqlcmd);
 
         -- TODO:
         -- when multiple data series support is added, convert the following alter table statement
         -- into a loop for  generating dynamic alter table statement depending on number 
         -- of data series columns being utilized
 
-        -- temporary mvp logic:
-        -- ensure table columns are in varchar
-        alter table tempdb..##tmpnotiflyer_tbChartData
-            alter column datacolumn_x nvarchar(max);
+        -- TODO:
+        -- issue #84 - https://github.com/cleancoda/notiflyer/issues/84
+        -- prep create table statement for chart data
+        if(@chart_column_axes_x_datatype like '%date%' or @chart_column_axes_y_datatype like '%date%')
+            begin
 
-        -- ensure table columns are in varchar
-        alter table tempdb..##tmpnotiflyer_tbChartData
-            alter column datacolumn_y nvarchar(max);
+                -- handle date formats
+                -- when 
+                begin try
+                    select
+                        @sqlcmd = 'select ' 
+                                    + '"'
+                                    + try_cast(@chart_column_axes_x as nvarchar(max))
+                                    + '"'
+                                    + ' as datacolumn_x, ' 
+                                    + '"'
+                                    + try_cast(@chart_column_axes_y as nvarchar(max)) 
+                                    + '"'
+                                    + ' as datacolumn_y '
+                                    + 'from ##tmpNotiflyer_tbQueryExecuteResults ' 
+                                    + @query_order_by;
+                end try
+                begin catch
+                    select
+                        @returnvalue = 1
+                        ,@returnmessage = 'error occured: ['
+                                        +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                                        +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                                        +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                                        +  ' ]'
+                end catch
+            end
 
-        -- append ' on string values for axes labels
-        -- x axes
-        select
-            @sqlvar = case when @chart_column_axes_x_datatype like '%char%' then '"' when @chart_column_axes_x_datatype like '%date%' then '"' else '' end;
+        -- insert data for X/Y values into new temp table
+        -- insert into ##tmpnotiflyer_tbChartData
+        exec(@sqlcmd);  
 
-        update ##tmpnotiflyer_tbChartData
-        set
-            datacolumn_x = @sqlvar + datacolumn_x + @sqlvar;
+        /*
+            -- TODO:
+            -- issue #64 - https://github.com/cleancoda/notiflyer/issues/64
+            -- replace with cursor to loop through multiple series of data;
 
-        -- append ' on string values for axes labels
-        -- y axes
-        select
-            @sqlvar = case when @chart_column_axes_y_datatype like '%char%' then '"' when @chart_column_axes_y_datatype like '%date%' then '"' else '' end;
+            -- temporary mvp logic:
+            -- ensure table columns are in varchar
+            -- prep insert select statement for copying data plot points from ##tmpNotiflyer_tbQueryExecuteResults into ##tmpnotiflyer_tbChartData -- order by query
+            select @sqlcmd = 'select ' + @chart_column_axes_x + ' ,' + case when isnull(@chart_column_axes_y,'') <> '' then + @chart_column_axes_y else '''''' end +  ' from ##tmpNotiflyer_tbQueryExecuteResults ' + @query_order_by;
 
-        update ##tmpnotiflyer_tbChartData
-        set
-            datacolumn_y = @sqlvar + datacolumn_y + @sqlvar;
+            -- insert data for X/Y values into new temp table
+            insert into ##tmpnotiflyer_tbChartData
+            exec(@sqlcmd);  
+
+            alter table tempdb..##tmpnotiflyer_tbChartData
+                alter column datacolumn_x nvarchar(max);
+
+            -- ensure table columns are in varchar
+            alter table tempdb..##tmpnotiflyer_tbChartData
+                alter column datacolumn_y nvarchar(max);
+
+            -- append ' on string values for axes labels
+            -- x axes
+            select
+                @sqlvar = case when @chart_column_axes_x_datatype like '%char%' then '"' when @chart_column_axes_x_datatype like '%date%' then '"' else '' end;
+
+            update ##tmpnotiflyer_tbChartData
+            set
+                datacolumn_x = @sqlvar + datacolumn_x + @sqlvar;
+
+            -- append ' on string values for axes labels
+            -- y axes
+            select
+                @sqlvar = case when @chart_column_axes_y_datatype like '%char%' then '"' when @chart_column_axes_y_datatype like '%date%' then '"' else '' end;
+
+            update ##tmpnotiflyer_tbChartData
+            set
+                datacolumn_y = @sqlvar + datacolumn_y + @sqlvar;
+        */
 
         -- mark parse results as success
         select 
@@ -223,3 +274,31 @@ begin
                             +  ' ]'
     end catch 
 end
+go
+
+declare
+                    @returnvalue as int = 0
+                    ,@returnmessage as nvarchar(255) = ''
+                    ,@column_axes_x_axes_label as varchar(max) = ''
+                    ,@column_axes_y_axes_label as varchar(max) = '';
+
+                exec notiflyer_spChartDataPrepare
+                    @query_select = 'select top 10 CustomerID,dateadd(month, datediff(month, 0, OrderDate), 0) as OrderMonth,count(1) as TotalAmount' 
+                    ,@query_from = 'from WideWorldImporters.Sales.Orders'
+                    ,@query_where = 'where PickedByPersonID = 2'
+                    ,@query_group_by = 'group by CustomerID ,dateadd(month, datediff(month, 0, OrderDate), 0)'
+                    ,@query_order_by = 'order by TotalAmount desc'
+                    ,@chart_column_axes_x = 'OrderMonth'
+                    ,@chart_column_axes_y = 'TotalAmount'
+                    ,@chart_column_axes_x_axes_label = @column_axes_x_axes_label output
+                    ,@chart_column_axes_y_axes_label = @column_axes_y_axes_label output
+                    ,@returnvalue = @returnvalue output
+                    ,@returnmessage = @returnmessage output;                    
+
+                select  
+                    @column_axes_x_axes_label
+                    ,@column_axes_y_axes_label
+                    ,@returnvalue
+                    ,@returnmessage;
+
+                select * from ##tmpnotiflyer_tbChartData;
