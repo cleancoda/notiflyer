@@ -46,6 +46,8 @@ create procedure notiflyer_spExecuteQuery
 
                 select @queryexecuted, @queryoutput;
 
+                select * from ##tmpNotiflyer_tbQueryExecuteResults
+
     @log
                 cc  11202023 - generated basic script file
 */

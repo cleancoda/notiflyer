@@ -12,20 +12,25 @@ create procedure notiflyer_spChartDataPrepJSONObjects
     @detail     
     @sample
                 declare
-                    @returnvalue as int = 0
+                    @column_axes_x_axes_json_label as nvarchar(max) = ''
+                    ,@column_axes_y_axes_json_label as nvarchar(max) = ''
+                    ,@returnvalue as int = 0
                     ,@returnmessage as nvarchar(255) = '';
                 
                 exec notiflyer_spChartDataPrepJSONObjects
-                    @column_axes_x_axes_data_type = 'varchar(max)'
-                    ,@column_axes_x_axes_json_label = 'OrderMth'
-                    ,@column_axes_y_axes_data_type = 'numeric(12,2)'
-                    ,@column_axes_y_axes_json_label = ''
-                    ,@column_axes_y_data_label = 'NumOfOrders'
-                    ,@returnvalue = 0
-                    ,@returnmessage = ''
+                    @column_axes_x_axes_label = 'OrderMonth'
+                    ,@column_axes_y_axes_label = 'TotalAmount'
+
+                    ,@column_axes_x_axes_json_label = @column_axes_x_axes_json_label output
+                    ,@column_axes_y_axes_json_label = @column_axes_y_axes_json_label output
+
+                    ,@returnvalue = @returnvalue output
+                    ,@returnmessage = @returnmessage output;
 
                 select  
-                    @returnvalue
+                    @column_axes_x_axes_json_label
+                    ,@column_axes_y_axes_json_label
+                    ,@returnvalue
                     ,@returnmessage;
 
     @log

@@ -16,7 +16,7 @@ create procedure notiflyer_spParseQuery
                 
                 exec notiflyer_spParseQuery
                     @query_select = 'select *'
-                    ,@query_from = 'from Sales.Customerss'
+                    ,@query_from = 'from Sales.Customers'
                     ,@query_parsed = @queryparsed output
                     ,@query_output = @queryoutput output ;
 

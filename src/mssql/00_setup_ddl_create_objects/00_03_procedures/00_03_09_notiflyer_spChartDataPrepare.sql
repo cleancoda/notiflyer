@@ -78,6 +78,37 @@ create procedure notiflyer_spChartDataPrepare
                     GROUP BY C.CustomerName
                     ORDER BY TotalNBOrders DESC, CustomerName
                 */
+
+                /* 
+                    -- testing script
+
+                    declare
+                        @returnvalue as int = 0
+                        ,@returnmessage as nvarchar(255) = ''
+                        ,@column_axes_x_axes_label as varchar(max) = ''
+                        ,@column_axes_y_axes_label as varchar(max) = '';
+
+                    exec notiflyer_spChartDataPrepare
+                        @query_select = 'select top 10 CustomerID,dateadd(month, datediff(month, 0, OrderDate), 0) as OrderMonth,count(1) as TotalAmount' 
+                        ,@query_from = 'from WideWorldImporters.Sales.Orders'
+                        ,@query_where = 'where PickedByPersonID = 2'
+                        ,@query_group_by = 'group by CustomerID ,dateadd(month, datediff(month, 0, OrderDate), 0)'
+                        ,@query_order_by = 'order by TotalAmount desc'
+                        ,@chart_column_axes_x = 'OrderMonth'
+                        ,@chart_column_axes_y = 'TotalAmount'
+                        ,@chart_column_axes_x_axes_label = @column_axes_x_axes_label output
+                        ,@chart_column_axes_y_axes_label = @column_axes_y_axes_label output
+                        ,@returnvalue = @returnvalue output
+                        ,@returnmessage = @returnmessage output;                    
+
+                    select  
+                        @column_axes_x_axes_label
+                        ,@column_axes_y_axes_label
+                        ,@returnvalue
+                        ,@returnmessage;
+
+                    select * from ##tmpnotiflyer_tbChartData;
+                */
                 
     @log
                 cc  11212023 - generated basic script file
@@ -169,7 +200,7 @@ begin
 
         -- new attempt #84
         select
-        @sqlcmd = 'create table ##tmpnotiflyer_tbChartData ( datacolumn_x nvarchar(max), datacolumn_y nvarchar(max));';
+            @sqlcmd = 'create table ##tmpnotiflyer_tbChartData ( datacolumn_x nvarchar(max), datacolumn_y nvarchar(max));';
 
         -- execute create statement
         exec(@sqlcmd);
@@ -189,14 +220,27 @@ begin
                 -- when 
                 begin try
                     select
-                        @sqlcmd = 'select ' 
-                                    + '"'
-                                    + try_cast(@chart_column_axes_x as nvarchar(max))
-                                    + '"'
+
+                        -- TODO: review date challenges
+                        -- issue #84 - https://github.com/cleancoda/notiflyer/issues/84
+                        -- doc'd out to test conversion for dates into mm/dd/yyyy format
+                        -- need to review if TIMESTAMP is needed in certain cases
+                        -- @sqlcmd = 'select ' 
+                        --             + '"'
+                        --             + try_cast(@chart_column_axes_x as nvarchar(max))
+                        --             + '"'
+                        --             + ' as datacolumn_x, ' 
+                        --             + '"'
+                        --             + try_cast(@chart_column_axes_y as nvarchar(max)) 
+                        --             + '"'
+                        --             + ' as datacolumn_y '
+                        --             + 'from ##tmpNotiflyer_tbQueryExecuteResults ' 
+                        --             + @query_order_by;
+
+                        @sqlcmd = 'insert into ##tmpnotiflyer_tbChartData ( datacolumn_x, datacolumn_y) select ' 
+                                    + 'try_convert(varchar(10), ' + @chart_column_axes_x + ', 101)'
                                     + ' as datacolumn_x, ' 
-                                    + '"'
-                                    + try_cast(@chart_column_axes_y as nvarchar(max)) 
-                                    + '"'
+                                    + 'try_convert(varchar(10), ' + @chart_column_axes_y + ', 101)'
                                     + ' as datacolumn_y '
                                     + 'from ##tmpNotiflyer_tbQueryExecuteResults ' 
                                     + @query_order_by;
@@ -214,7 +258,20 @@ begin
 
         -- insert data for X/Y values into new temp table
         -- insert into ##tmpnotiflyer_tbChartData
-        exec(@sqlcmd);  
+        begin try
+            print @sqlcmd;
+            exec(@sqlcmd);  
+        end try
+
+        begin catch
+            select
+                @returnvalue = 1
+                ,@returnmessage = 'error occured: ['
+                                +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                                +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                                +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                                +  ' ]'
+        end catch
 
         /*
             -- TODO:
@@ -275,30 +332,3 @@ begin
     end catch 
 end
 go
-
-declare
-                    @returnvalue as int = 0
-                    ,@returnmessage as nvarchar(255) = ''
-                    ,@column_axes_x_axes_label as varchar(max) = ''
-                    ,@column_axes_y_axes_label as varchar(max) = '';
-
-                exec notiflyer_spChartDataPrepare
-                    @query_select = 'select top 10 CustomerID,dateadd(month, datediff(month, 0, OrderDate), 0) as OrderMonth,count(1) as TotalAmount' 
-                    ,@query_from = 'from WideWorldImporters.Sales.Orders'
-                    ,@query_where = 'where PickedByPersonID = 2'
-                    ,@query_group_by = 'group by CustomerID ,dateadd(month, datediff(month, 0, OrderDate), 0)'
-                    ,@query_order_by = 'order by TotalAmount desc'
-                    ,@chart_column_axes_x = 'OrderMonth'
-                    ,@chart_column_axes_y = 'TotalAmount'
-                    ,@chart_column_axes_x_axes_label = @column_axes_x_axes_label output
-                    ,@chart_column_axes_y_axes_label = @column_axes_y_axes_label output
-                    ,@returnvalue = @returnvalue output
-                    ,@returnmessage = @returnmessage output;                    
-
-                select  
-                    @column_axes_x_axes_label
-                    ,@column_axes_y_axes_label
-                    ,@returnvalue
-                    ,@returnmessage;
-
-                select * from ##tmpnotiflyer_tbChartData;
