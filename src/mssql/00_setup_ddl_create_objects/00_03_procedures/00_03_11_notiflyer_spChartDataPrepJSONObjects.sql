@@ -4,7 +4,6 @@ if object_id('notiflyer_spChartDataPrepJSONObjects') is not null
     return;
 go
 
--- drop procedure notiflyer_spChartDataPrepJSONObjects
 create procedure notiflyer_spChartDataPrepJSONObjects
 /*
     @author     cleancoda
