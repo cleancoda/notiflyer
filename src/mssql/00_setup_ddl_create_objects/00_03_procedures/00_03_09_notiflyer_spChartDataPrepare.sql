@@ -4,8 +4,8 @@ if object_id('notiflyer_spChartDataPrepare') is not null
     return;
 go
 
-drop procedure notiflyer_spChartDataPrepare
-go
+-- drop procedure notiflyer_spChartDataPrepare
+-- go
 
 create procedure notiflyer_spChartDataPrepare
 /*
@@ -16,6 +16,8 @@ create procedure notiflyer_spChartDataPrepare
                 declare
                     @returnvalue as int = 0
                     ,@returnmessage as nvarchar(255) = ''
+                    ,@column_axes_x_datatype as varchar(max) = ''
+                    ,@column_axes_y_datatype as varchar(max) = ''
                     ,@column_axes_x_axes_label as varchar(max) = ''
                     ,@column_axes_y_axes_label as varchar(max) = '';
 
@@ -27,13 +29,17 @@ create procedure notiflyer_spChartDataPrepare
                     ,@query_order_by = 'order by TotalAmount desc'
                     ,@chart_column_axes_x = 'OrderMonth'
                     ,@chart_column_axes_y = 'TotalAmount'
+                    ,@chart_column_axes_x_datatype = @column_axes_x_datatype output
+                    ,@chart_column_axes_y_datatype = @column_axes_y_datatype output
                     ,@chart_column_axes_x_axes_label = @column_axes_x_axes_label output
                     ,@chart_column_axes_y_axes_label = @column_axes_y_axes_label output
                     ,@returnvalue = @returnvalue output
                     ,@returnmessage = @returnmessage output;                    
 
                 select  
-                    @column_axes_x_axes_label
+                    @column_axes_x_datatype
+                    ,@column_axes_y_datatype
+                    ,@column_axes_x_axes_label
                     ,@column_axes_y_axes_label
                     ,@returnvalue
                     ,@returnmessage;
@@ -123,6 +129,10 @@ create procedure notiflyer_spChartDataPrepare
     ,@chart_column_axes_x as nvarchar(max) = ''
     ,@chart_column_axes_y as nvarchar(max) = ''
     -- values to be returned back to caller
+    -- data type of columns/axes
+    ,@chart_column_axes_x_datatype as nvarchar(max) = '' output
+    ,@chart_column_axes_y_datatype as nvarchar(max) = '' output
+    -- label names of columns/axes
     ,@chart_column_axes_x_axes_label as nvarchar(max) = '' output
     ,@chart_column_axes_y_axes_label as nvarchar(max) = '' output
     ,@returnvalue as int = 0 output
@@ -143,11 +153,8 @@ begin
 
         -- global variables
         declare 
-            -- data type of columns/axes
-            @chart_column_axes_x_datatype as nvarchar(max)
-            ,@chart_column_axes_y_datatype as nvarchar(max)
             -- sql vars
-            ,@sqlvar as nvarchar(max) -- temporary variable
+            @sqlvar as nvarchar(max) -- temporary variable
             ,@sqlcmd as nvarchar(max); -- temporary commands
 
         -- generate and store metadata into global temp table ##tmpNotiflyer_tbMetaDataColumns

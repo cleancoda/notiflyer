@@ -239,6 +239,8 @@ begin
             ,@query_group_by as nvarchar(max) = ''
             ,@query_order_by as nvarchar(max) = ''
             ,@chart_column_legend nvarchar(max) -- TODO: can be used later for chart legend
+            ,@chart_column_axes_x_datatype as nvarchar(max) -- TODO: can be used later for chart axes x
+            ,@chart_column_axes_y_datatype as nvarchar(max) -- TODO: can be used later for chart axes y
             ,@chart_column_axes_x nvarchar(max) -- TODO: can be used later for chart axes x
             ,@chart_column_axes_y nvarchar(max) -- TODO: can be used later for chart axes y
             ,@chart_graphtype nvarchar(max);
@@ -359,7 +361,6 @@ begin
                                 ,@query_group_by
                                 ,@query_order_by;
 
-
                             -- prepare chart data
                             exec notiflyer_spChartDataPrepare
                                 @query_select = @query_select
@@ -369,6 +370,8 @@ begin
                                 ,@query_order_by = @query_order_by
                                 ,@chart_column_axes_x = @chart_column_axes_x
                                 ,@chart_column_axes_y = @chart_column_axes_y
+                                ,@chart_column_axes_x_datatype = @column_axes_x_datatype output
+                                ,@chart_column_axes_y_datatype = @column_axes_y_datatype output
                                 ,@chart_column_axes_x_axes_label = @column_axes_x_axes_label output
                                 ,@chart_column_axes_y_axes_label = @column_axes_y_axes_label output
                                 ,@returnvalue = @returnvalue output
