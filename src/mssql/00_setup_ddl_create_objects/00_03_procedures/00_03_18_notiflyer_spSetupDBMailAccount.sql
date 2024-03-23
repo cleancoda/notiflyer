@@ -47,6 +47,12 @@ create procedure notiflyer_spSetupDBMailAccount
 as
 begin
     begin try
+
+        -- drop mail account if exists
+        exec
+            msdb.dbo.sysmail_delete_account_sp
+                @account_name = @account_name;
+
         -- setup a new database mail account
         exec 
             msdb.dbo.sysmail_add_account_sp

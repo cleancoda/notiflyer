@@ -18,13 +18,13 @@ create procedure notiflyer_spSetupDBMailConfig
                 exec notiflyer_spSetupDBMailConfig
                     @profile_name = 'test'
                     ,@profile_description = 'profile description'
-                    ,@accountname = 'test'
+                    ,@account_name = 'test'
                     ,@account_description = 'account description'
-                    ,@emailaddress = '@gmail.com'
-                    ,@displayname = 'test'
-                    ,@mailservername = 'smtp.gmail.com'
+                    ,@email_address = '@gmail.com'
+                    ,@display_name = 'test'
+                    ,@mail_server_name = 'smtp.gmail.com'
                     ,@port = 587
-                    ,@enablessl = 1
+                    ,@enable_ssl = 1
                     ,@username  = '@gmail.com'
                     ,@password  = ''
                     ,@returnvalue = 0 
@@ -33,7 +33,7 @@ create procedure notiflyer_spSetupDBMailConfig
                 -- send sample email
                 EXEC msdb.dbo.sp_send_dbmail
                     @profile_name = 'test'
-                    ,@recipients = '@gmail.com'
+                    ,@recipients = 'pranav.shirodkar@protonmail.com'
                     ,@body = 'The stored procedure finished successfully.'
                     ,@subject = 'Test Email from SQL';
 
@@ -62,6 +62,21 @@ begin
         -- TODO:
         -- issue #80
         -- add try/cast checks to see if exists prior to create
+
+        /*
+            -- TODO:
+            -- find an elegant way to implement and enable following configs
+
+            EXEC sp_configure 'show advanced options', 1;  
+            RECONFIGURE;
+            EXEC sp_configure 'Database Mail XPs', 1;  
+            RECONFIGURE;
+            
+            EXEC sp_configure 'show advanced options', 0;
+            RECONFIGURE;
+            EXEC sp_configure 'Database Mail XPs', 0;  
+            RECONFIGURE;
+        */
 
         -- setup new profile
         execute notiflyer_spSetupDBMailProfile

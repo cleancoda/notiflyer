@@ -40,7 +40,7 @@ begin
 
         -- collect and prepare objects
         1. get and store job config from notiflyer_tbJobManager for matching job_id
-        2. get and store query_id and pos_id from notiflyer_tbJobQueryGrid for matching job_id into a new temp table #tempJobQueryGrid
+        2. get and store query_id and row and column position from notiflyer_tbJobQueryGrid for matching job_id into a new temp table #tempJobQueryGrid
         3. get and store query config from notiflyer_tbQuery for every matching id from notiflyer_tbJobQueryGrid imported in step 2
         4. get and store parameters from notiflyer_tbJobQueryGridParameters in new temp table #tempQueryParameters for every matching query in notiflyer_tbQuery imported in step 3
         5. update parameters from #tempQueryParameters and replace matching parameters in #tempQuery
@@ -75,7 +75,7 @@ begin
         where
             id = @job_id;
 
-    -- 2. get and store query_id and pos_id from notiflyer_tbJobQueryGrid for matching job_id into a new temp table #tempJobQueryGrid
+    -- 2. get and store query_id and row and column from notiflyer_tbJobQueryGrid for matching job_id into a new temp table #tempJobQueryGrid
 
         -- drop temp table if exists
         if object_id('tempdb..#tempJobQueryGrid') is not null
@@ -88,7 +88,8 @@ begin
             ,name varchar(255)
             ,job_id int
             ,query_id int
-            ,pos_id int
+            ,grid_row int
+            ,grid_column int
         );
 
         -- populate temp table
@@ -98,14 +99,16 @@ begin
             ,name
             ,job_id
             ,query_id
-            ,pos_id
+            ,grid_row
+            ,grid_column
         )
         select
             id as job_query_grid_id
             ,name
             ,job_id
             ,query_id
-            ,pos_id
+            ,grid_row
+            ,grid_column
         from
             notiflyer_tbJobQueryGrid
         where
@@ -123,7 +126,8 @@ begin
             id int identity(1,1)            -- used for looping through queries
             ,job_query_grid_id int
             ,job_id int
-            ,pos_id int
+            ,grid_row int
+            ,grid_column int
             ,query_id int
             ,query_select nvarchar(max) default ''
             ,query_from nvarchar(max) default ''
@@ -143,7 +147,8 @@ begin
         (
             job_query_grid_id
             ,job_id
-            ,pos_id
+            ,grid_row
+            ,grid_column
             ,query_id
             ,query_select
             ,query_from
@@ -158,7 +163,8 @@ begin
         select
             g.id
             ,g.job_id
-            ,g.pos_id
+            ,g.grid_row
+            ,g.grid_column
             ,g.query_id
             ,q.query_select
             ,q.query_from
@@ -186,7 +192,8 @@ begin
         create table #tempQueryParameters
         (
             job_id int
-            ,pos_id int
+            ,grid_row int
+            ,grid_column int
             ,query_id int
             ,parameter_name nvarchar(max)
             ,parameter_value nvarchar(max)
@@ -196,7 +203,8 @@ begin
         insert into #tempQueryParameters
         select
             q.job_id
-            ,q.pos_id
+            ,q.grid_row
+            ,q.grid_column
             ,q.query_id
             ,gp.parameter_name
             ,gp.parameter_value
@@ -215,7 +223,8 @@ begin
             #tempQuery q
             left outer join #tempQueryParameters p on
                 q.job_id = p.job_id
-                and q.pos_id = p.pos_id
+                and q.grid_row = p.grid_row
+                and q.grid_column = p.grid_column
                 and q.query_id = p.query_id;
 
     -- 6. loop through #tempQuery and execute query
@@ -231,7 +240,8 @@ begin
             @query_counter as int = 0
             ,@query_count as int = 0
             ,@job_query_grid_id as int = 0
-            ,@pos_id as int = 0
+            ,@grid_row as int = 0
+            ,@grid_column as int = 0
             ,@query_id as int = 0
             ,@query_select as nvarchar(max) = ''
             ,@query_from as nvarchar(max) = ''
@@ -239,6 +249,8 @@ begin
             ,@query_group_by as nvarchar(max) = ''
             ,@query_order_by as nvarchar(max) = ''
             ,@chart_column_legend nvarchar(max) -- TODO: can be used later for chart legend
+            ,@column_axes_x_datatype as nvarchar(max) -- TODO: can be used later for chart axes x
+            ,@column_axes_y_datatype as nvarchar(max) -- TODO: can be used later for chart axes y
             ,@chart_column_axes_x_datatype as nvarchar(max) -- TODO: can be used later for chart axes x
             ,@chart_column_axes_y_datatype as nvarchar(max) -- TODO: can be used later for chart axes y
             ,@chart_column_axes_x nvarchar(max) -- TODO: can be used later for chart axes x
@@ -381,11 +393,14 @@ begin
 
                             -- convert chart data into json objects
                             exec notiflyer_spChartDataPrepJSONObjects
-                                @column_axes_y_axes_label = @column_axes_y_axes_label
+                                @column_axes_x_axes_label = @column_axes_x_axes_label
+                                ,@column_axes_y_axes_label = @column_axes_y_axes_label
                                 ,@column_axes_x_axes_json_label = @column_axes_x_axes_json_label output
                                 ,@column_axes_y_axes_json_label = @column_axes_y_axes_json_label output
                                 ,@returnvalue = 0
                                 ,@returnmessage = ''
+
+                            select @column_axes_x_axes_label, @column_axes_x_axes_json_label, @column_axes_y_axes_label, @column_axes_y_axes_json_label;
 
                         end
                 end try

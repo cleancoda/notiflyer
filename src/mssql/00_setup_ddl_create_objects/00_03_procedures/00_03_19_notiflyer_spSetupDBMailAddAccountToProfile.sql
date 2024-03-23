@@ -35,6 +35,11 @@ create procedure notiflyer_spSetupDBMailAddAccountToProfile
 as
 begin
     begin try
+        -- delete account from profile if exists
+        exec 
+            msdb.dbo.sysmail_delete_profileaccount_sp
+                @profile_name = @profile_name
+                ,@account_name = @account_name;
 
         -- attach account to profile
         exec 

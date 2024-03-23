@@ -38,8 +38,13 @@ create procedure notiflyer_spSetupDBMailProfile
 as
 begin
     begin try
+        -- drop mail profile if exists
         exec 
-            -- add mail profile
+            msdb.dbo.sysmail_delete_profile_sp
+                @profile_name = @profile_name;
+
+        exec
+        -- add mail profile
             msdb.dbo.sysmail_add_profile_sp
                 @profile_name = @profile_name
                 ,@description = @profile_description
