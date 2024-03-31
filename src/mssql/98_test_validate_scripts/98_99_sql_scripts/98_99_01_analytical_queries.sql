@@ -18,6 +18,20 @@ from WideWorldImporters.Sales.Orders
 group by CustomerID ,dateadd(month, datediff(month, 0, OrderDate), 0)
 order by TotalAmount desc
 
+-- sales by salesperson
+select 
+	c.CustomerName,  sum(l.ExtendedPrice) as TotalInvoiceValue
+from 
+	Sales.Invoices i
+	left outer join Sales.InvoiceLines l on
+		i.InvoiceID = l.InvoiceID
+	left outer join Sales.Customers c on
+		i.CustomerID = c.CustomerID
+where
+	i.SalespersonPersonID = 14		
+group by 
+	c.CustomerName
+order by TotalInvoiceValue desc
 
 -- consistency between orders and their attached invoices
 SELECT A.CustomerId, C.CustomerName,  COUNT( DISTINCT A.OrderId) TotalNBOrders, COUNT( DISTINCT A.InvoiceId) TotalNBInvoices,

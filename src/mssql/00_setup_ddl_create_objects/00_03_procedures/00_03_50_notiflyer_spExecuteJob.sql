@@ -44,6 +44,8 @@ begin
         3. get and store query config from notiflyer_tbQuery for every matching id from notiflyer_tbJobQueryGrid imported in step 2
         4. get and store parameters from notiflyer_tbJobQueryGridParameters in new temp table #tempQueryParameters for every matching query in notiflyer_tbQuery imported in step 3
         5. update parameters from #tempQueryParameters and replace matching parameters in #tempQuery
+        6. loop through #tempQuery and execute query
+        7. store results in a new temp table #tempQueryResults
 
         -- execute queries
         . execute query from notiflyer_tbQuery imported in step 3
@@ -279,6 +281,24 @@ begin
         from
             #tempQuery;
 
+        -- create temp table to hold query results in json format
+        if object_id('tempdb..#tempQueryResults') is not null
+            drop table #tempQueryResults;
+
+        create table #tempQueryResults
+        (
+            id int
+            ,job_id int
+            ,query_id int
+            ,job_query_grid_id int
+            ,grid_row int
+            ,grid_column int
+            ,column_axes_x_axes_label nvarchar(max) 
+            ,column_axes_x_axes_json_label nvarchar(max)
+            ,column_axes_y_axes_label nvarchar(max)
+            ,column_axes_y_axes_json_label nvarchar(max)
+        );
+
         -- while loop through #tempQuery
         while @query_counter < @query_count
             begin
@@ -288,7 +308,10 @@ begin
 
                 -- get query config
                 select
-                    @query_id = q.query_id
+                    @job_query_grid_id = q.job_query_grid_id
+                    ,@grid_row = q.grid_row
+                    ,@grid_column = q.grid_column
+                    ,@query_id = q.query_id
                     ,@query_select = q.query_select
                     ,@query_from = q.query_from
                     ,@query_where = q.query_where
@@ -302,36 +325,6 @@ begin
                     #tempQuery q
                 where   
                     id = @query_counter;
-
-                -- TODO: metadata routine gets called from chartdataprepare
-                -- confirm before removing doc'd out code below 
-
-                -- -- generate metadata for query and store results in global temp table ##tmpNotiflyer_tbMetaDataColumns
-                -- exec notiflyer_spGetMetaData
-                --     @query_select = @query_select
-                --     ,@query_from = @query_from
-                --     ,@query_where = @query_where
-                --     ,@query_group_by = @query_group_by
-                --     ,@query_order_by = @query_order_by
-                --     ,@returnmessage = @returnmessage;
-
-                -- -- get axes - x data type and label
-                -- select
-                --     @column_axes_x_axes_data_type = system_type_name
-                --     ,@column_axes_x_axes_label = name
-                -- from 
-                --     ##tmpNotiflyer_tbMetaDataColumns
-                -- where 
-                --     name = @chart_column_axes_x;
-
-                -- -- get axes - y data type and label
-                -- select
-                --     @column_axes_y_axes_data_type = system_type_name
-                --     ,@column_axes_y_axes_label = name
-                -- from 
-                --     ##tmpNotiflyer_tbMetaDataColumns
-                -- where 
-                --     name = @chart_column_axes_y;
 
                 -- trap errors from execution
                 begin try
@@ -366,13 +359,6 @@ begin
                     if @query_parsed = 0
                         begin
 
-                            select
-                                @query_select
-                                ,@query_from
-                                ,@query_where
-                                ,@query_group_by
-                                ,@query_order_by;
-
                             -- prepare chart data
                             exec notiflyer_spChartDataPrepare
                                 @query_select = @query_select
@@ -389,8 +375,6 @@ begin
                                 ,@returnvalue = @returnvalue output
                                 ,@returnmessage = @returnmessage output;
 
-                            select * from ##tmpNotiflyer_tbChartData;
-
                             -- convert chart data into json objects
                             exec notiflyer_spChartDataPrepJSONObjects
                                 @column_axes_x_axes_label = @column_axes_x_axes_label
@@ -400,8 +384,30 @@ begin
                                 ,@returnvalue = 0
                                 ,@returnmessage = ''
 
-                            select @column_axes_x_axes_label, @column_axes_x_axes_json_label, @column_axes_y_axes_label, @column_axes_y_axes_json_label;
-
+                            insert into #tempQueryResults
+                            (
+                                id
+                                ,job_id
+                                ,query_id
+                                ,job_query_grid_id
+                                ,grid_row
+                                ,grid_column
+                                ,column_axes_x_axes_label
+                                ,column_axes_x_axes_json_label
+                                ,column_axes_y_axes_label
+                                ,column_axes_y_axes_json_label
+                            )
+                            select
+                                @query_counter
+                                ,@job_id
+                                ,@query_id
+                                ,@job_query_grid_id
+                                ,@grid_row
+                                ,@grid_column
+                                ,@column_axes_x_axes_label
+                                ,@column_axes_x_axes_json_label
+                                ,@column_axes_y_axes_label
+                                ,@column_axes_y_axes_json_label;
                         end
                 end try
                 begin catch
@@ -416,46 +422,16 @@ begin
                                         +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
                                         +  ' ]'
                 end catch
-                /*
-                     ,@chart_column_legend = q.chart_column_legend
-                    ,@chart_column_axes_x = q.chart_column_axes_x
-                    ,@chart_column_axes_y = q.chart_column_axes_y
-                    ,@chart_graphtype = q.chart_graphtype
-
-                     @column_axes_x_axes_data_type as nvarchar(max) = '' 
-                    ,@column_axes_y_axes_data_type as nvarchar(max) = ''
-                    ,@column_axes_y_data_label as nvarchar(max) = ''
-                */
             end
 
-        -- -- TESTING BELOW
-        -- select
-        --     @name
-        --     ,@email_subject
-        --     ,@email_recepient
-        --     ,@email_cc
-        --     ,@email_bcc
-        --     ,@email_body_header;
+        select * from #tempQuery;
+        -- final select for all queries to be sent for this job
+        select * from #tempQueryResults
 
-        -- select * from #tempJobQueryGrid;
-        -- select * from #tempQuery;
-        -- select * from #tempQueryParameters;
     end try
     begin catch
     end catch
 
     
 end
-
 go
-
-declare
-                    @returnvalue as int = 0
-                    ,@returnmessage as nvarchar(max) = '';
-                
-                exec notiflyer_spExecuteJob
-                    @job_id = 1
-                    ,@returnvalue = 0
-                    ,@returnmessage = ''
-
-                select @returnvalue, @returnmessage;
