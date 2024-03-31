@@ -304,7 +304,7 @@ begin
             begin
                 -- increment counter (counter starts at 0, element count at >= 1)
                 select
-                    @query_counter = @query_counter + 1
+                    @query_counter = @query_counter + 1;
 
                 -- get query config
                 select
@@ -326,37 +326,42 @@ begin
                 where   
                     id = @query_counter;
 
-                -- trap errors from execution
-                begin try
-                    -- parse and validate query
-                    exec notiflyer_spParseQuery
-                        @query_select = @query_select
-                        ,@query_from = @query_from
-                        ,@query_where = @query_where
-                        ,@query_group_by = @query_group_by
-                        ,@query_order_by = @query_order_by
-                        ,@query_parsed = @query_parsed output
-                        ,@query_output = @query_output output;
-                end try
-                begin catch
-                    select
-                        -- mark parse results as error
-                        @query_parsed = 1
-                        ,@query_output = 'error occured: ['
-                                        +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
-                                        +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
-                                        +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
-                                        +  ' ]'
-                    -- TODO: log error and send email notification
+                -- TODO:
+                -- fix errors on certain queries not parsing even with correct syntax
+                -- -- trap errors from execution
+                -- begin try
 
-                    -- move on to next query in line
-                    continue;
-                end catch
+                --     -- parse and validate query
+                --     exec notiflyer_spParseQuery
+                --         @query_select = @query_select
+                --         ,@query_from = @query_from
+                --         ,@query_where = @query_where
+                --         ,@query_group_by = @query_group_by
+                --         ,@query_order_by = @query_order_by
+                --         ,@query_parsed = @query_parsed output
+                --         ,@query_output = @query_output output;
+
+                -- end try
+                -- begin catch
+                --     select
+                --         -- mark parse results as error
+                --         @query_parsed = 1
+                --         ,@query_output = 'error occured: ['
+                --                         +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                --                         +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                --                         +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                --                         +  ' ]'
+                --     -- TODO: log error and send email notification
+                --     print @query_output;
+
+                --     -- move on to next query in line
+                --     continue;
+                -- end catch
 
                 -- trap errors from execution
                 begin try
                     -- if query parsed successfully, execute query and prepare chart data
-                    if @query_parsed = 0
+                    --if @query_parsed = 0
                         begin
 
                             -- prepare chart data
@@ -411,8 +416,6 @@ begin
                         end
                 end try
                 begin catch
-
-                    select error_message()
                     select
                         -- mark execution results as error
                         @query_executed = 1
@@ -421,13 +424,11 @@ begin
                                         +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
                                         +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
                                         +  ' ]'
+
                 end catch
             end
 
-        select * from #tempQuery;
-        -- final select for all queries to be sent for this job
-        select * from #tempQueryResults
-
+            select * from #tempQueryResults;
     end try
     begin catch
     end catch

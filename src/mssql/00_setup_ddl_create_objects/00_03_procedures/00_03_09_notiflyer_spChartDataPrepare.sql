@@ -222,9 +222,7 @@ begin
         -- prep create table statement for chart data
         if(@chart_column_axes_x_datatype like '%date%' or @chart_column_axes_y_datatype like '%date%')
             begin
-
                 -- handle date formats
-                -- when 
                 begin try
                     select
 
@@ -245,11 +243,24 @@ begin
                         --             + @query_order_by;
 
                         @sqlcmd = 'insert into ##tmpnotiflyer_tbChartData ( datacolumn_x, datacolumn_y) select ' 
-                                    + 'try_convert(varchar(10), ' + @chart_column_axes_x + ', 101)'
-                                    + ' as datacolumn_x, ' 
-                                    + 'try_convert(varchar(10), ' + @chart_column_axes_y + ', 101)'
-                                    + ' as datacolumn_y '
-                                    + 'from ##tmpNotiflyer_tbQueryExecuteResults ' 
+                                    + case 
+                                        when @chart_column_axes_x_datatype like '%date%' then 
+                                            'try_convert(varchar(10), ' + @chart_column_axes_x + ', 101)'
+                                        else
+                                            try_cast(@chart_column_axes_x as nvarchar(max))
+                                    end
+                                    -- alias interferes with original order by clause
+                                    -- + ' as datacolumn_x, ' 
+                                    + ', '
+                                    + case 
+                                        when @chart_column_axes_y_datatype like '%date%' then 
+                                            'try_convert(varchar(10), ' + @chart_column_axes_y + ', 101)'
+                                        else
+                                            try_cast(@chart_column_axes_y as nvarchar(max))
+                                    end
+                                    -- alias interferes with original order by clause
+                                    -- + ' as datacolumn_y '
+                                    + ' from ##tmpNotiflyer_tbQueryExecuteResults ' 
                                     + @query_order_by;
                 end try
                 begin catch
@@ -262,11 +273,26 @@ begin
                                         +  ' ]'
                 end catch
             end
+        else
+            begin
+                select
+                    @sqlcmd = 'insert into ##tmpnotiflyer_tbChartData ( datacolumn_x, datacolumn_y) select ' 
+                                    + @chart_column_axes_x
+                                    + ' as datacolumn_x, ' 
+                                    + @chart_column_axes_y
+                                    + ' as datacolumn_y '
+                                    + 'from ##tmpNotiflyer_tbQueryExecuteResults ' 
+                                    + @query_order_by;
+            end
 
         -- insert data for X/Y values into new temp table
         -- insert into ##tmpnotiflyer_tbChartData
         begin try
-            print @sqlcmd;
+            -- print command
+            print '============== sql command ==============' + char(13)
+            print @sqlcmd + char(13);
+            print '=========================================' + char(13)
+            -- execute command
             exec(@sqlcmd);  
         end try
 
