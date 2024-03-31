@@ -33,7 +33,7 @@ create procedure notiflyer_spSetupDBMailConfig
                 -- send sample email
                 EXEC msdb.dbo.sp_send_dbmail
                     @profile_name = 'test'
-                    ,@recipients = 'pranav.shirodkar@protonmail.com'
+                    ,@recipients = '@mail.com'
                     ,@body = 'The stored procedure finished successfully.'
                     ,@subject = 'Test Email from SQL';
 
