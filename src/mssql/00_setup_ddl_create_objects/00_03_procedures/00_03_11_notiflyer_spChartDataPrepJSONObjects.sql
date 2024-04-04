@@ -4,6 +4,7 @@ if object_id('notiflyer_spChartDataPrepJSONObjects') is not null
     return;
 go
 
+-- drop procedure notiflyer_spChartDataPrepJSONObjects 
 create procedure notiflyer_spChartDataPrepJSONObjects
 /*
     @author     cleancoda
@@ -85,10 +86,6 @@ begin
         -- y axes data label
         set
             @column_axes_y_axes_json_label = '"' + @column_axes_y_axes_label + '", data: [' + @y_axes_data_series + ']';
-
-        select
-            @column_axes_x_axes_json_label
-            ,@column_axes_y_axes_json_label;
 
         -- TODO:
         -- chart design/options/colors/fonts/configurations/plugins

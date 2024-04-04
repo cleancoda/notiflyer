@@ -4,6 +4,7 @@ if object_id('notiflyer_fnUrlEncode') is not null
     return;
 go
 
+
 create function notiflyer_fnUrlEncode
 /*
     @author     cleancoda

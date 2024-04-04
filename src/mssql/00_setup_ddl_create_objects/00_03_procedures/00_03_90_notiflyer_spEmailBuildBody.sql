@@ -25,8 +25,7 @@ create procedure notiflyer_spEmailBuildBody
 
 */
 (
-    @html_header as nvarchar(max) output
-    ,@html_footer as nvarchar(max) output
+    @email_body as nvarchar(max) = '' output
     ,@returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
 )
@@ -72,10 +71,59 @@ begin
         </div>
     </div>
 </body>
-</html>
-
-            
+</html>            
         */
+
+        -- loop variables for drawing html table
+        declare
+            @rows as int = 0
+            ,@columns as int = 0
+            ,@row_counter as int = 0
+            ,@column_counter as int = 0;
+
+        select
+            @rows = max(t.grid_row)
+            ,@columns = max(t.grid_column)
+        from
+            ##tempQueryResults t;
+        
+        -- build html table
+        declare
+            @html_body as nvarchar(max) = '';
+
+        select
+            @html_body = '
+                        <body style="background-color: #ffffff;">
+                            <div class="header" style="display: flex; justify-content: center; align-items: center; text-align: center; height: 70px; background-color: #ffffff;">
+                                <img src="https://cdn.icon-icons.com/icons2/2351/PNG/512/logo_telegram_airplane_air_plane_paper_airplane_icon_143169.png" alt="Logo" style="max-width: 40px;">
+                                <h1 style="margin: 0;">notiflyer</h1>
+                            </div>
+                            <div class="grid-container" style="display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr;">
+                        ';
+
+        while @row_counter < @rows
+        begin
+            set @html_body = @html_body + '<div class="grid-item">';
+
+            while @column_counter < @columns
+            begin
+                select
+                    @html_body = @html_body + '<img src="' + t.image_url + '" style="max-width: 100%;"></div>'
+                from
+                    ##tempQueryResults t
+                where
+                    t.grid_row = @row_counter
+                    and t.grid_column = @column_counter;
+
+                set @column_counter = @column_counter + 1;
+            end
+
+            set @html_body = @html_body + '</div>';
+            set @row_counter = @row_counter + 1;
+        end
+
+        
+
 
     end try
     begin catch

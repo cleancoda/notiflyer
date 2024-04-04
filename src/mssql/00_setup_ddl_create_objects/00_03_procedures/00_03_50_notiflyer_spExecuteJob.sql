@@ -275,6 +275,18 @@ begin
             ,@column_axes_x_axes_label as nvarchar(max)
             ,@column_axes_y_axes_label as nvarchar(max);
 
+        -- prepare email string
+        declare
+            @json_string as nvarchar(max) = ''
+            ,@chart_api_url as nvarchar(max) = ''
+            ,@email_body as nvarchar(max) = '';
+
+        -- TODO:
+        -- get app config for chart api from notiflyer_tbAppConfig
+        select
+            @chart_api_url = 'https://quickchart.io/chart?c=';
+        
+
         -- get total number of queries to execute
         select
             @query_count = max(id)
@@ -282,10 +294,10 @@ begin
             #tempQuery;
 
         -- create temp table to hold query results in json format
-        if object_id('tempdb..#tempQueryResults') is not null
-            drop table #tempQueryResults;
+        if object_id('tempdb..##tempQueryResults') is not null
+            drop table ##tempQueryResults;
 
-        create table #tempQueryResults
+        create table ##tempQueryResults
         (
             id int
             ,job_id int
@@ -297,6 +309,7 @@ begin
             ,column_axes_x_axes_json_label nvarchar(max)
             ,column_axes_y_axes_label nvarchar(max)
             ,column_axes_y_axes_json_label nvarchar(max)
+            ,chart_url nvarchar(max)
         );
 
         -- while loop through #tempQuery
@@ -380,6 +393,10 @@ begin
                                 ,@returnvalue = @returnvalue output
                                 ,@returnmessage = @returnmessage output;
 
+                            select
+                                @column_axes_x_axes_label as column_axes_x_axes_label
+                                ,@column_axes_y_axes_label as column_axes_y_axes_label; 
+
                             -- convert chart data into json objects
                             exec notiflyer_spChartDataPrepJSONObjects
                                 @column_axes_x_axes_label = @column_axes_x_axes_label
@@ -389,7 +406,16 @@ begin
                                 ,@returnvalue = 0
                                 ,@returnmessage = ''
 
-                            insert into #tempQueryResults
+                            -- convert into json string
+                            exec notiflyer_spChartAPIPrepJSONString
+                                @chart_type = @chart_graphtype
+                                ,@column_axes_x_axes_json_label = @column_axes_x_axes_json_label
+                                ,@column_axes_y_axes_json_label = @column_axes_y_axes_json_label
+                                ,@json_string = @json_string output
+                                ,@returnvalue = 0
+                                ,@returnmessage = '';
+
+                            insert into ##tempQueryResults
                             (
                                 id
                                 ,job_id
@@ -401,6 +427,7 @@ begin
                                 ,column_axes_x_axes_json_label
                                 ,column_axes_y_axes_label
                                 ,column_axes_y_axes_json_label
+                                ,chart_url
                             )
                             select
                                 @query_counter
@@ -412,7 +439,8 @@ begin
                                 ,@column_axes_x_axes_label
                                 ,@column_axes_x_axes_json_label
                                 ,@column_axes_y_axes_label
-                                ,@column_axes_y_axes_json_label;
+                                ,@column_axes_y_axes_json_label
+                                ,@chart_api_url + @json_string;
                         end
                 end try
                 begin catch
@@ -426,11 +454,31 @@ begin
                                         +  ' ]'
 
                 end catch
-            end
+            end          
+            
+            -- -- builds email body in html using contents of ##tempQueryResults;
+            -- exec notiflyer_spEmailBuildBody
+            --     @email_body = @email_body  output
+            --     ,@returnvalue = 0
+            --     ,@returnmessage = '';
 
-            select * from #tempQueryResults;
+            -- select @email_body;
+
+            select * from ##tempQueryResults
+
+            -- mark success
+            select
+                @returnvalue = 0
+                ,@returnmessage = 'job executed successfully';
     end try
     begin catch
+        select
+            @returnvalue = 1
+            ,@returnmessage = 'error occured: ['
+                            +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                            +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                            +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                            +  ' ]'
     end catch
 
     

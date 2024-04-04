@@ -81,8 +81,10 @@ begin
                             + '}'
 
             -- encode string for appending to a url
-            select
-                @json_string = dbo.notiflyer_fnUrlEncode(@json_string);
+            -- select
+            --     @json_string = dbo.notiflyer_fnUrlEncode(@json_string);
+
+            return @json_string;
 
     end try
 
