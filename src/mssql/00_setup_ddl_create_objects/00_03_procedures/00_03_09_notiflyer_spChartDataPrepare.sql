@@ -388,7 +388,7 @@ begin
                 datacolumn_y = @sqlvar + datacolumn_y + @sqlvar;
         */
 
-        if @chart_column_axes_x_datatype like '%date%' or @chart_column_axes_y_datatype like '%char%'
+        if @chart_column_axes_x_datatype like '%date%' or @chart_column_axes_x_datatype like '%char%'
             begin
                 -- handle date formats
                 begin try
@@ -425,27 +425,6 @@ begin
                                         +  ' ]'
                 end catch
             end
-
-        begin try
-            -- print command
-            print '============== sql command ==============' + char(13)
-            exec(@sqlcmd);
-            print '=========================================' + char(13)
-            
-            -- execute command
-            exec(@sqlcmd);  
-
-        end try
-
-        begin catch
-            select
-                @returnvalue = 1
-                ,@returnmessage = 'error occured: ['
-                                +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
-                                +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
-                                +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
-                                +  ' ]'
-        end catch
     end try
     begin catch
     end catch
