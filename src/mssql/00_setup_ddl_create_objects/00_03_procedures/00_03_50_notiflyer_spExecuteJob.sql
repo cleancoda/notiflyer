@@ -393,10 +393,6 @@ begin
                                 ,@returnvalue = @returnvalue output
                                 ,@returnmessage = @returnmessage output;
 
-                            select
-                                @column_axes_x_axes_label as column_axes_x_axes_label
-                                ,@column_axes_y_axes_label as column_axes_y_axes_label; 
-
                             -- convert chart data into json objects
                             exec notiflyer_spChartDataPrepJSONObjects
                                 @column_axes_x_axes_label = @column_axes_x_axes_label
@@ -405,6 +401,12 @@ begin
                                 ,@column_axes_y_axes_json_label = @column_axes_y_axes_json_label output
                                 ,@returnvalue = 0
                                 ,@returnmessage = ''
+
+                            select
+                                @column_axes_x_axes_label as column_axes_x_axes_label
+                                ,@column_axes_x_axes_json_label as column_axes_x_axes_json_label
+                                ,@column_axes_y_axes_label as column_axes_y_axes_label
+                                ,@column_axes_y_axes_json_label as column_axes_y_axes_json_label; 
 
                             -- convert into json string
                             exec notiflyer_spChartAPIPrepJSONString

@@ -213,10 +213,49 @@ begin
         exec(@sqlcmd);
 
         -- TODO:
+        -- circumvent around hardcoding data types for axes columns
+        -- currently converting into string and storing in variable prior to injecting in sql command
+        declare
+            @chart_column_axes_x_varchar as nvarchar(max)
+            ,@chart_column_axes_y_varchar as nvarchar(max);
+
+        select
+            @chart_column_axes_x_varchar =
+                case 
+                    when @chart_column_axes_x_datatype like '%char%' then
+                        @chart_column_axes_x
+                    when @chart_column_axes_x_datatype like '%date%' then
+                        'try_convert(varchar(10), ' + @chart_column_axes_x + ', 101)'
+                    else
+                        @chart_column_axes_x
+                end
+            ,@chart_column_axes_y_varchar =
+                case 
+                    when @chart_column_axes_y_datatype like '%char%' then
+                        @chart_column_axes_y
+                    when @chart_column_axes_y_datatype like '%date%' then
+                        'try_convert(varchar(10), ' + @chart_column_axes_y + ', 101)'
+                    else
+                        @chart_column_axes_y
+                end;
+
+        select
+                @sqlcmd = 'insert into ##tmpnotiflyer_tbChartData ( datacolumn_x, datacolumn_y) select ' 
+                                + @chart_column_axes_x_varchar
+                                + ' as datacolumn_x, ' 
+                                + @chart_column_axes_y_varchar
+                                + ' as datacolumn_y '
+                                + 'from ##tmpNotiflyer_tbQueryExecuteResults ' 
+                                + @query_order_by;
+
+
+
+        -- TODO:
         -- when multiple data series support is added, convert the following alter table statement
         -- into a loop for  generating dynamic alter table statement depending on number 
         -- of data series columns being utilized
 
+        /*
         -- TODO:
         -- issue #84 - https://github.com/cleancoda/notiflyer/issues/84
         -- prep create table statement for chart data
@@ -284,6 +323,7 @@ begin
                                     + 'from ##tmpNotiflyer_tbQueryExecuteResults ' 
                                     + @query_order_by;
             end
+        */
 
         -- insert data for X/Y values into new temp table
         -- insert into ##tmpnotiflyer_tbChartData
@@ -294,6 +334,8 @@ begin
             print '=========================================' + char(13)
             -- execute command
             exec(@sqlcmd);  
+
+            -- update 
         end try
 
         begin catch
@@ -346,22 +388,66 @@ begin
                 datacolumn_y = @sqlvar + datacolumn_y + @sqlvar;
         */
 
-        -- mark parse results as success
-        select 
-            @returnvalue = 0
-            ,@returnmessage = 'query staging successfully completed.';
-        return;
-    end try
+        if @chart_column_axes_x_datatype like '%date%' or @chart_column_axes_y_datatype like '%char%'
+            begin
+                -- handle date formats
+                begin try
+                    select
+                        @sqlcmd = 'update ##tmpnotiflyer_tbChartData set datacolumn_x = ''"'' + datacolumn_x + ''"'';';
+                    exec(@sqlcmd);
+                end try
+                begin catch
+                    select
+                        @returnvalue = 1
+                        ,@returnmessage = 'error occured: ['
+                                        +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                                        +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                                        +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                                        +  ' ]'
+                end catch
+            end
 
+        if @chart_column_axes_y_datatype like '%date%' or @chart_column_axes_y_datatype like '%char%'
+            begin
+                -- handle date formats
+                begin try
+                    select
+                        @sqlcmd = 'update ##tmpnotiflyer_tbChartData set datacolumn_y = ''"'' + datacolumn_y + ''"'';';
+                    exec(@sqlcmd);
+                end try
+                begin catch
+                    select
+                        @returnvalue = 1
+                        ,@returnmessage = 'error occured: ['
+                                        +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                                        +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                                        +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                                        +  ' ]'
+                end catch
+            end
+
+        begin try
+            -- print command
+            print '============== sql command ==============' + char(13)
+            exec(@sqlcmd);
+            print '=========================================' + char(13)
+            
+            -- execute command
+            exec(@sqlcmd);  
+
+        end try
+
+        begin catch
+            select
+                @returnvalue = 1
+                ,@returnmessage = 'error occured: ['
+                                +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                                +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                                +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                                +  ' ]'
+        end catch
+    end try
     begin catch
-        select
-            -- mark staging process as error
-            @returnvalue = 1
-            ,@returnmessage = 'error occured: ['
-                            +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
-                            +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
-                            +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
-                            +  ' ]'
-    end catch 
+    end catch
 end
 go
