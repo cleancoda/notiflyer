@@ -57,7 +57,7 @@ begin
             @html_body as nvarchar(max) = '';
 
         select
-            @html_header = '<html>
+            @html_header = N'<html>
                         <body style="background-color: #ffffff;">
                             <div class="header" style="display: flex; justify-content: center; align-items: center; text-align: center; height: 70px; background-color: #ffffff;">
                                 <img src="https://cdn.icon-icons.com/icons2/2351/PNG/512/logo_telegram_airplane_air_plane_paper_airplane_icon_143169.png" alt="Logo" style="max-width: 40px;">
@@ -67,7 +67,7 @@ begin
                         ';
 
         select
-            @html_footer = '
+            @html_footer = N'
                             </div>
                             <div class="footer" style="display: flex; justify-content: center; align-items: center; text-align: center; height: 100px; background-color: #ffffff;">
                                 <div>
@@ -84,12 +84,12 @@ begin
         while @row_counter <= @rows
         begin
             -- start row
-            set @html_body = @html_body + '<div class="grid-item">';
+            set @html_body = @html_body + N'<div class="grid-item">';
 
             while @column_counter <= @columns
             begin
                 select
-                    @html_body = @html_body + '<img src="' + t.chart_url + '" style="max-width: 100%;"></div>'
+                    @html_body = @html_body + N'<img src="' + t.chart_url + '" style="max-width: 100%;"></div>'
                 from
                     ##tempQueryResults t
                 where
@@ -99,7 +99,7 @@ begin
                 set @column_counter = @column_counter + 1;
             end
 
-            set @html_body = @html_body + '</div>';
+            set @html_body = @html_body + N'</div>';
             set @row_counter = @row_counter + 1;
         end
 
@@ -107,7 +107,7 @@ begin
         select
             @html_full = isnull(@html_header, '') + isnull(@html_body, '') + isnull(@html_footer, '');
 
-        -- print @html_full;
+        print @html_full;
         return @html_full;
 
     end try
