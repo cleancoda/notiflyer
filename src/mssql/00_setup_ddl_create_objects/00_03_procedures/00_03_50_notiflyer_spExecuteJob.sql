@@ -58,11 +58,17 @@ begin
         -- setup variables
         declare
             @name as nvarchar(max) = ''
+            ,@email_profile_name as nvarchar(max) = ''
             ,@email_subject as nvarchar(max) = ''
             ,@email_recepient as nvarchar(max) = ''
             ,@email_cc as nvarchar(max) = ''
             ,@email_bcc as nvarchar(max) = ''
             ,@email_body_header as nvarchar(max) = '';
+
+        -- TODO:
+        -- automate app config retreival for email profile name
+        select
+            @email_profile_name = 'test';
 
         -- get job config
         select
@@ -279,7 +285,7 @@ begin
         declare
             @json_string as nvarchar(max) = ''
             ,@chart_api_url as nvarchar(max) = ''
-            ,@email_body as nvarchar(max) = '';
+            ,@html_full as nvarchar(max) = '';
 
         -- TODO:
         -- get app config for chart api from notiflyer_tbAppConfig
@@ -442,7 +448,7 @@ begin
                                 ,@column_axes_x_axes_json_label
                                 ,@column_axes_y_axes_label
                                 ,@column_axes_y_axes_json_label
-                                ,@chart_api_url + @json_string;
+                                ,@chart_api_url + dbo.notiflyer_fnUrlEncode(@json_string);
                         end
                 end try
                 begin catch
@@ -458,15 +464,20 @@ begin
                 end catch
             end          
             
-            -- -- builds email body in html using contents of ##tempQueryResults;
-            -- exec notiflyer_spEmailBuildBody
-            --     @email_body = @email_body  output
-            --     ,@returnvalue = 0
-            --     ,@returnmessage = '';
+            -- builds email body in html using contents of ##tempQueryResults;
+            exec notiflyer_spEmailBuildBody
+                @html_full = @html_full output
+                ,@returnvalue = 0
+                ,@returnmessage = '';
 
-            -- select @email_body;
-
-            select * from ##tempQueryResults
+            -- send email
+            exec notiflyer_spDBMailSendEmail
+                @profile_name = @email_profile_name
+                ,@recipients = @email_recepient
+                ,@body = @html_full
+                ,@subject = @email_subject
+                ,@returnvalue = 0
+                ,@returnmessage = 0;
 
             -- mark success
             select

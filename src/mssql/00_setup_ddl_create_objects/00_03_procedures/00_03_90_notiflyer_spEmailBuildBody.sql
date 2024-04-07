@@ -12,12 +12,16 @@ create procedure notiflyer_spEmailBuildBody
     @detail     
     @sample
                 declare
-                    @returnvalue as int = 0
+                    @html_full as nvarchar(max) = ''
+                    ,@returnvalue as int = 0
                     ,@returnmessage as nvarchar(255) = '';
                 
                 exec notiflyer_spEmailBuildBody
+                    @html_full = @html_full
                     ,@returnvalue = 0
                     ,@returnmessage = ''
+
+                select @html_full;
 
     @log
                 cc  12132023 - generated basic script file
@@ -25,61 +29,22 @@ create procedure notiflyer_spEmailBuildBody
 
 */
 (
-    @email_body as nvarchar(max) = '' output
+    @html_full as nvarchar(max) = '' output
     ,@returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
 )
 as
 begin
     begin try
-        /*
-            maintain following email body structure parameters
-            recommended parameters:
-            width
-                -- 640px desktop
-                -- 320px phone vertical
-            header-height
-                -- 70px
-            footer-height
-                -- 100px
-            
-            prepare html body of the email
-            -- 
-
-            <!DOCTYPE html>
-<html>
-<head>
-</head>
-<body style="background-color: #ffffff;">
-    <div class="header" style="display: flex; justify-content: center; align-items: center; text-align: center; height: 70px; background-color: #ffffff;">
-        <img src="https://cdn.icon-icons.com/icons2/2351/PNG/512/logo_telegram_airplane_air_plane_paper_airplane_icon_143169.png" alt="Logo" style="max-width: 40px;">
-        <h1 style="margin: 0;">notiflyer</h1>
-    </div>
-    <div class="grid-container" style="display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr;">
-        <div class="grid-item"><img src="https://quickchart.io/chart?c=%7B%0A%20%20type%3A%20%27bar%27%2C%0A%20%20data%3A%20%7B%0A%20%20%20%20labels%3A%20%5B2012%2C%202013%2C%202014%2C%202015%2C%202016%5D%2C%0A%20%20%20%20datasets%3A%20%5B%7B%0A%20%20%20%20%20%20label%3A%20%27Orders%27%2C%0A%20%20%20%20%20%20data%3A%20%5B12%2C%206%2C%205%2C%2018%2C%2012%5D%2C%0A%20%20%20%20%20%20backgroundColor%3A%20getGradientFillHelper(%27vertical%27%2C%20%5B%22%2336a2eb%22%2C%20%22%23a336eb%22%2C%20%22%23eb3639%22%5D)%2C%0A%20%20%20%20%7D%5D%0A%20%20%7D%0A%7D" style="max-width: 100%;"></div>
-        <div class="grid-item"><img src="https://quickchart.io/chart?c=%7B%0A%20%20type%3A%20%27line%27%2C%0A%20%20data%3A%20%7B%0A%20%20%20%20labels%3A%20%5B%27January%27%2C%20%27February%27%2C%20%27March%27%2C%20%27April%27%2C%20%27May%27%2C%20%27June%27%2C%20%27July%27%5D%2C%0A%20%20%20%20datasets%3A%20%5B%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20label%3A%20%27product%20a%27%2C%0A%20%20%20%20%20%20%20%20data%3A%20%5B-15%2C%20-80%2C%2079%2C%20-11%2C%20-5%2C%2033%2C%20-57%5D%2C%0A%20%20%20%20%20%20%20%20backgroundColor%3A%20%27rgb(255%2C%2099%2C%20132)%27%2C%0A%20%20%20%20%20%20%20%20borderColor%3A%20%27rgb(255%2C%2099%2C%20132)%27%2C%0A%20%20%20%20%20%20%20%20fill%3A%20false%2C%0A%20%20%20%20%20%20%20%20borderDash%3A%20%5B5%2C%205%5D%2C%0A%20%20%20%20%20%20%20%20pointRadius%3A%2015%2C%0A%20%20%20%20%20%20%20%20pointHoverRadius%3A%2010%2C%0A%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20label%3A%20%27product%20b%27%2C%0A%20%20%20%20%20%20%20%20data%3A%20%5B-86%2C%2059%2C%20-70%2C%20-40%2C%2040%2C%2033%2C%2016%5D%2C%0A%20%20%20%20%20%20%20%20backgroundColor%3A%20%27rgb(54%2C%20162%2C%20235)%27%2C%0A%20%20%20%20%20%20%20%20borderColor%3A%20%27rgb(54%2C%20162%2C%20235)%27%2C%0A%20%20%20%20%20%20%20%20fill%3A%20false%2C%0A%20%20%20%20%20%20%20%20borderDash%3A%20%5B5%2C%205%5D%2C%0A%20%20%20%20%20%20%20%20pointRadius%3A%20%5B2%2C%204%2C%206%2C%2018%2C%200%2C%2012%2C%2020%5D%2C%0A%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20label%3A%20%27product%20c%27%2C%0A%20%20%20%20%20%20%20%20data%3A%20%5B59%2C%20-65%2C%20-33%2C%200%2C%20-79%2C%2095%2C%20-53%5D%2C%0A%20%20%20%20%20%20%20%20backgroundColor%3A%20%27rgb(75%2C%20192%2C%20192)%27%2C%0A%20%20%20%20%20%20%20%20borderColor%3A%20%27rgb(75%2C%20192%2C%20192)%27%2C%0A%20%20%20%20%20%20%20%20fill%3A%20false%2C%0A%20%20%20%20%20%20%20%20pointHoverRadius%3A%2030%2C%0A%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20label%3A%20%27product%20d%27%2C%0A%20%20%20%20%20%20%20%20data%3A%20%5B73%2C%2083%2C%20-19%2C%2074%2C%2016%2C%20-12%2C%208%5D%2C%0A%20%20%20%20%20%20%20%20backgroundColor%3A%20%27rgb(255%2C%20205%2C%2086)%27%2C%0A%20%20%20%20%20%20%20%20borderColor%3A%20%27rgb(255%2C%20205%2C%2086)%27%2C%0A%20%20%20%20%20%20%20%20fill%3A%20false%2C%0A%20%20%20%20%20%20%20%20pointHitRadius%3A%2020%2C%0A%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%5D%2C%0A%20%20%7D%2C%0A%20%20options%3A%20%7B%0A%20%20%20%20legend%3A%20%7B%0A%20%20%20%20%20%20position%3A%20%27bottom%27%2C%0A%20%20%20%20%7D%2C%0A%20%20%20%20title%3A%20%7B%0A%20%20%20%20%20%20display%3A%20true%2C%0A%20%20%20%20%20%20text%3A%20%27Order%20Qty%20over%20Months%27%2C%0A%20%20%20%20%7D%2C%0A%20%20%7D%2C%0A%7D%0A" style="max-width: 100%;"></div>
-        <div class="grid-item"><img src="https://quickchart.io/chart?c=%7B%0A%20%20%22type%22%3A%20%22bar%22%2C%0A%20%20%22data%22%3A%20%7B%0A%20%20%20%20%22labels%22%3A%20%5B%0A%20%20%20%20%20%20%22January%22%2C%0A%20%20%20%20%20%20%22February%22%2C%0A%20%20%20%20%20%20%22March%22%2C%0A%20%20%20%20%20%20%22April%22%2C%0A%20%20%20%20%20%20%22May%22%2C%0A%20%20%20%20%20%20%22June%22%2C%0A%20%20%20%20%20%20%22July%22%0A%20%20%20%20%5D%2C%0A%20%20%20%20%22datasets%22%3A%20%5B%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%22type%22%3A%20%22line%22%2C%0A%20%20%20%20%20%20%20%20%22label%22%3A%20%22Aceco%22%2C%0A%20%20%20%20%20%20%20%20%22borderColor%22%3A%20%22rgb(54%2C%20162%2C%20235)%22%2C%0A%20%20%20%20%20%20%20%20%22borderWidth%22%3A%202%2C%0A%20%20%20%20%20%20%20%20%22fill%22%3A%20false%2C%0A%20%20%20%20%20%20%20%20%22data%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20-33%2C%0A%20%20%20%20%20%20%20%20%20%2026%2C%0A%20%20%20%20%20%20%20%20%20%2029%2C%0A%20%20%20%20%20%20%20%20%20%2089%2C%0A%20%20%20%20%20%20%20%20%20%20-41%2C%0A%20%20%20%20%20%20%20%20%20%2070%2C%0A%20%20%20%20%20%20%20%20%20%20-84%0A%20%20%20%20%20%20%20%20%5D%0A%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%22type%22%3A%20%22bar%22%2C%0A%20%20%20%20%20%20%20%20%22label%22%3A%20%22Bergen%20Motors%22%2C%0A%20%20%20%20%20%20%20%20%22backgroundColor%22%3A%20%22rgb(255%2C%2099%2C%20132)%22%2C%0A%20%20%20%20%20%20%20%20%22data%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20-42%2C%0A%20%20%20%20%20%20%20%20%20%2073%2C%0A%20%20%20%20%20%20%20%20%20%20-69%2C%0A%20%20%20%20%20%20%20%20%20%20-94%2C%0A%20%20%20%20%20%20%20%20%20%20-81%2C%0A%20%20%20%20%20%20%20%20%20%2018%2C%0A%20%20%20%20%20%20%20%20%20%2087%0A%20%20%20%20%20%20%20%20%5D%2C%0A%20%20%20%20%20%20%20%20%22borderColor%22%3A%20%22white%22%2C%0A%20%20%20%20%20%20%20%20%22borderWidth%22%3A%202%0A%20%20%20%20%20%20%7D%2C%0A%20%20%20%20%20%20%7B%0A%20%20%20%20%20%20%20%20%22type%22%3A%20%22bar%22%2C%0A%20%20%20%20%20%20%20%20%22label%22%3A%20%22Clearvue%22%2C%0A%20%20%20%20%20%20%20%20%22backgroundColor%22%3A%20%22rgb(75%2C%20192%2C%20192)%22%2C%0A%20%20%20%20%20%20%20%20%22data%22%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%2093%2C%0A%20%20%20%20%20%20%20%20%20%2060%2C%0A%20%20%20%20%20%20%20%20%20%20-15%2C%0A%20%20%20%20%20%20%20%20%20%2077%2C%0A%20%20%20%20%20%20%20%20%20%20-59%2C%0A%20%20%20%20%20%20%20%20%20%2082%2C%0A%20%20%20%20%20%20%20%20%20%20-44%0A%20%20%20%20%20%20%20%20%5D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%5D%0A%20%20%7D%2C%0A%20%20%22options%22%3A%20%7B%0A%20%20%20%20%22responsive%22%3A%20true%2C%0A%20%20%20%20%22title%22%3A%20%7B%0A%20%20%20%20%20%20%22display%22%3A%20true%2C%0A%20%20%20%20%20%20%22text%22%3A%20%22Customer%20Order%20Trends%22%0A%20%20%20%20%7D%2C%0A%20%20%20%20%22tooltips%22%3A%20%7B%0A%20%20%20%20%20%20%22mode%22%3A%20%22index%22%2C%0A%20%20%20%20%20%20%22intersect%22%3A%20true%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D" style="max-width: 100%;"></div>
-        <div class="grid-item"><img src="https://quickchart.io/chart?c=%7B%0A%20%20%22type%22%3A%20%22outlabeledPie%22%2C%0A%20%20%22data%22%3A%20%7B%0A%20%20%20%20%22labels%22%3A%20%5B%22ONE%22%2C%20%22TWO%22%2C%20%22THREE%22%2C%20%22FOUR%22%2C%20%22FIVE%22%5D%2C%0A%20%20%20%20%22datasets%22%3A%20%5B%7B%0A%20%20%20%20%20%20%20%20%22backgroundColor%22%3A%20%5B%22%23FF3784%22%2C%20%22%2336A2EB%22%2C%20%22%234BC0C0%22%2C%20%22%23F77825%22%2C%20%22%239966FF%22%5D%2C%0A%20%20%20%20%20%20%20%20%22data%22%3A%20%5B1%2C%202%2C%203%2C%204%2C%205%5D%0A%20%20%20%20%7D%5D%0A%20%20%7D%2C%0A%20%20%22options%22%3A%20%7B%0A%20%20%20%20%22plugins%22%3A%20%7B%0A%20%20%20%20%20%20%22legend%22%3A%20false%2C%0A%20%20%20%20%20%20%22outlabels%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%22text%22%3A%20%22%25l%20%25p%22%2C%0A%20%20%20%20%20%20%20%20%22color%22%3A%20%22white%22%2C%0A%20%20%20%20%20%20%20%20%22stretch%22%3A%2035%2C%0A%20%20%20%20%20%20%20%20%22font%22%3A%20%7B%0A%20%20%20%20%20%20%20%20%20%20%22resizable%22%3A%20true%2C%0A%20%20%20%20%20%20%20%20%20%20%22minSize%22%3A%2012%2C%0A%20%20%20%20%20%20%20%20%20%20%22maxSize%22%3A%2018%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D&v=2.9.4&w=500&h=300&bkg=white" style="max-width: 100%;"></div>
-    </div>
-    <div class="footer" style="display: flex; justify-content: center; align-items: center; text-align: center; height: 100px; background-color: #ffffff;">
-        
-        <div>
-            <p>contact us</p>
-            <img src="https://cdn.icon-icons.com/icons2/555/PNG/512/facebook_icon-icons.com_53612.png" alt="Facebook" style="max-width: 32px;">
-            <img src="https://cdn.icon-icons.com/icons2/555/PNG/512/twitter_icon-icons.com_53611.png" alt="Twitter" style="max-width: 32px;">
-            <img src="https://cdn.icon-icons.com/icons2/555/PNG/512/instagram_icon-icons.com_53610.png" alt="Instagram" style="max-width: 32px;">
-        </div>
-    </div>
-</body>
-</html>            
-        */
 
         -- loop variables for drawing html table
         declare
-            @rows as int = 0
+            @html_header as nvarchar(max) = ''
+            ,@html_footer as nvarchar(max) = ''
+            ,@rows as int = 0
             ,@columns as int = 0
-            ,@row_counter as int = 0
-            ,@column_counter as int = 0;
+            ,@row_counter as int = 1
+            ,@column_counter as int = 1;
 
         select
             @rows = max(t.grid_row)
@@ -92,7 +57,7 @@ begin
             @html_body as nvarchar(max) = '';
 
         select
-            @html_body = '
+            @html_header = '<html>
                         <body style="background-color: #ffffff;">
                             <div class="header" style="display: flex; justify-content: center; align-items: center; text-align: center; height: 70px; background-color: #ffffff;">
                                 <img src="https://cdn.icon-icons.com/icons2/2351/PNG/512/logo_telegram_airplane_air_plane_paper_airplane_icon_143169.png" alt="Logo" style="max-width: 40px;">
@@ -101,14 +66,30 @@ begin
                             <div class="grid-container" style="display: grid; grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr;">
                         ';
 
-        while @row_counter < @rows
+        select
+            @html_footer = '
+                            </div>
+                            <div class="footer" style="display: flex; justify-content: center; align-items: center; text-align: center; height: 100px; background-color: #ffffff;">
+                                <div>
+                                    <p>contact us</p>
+                                    <img src="https://cdn.icon-icons.com/icons2/555/PNG/512/facebook_icon-icons.com_53612.png" alt="Facebook" style="max-width: 32px;">
+                                    <img src="https://cdn.icon-icons.com/icons2/555/PNG/512/twitter_icon-icons.com_53611.png" alt="Twitter" style="max-width: 32px;">
+                                    <img src="https://cdn.icon-icons.com/icons2/555/PNG/512/instagram_icon-icons.com_53610.png" alt="Instagram" style="max-width: 32px;">
+                                </div>
+                            </div>
+                        </body>
+                        </html>';
+
+        -- loop through rows and columns
+        while @row_counter <= @rows
         begin
+            -- start row
             set @html_body = @html_body + '<div class="grid-item">';
 
-            while @column_counter < @columns
+            while @column_counter <= @columns
             begin
                 select
-                    @html_body = @html_body + '<img src="' + t.image_url + '" style="max-width: 100%;"></div>'
+                    @html_body = @html_body + '<img src="' + t.chart_url + '" style="max-width: 100%;"></div>'
                 from
                     ##tempQueryResults t
                 where
@@ -122,8 +103,12 @@ begin
             set @row_counter = @row_counter + 1;
         end
 
-        
+        -- 
+        select
+            @html_full = isnull(@html_header, '') + isnull(@html_body, '') + isnull(@html_footer, '');
 
+        -- print @html_full;
+        return @html_full;
 
     end try
     begin catch
