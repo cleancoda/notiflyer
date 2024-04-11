@@ -471,13 +471,13 @@ begin
                 ,@returnmessage = '';
 
             -- send email
-            exec notiflyer_spDBMailSendEmail
-                @profile_name = @email_profile_name
-                ,@recipients = @email_recepient
-                ,@body = @html_full
-                ,@subject = @email_subject
-                ,@returnvalue = 0
-                ,@returnmessage = 0;
+            -- exec notiflyer_spDBMailSendEmail
+            --     @profile_name = @email_profile_name
+            --     ,@recipients = @email_recepient
+            --     ,@body = @html_full
+            --     ,@subject = @email_subject
+            --     ,@returnvalue = 0
+            --     ,@returnmessage = 0;
 
             -- mark success
             select

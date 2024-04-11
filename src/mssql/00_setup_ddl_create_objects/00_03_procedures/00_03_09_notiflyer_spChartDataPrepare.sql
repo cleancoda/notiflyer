@@ -57,18 +57,7 @@ create procedure notiflyer_spChartDataPrepare
                         left outer join Sales.Customers c on    
                             o.CustomerID = c.CustomerID
                     group by
-                    dateadd(dd, -( day(o.OrderDate) -1 ), o.OrderDate)
-                    order by    
-                        [OrderMth] asc
-
-                    ----
-
-                    SELECT top 5
-                        C.CustomerName
-                        ,COUNT( DISTINCT A.OrderId) TotalNBOrders
-                    FROM 
-                    (
-                        SELECT O.CustomerID, O.OrderId, NULL AS InvoiceID, OL.UnitPrice, OL.Quantity, 0 AS UnitPriceI, 0 AS QuantityI, OL.OrderLineID, NULL AS InvoiceLineID 
+                    dateadd(dd, -( insert into ##tmpnotiflyer_tbChartData ( datacolumn_x, datacolumn_y) select CustomerName as datacolumn_x, TotalInvoiceValue as dustomerID, O.OrderId, NULL AS InvoiceID, OL.UnitPrice, OL.Quantity, 0 AS UnitPriceI, 0 AS QuantityI, OL.OrderLineID, NULL AS InvoiceLineID 
                         FROM Sales.Orders As O, Sales.OrderLines AS OL
                         WHERE O.OrderId = OL.OrderID AND EXISTS
                         (	SELECT II.OrderId
@@ -186,6 +175,8 @@ begin
         where
             name = @chart_column_axes_y;
 
+        select * from ##tmpNotiflyer_tbMetaDataColumns;
+
         -- execute query and store results into global temp table ##tmpNotiflyer_tbQueryExecuteResults
         exec notiflyer_spExecuteQuery
             @query_select = @query_select
@@ -195,7 +186,6 @@ begin
             ,@query_order_by = @query_order_by
             ,@query_executed = @returnvalue output
             ,@query_output = @returnmessage output;
-
 
         -- TODO:
         -- issue #84 - https://github.com/cleancoda/notiflyer/issues/84

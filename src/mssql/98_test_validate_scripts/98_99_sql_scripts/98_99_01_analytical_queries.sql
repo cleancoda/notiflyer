@@ -11,6 +11,19 @@
 */
 
 
+-- top 10 customers by order amount
+SELECT  top 10
+      c.CustomerName
+      ,sum(l.[Quantity]) as Quantity
+  FROM 
+    [WideWorldImporters].[Sales].[OrderLines] l
+    left outer join [WideWorldImporters].[Sales].[Orders] o on 
+        l.OrderID = o.OrderID
+    left outer join [WideWorldImporters].[Sales].[Customers] c on
+        o.CustomerID = c.CustomerID
+group by    
+    c.CustomerName
+
 -- top 10 customers by order month
 select top 10 CustomerID,dateadd(month, datediff(month, 0, OrderDate), 0) as OrderMonth,count(1) as TotalAmount
 from WideWorldImporters.Sales.Orders
