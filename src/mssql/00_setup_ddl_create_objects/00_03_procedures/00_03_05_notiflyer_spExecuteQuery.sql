@@ -95,7 +95,7 @@ begin
         -- prepare query to store results in new physical table    
         -- build local query
         select
-            @query = @query_prefix + @query_select + ' ' + @query_from + ' ' + @query_where + ' ' + @query_group_by + @query_suffix;
+            @query = isnull(@query_prefix,'') + isnull(@query_select,'') + ' ' + isnull(@query_from,'') + ' ' + isnull(@query_where,'') + ' ' + isnull(@query_group_by,'') + isnull(@query_suffix,'');
 
         -- print/return query statement if bit flag = 1
         if(@display_query = 1)
@@ -103,11 +103,13 @@ begin
 
         -- handle exceptions for exec
         begin try
+
             -- wasted quite a while on this challenge - 
             -- sp_executesql (creates own batch) vs. exec (same session)
             -- scope for global temp tables
             exec(@query);
             
+
             -- mark parse results as success
             select 
                 @query_executed = 0
@@ -122,6 +124,7 @@ begin
                                 +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
                                 +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
                                 +  ' ]'
+            print @query_output;
         end catch
     end try
     begin catch

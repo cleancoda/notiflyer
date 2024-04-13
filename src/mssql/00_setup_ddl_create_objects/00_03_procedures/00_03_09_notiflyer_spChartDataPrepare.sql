@@ -175,8 +175,6 @@ begin
         where
             name = @chart_column_axes_y;
 
-        select * from ##tmpNotiflyer_tbMetaDataColumns;
-
         -- execute query and store results into global temp table ##tmpNotiflyer_tbQueryExecuteResults
         exec notiflyer_spExecuteQuery
             @query_select = @query_select
@@ -184,8 +182,16 @@ begin
             ,@query_where = @query_where
             ,@query_group_by = @query_group_by
             ,@query_order_by = @query_order_by
+            ,@display_query = 1
             ,@query_executed = @returnvalue output
             ,@query_output = @returnmessage output;
+
+        if(@returnvalue = 1)
+            begin
+                select @returnmessage = 'error occured: ' + @returnmessage;
+                print @returnmessage;
+                return;
+            end
 
         -- TODO:
         -- issue #84 - https://github.com/cleancoda/notiflyer/issues/84
