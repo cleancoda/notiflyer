@@ -399,6 +399,12 @@ begin
                                 ,@returnvalue = @returnvalue output
                                 ,@returnmessage = @returnmessage output;
 
+                            select
+                                @column_axes_x_datatype as chart_column_axes_x_datatype
+                                ,@column_axes_y_datatype as chart_column_axes_y_datatype
+                                ,@column_axes_x_axes_label as column_axes_x_axes_label
+                                ,@column_axes_y_axes_label as column_axes_y_axes_label;
+
                             -- convert chart data into json objects
                             exec notiflyer_spChartDataPrepJSONObjects
                                 @column_axes_x_axes_label = @column_axes_x_axes_label
@@ -471,13 +477,13 @@ begin
                 ,@returnmessage = '';
 
             -- send email
-            -- exec notiflyer_spDBMailSendEmail
-            --     @profile_name = @email_profile_name
-            --     ,@recipients = @email_recepient
-            --     ,@body = @html_full
-            --     ,@subject = @email_subject
-            --     ,@returnvalue = 0
-            --     ,@returnmessage = 0;
+            exec notiflyer_spDBMailSendEmail
+                @profile_name = @email_profile_name
+                ,@recipients = @email_recepient
+                ,@body = @html_full
+                ,@subject = @email_subject
+                ,@returnvalue = 0
+                ,@returnmessage = 0;
 
             -- mark success
             select

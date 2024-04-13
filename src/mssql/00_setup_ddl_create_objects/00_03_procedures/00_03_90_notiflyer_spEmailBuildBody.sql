@@ -5,7 +5,7 @@ if object_id('notiflyer_spEmailBuildBody') is not null
 go
 
 -- drop procedure notiflyer_spEmailBuildBody
-create procedure notiflyer_spEmailBuildBody
+create procedure notiflyer_spEmailBuildBody 
 /*
     @author     cleancoda
     @date       12122023
@@ -51,6 +51,9 @@ begin
             ,@columns = max(t.grid_column)
         from
             ##tempQueryResults t;
+
+        print @rows
+        print @columns;
         
         -- build html table
         declare
@@ -83,23 +86,32 @@ begin
         -- loop through rows and columns
         while @row_counter <= @rows
         begin
+            print 'row: ' + try_cast(@row_counter as nvarchar(max));
             -- start row
-            set @html_body = @html_body + N'<div class="grid-item">';
-
             while @column_counter <= @columns
             begin
+                -- start column
+                set @html_body = @html_body + N'<div class="grid-item">';
+
                 select
-                    @html_body = @html_body + N'<img src="' + t.chart_url + '" style="max-width: 100%;"></div>'
+                    @html_body = @html_body + N'<img src="' + isnull(t.chart_url,'') + '" style="max-width: 100%;"></div>'
                 from
                     ##tempQueryResults t
                 where
                     t.grid_row = @row_counter
                     and t.grid_column = @column_counter;
 
+                select *
+                from
+                    ##tempQueryResults t
+                where   
+                    t.grid_row = @row_counter
+                    and t.grid_column = @column_counter;
+
                 set @column_counter = @column_counter + 1;
             end
-
-            set @html_body = @html_body + N'</div>';
+            -- reset column counter
+            set @column_counter = 1;
             set @row_counter = @row_counter + 1;
         end
 

@@ -108,7 +108,6 @@ begin
             -- sp_executesql (creates own batch) vs. exec (same session)
             -- scope for global temp tables
             exec(@query);
-            
 
             -- mark parse results as success
             select 
