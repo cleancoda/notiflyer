@@ -74,11 +74,10 @@ begin
                             </div>
                             <div class="footer" style="display: flex; justify-content: center; align-items: center; text-align: center; height: 100px; background-color: #ffffff;">
                                 <div>
-                                    <p>contact us</p>
-                                    <img src="https://cdn.icon-icons.com/icons2/555/PNG/512/facebook_icon-icons.com_53612.png" alt="Facebook" style="max-width: 32px;">
+                                    <!--<img src="https://cdn.icon-icons.com/icons2/555/PNG/512/facebook_icon-icons.com_53612.png" alt="Facebook" style="max-width: 32px;">
                                     <img src="https://cdn.icon-icons.com/icons2/555/PNG/512/twitter_icon-icons.com_53611.png" alt="Twitter" style="max-width: 32px;">
-                                    <img src="https://cdn.icon-icons.com/icons2/555/PNG/512/instagram_icon-icons.com_53610.png" alt="Instagram" style="max-width: 32px;">
-                                    <p>made with <img src="https://cdn.icon-icons.com/icons2/860/PNG/512/love_icon-icons.com_67808.png" style="max-height: 12px;"> by cleancoda</p>
+                                    <img src="https://cdn.icon-icons.com/icons2/555/PNG/512/instagram_icon-icons.com_53610.png" alt="Instagram" style="max-width: 32px;">--!>
+                                    <p>made with <img src="https://cdn.icon-icons.com/icons2/860/PNG/512/love_icon-icons.com_67808.png" style="max-height: 12px;"> by <a href="https://github.com/cleancoda" style="link:#2EE21D;hover:#00FF78;visited:#00FF78;active:#5EF00F;">cleancoda</p>
                                 </div>
                             </div>
                         </body>
