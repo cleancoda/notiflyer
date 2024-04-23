@@ -94,7 +94,8 @@ begin
                 set @html_body = @html_body + N'<div class="grid-item">';
 
                 select
-                    @html_body = @html_body + N'<img src="' + isnull(t.chart_url,'') + '" style="max-width: 100%;"></div>'
+                    -- label header = chart title
+                    @html_body = @html_body + isnull(t.label_header,'') + N'<br>' +  N'<img src="' + isnull(t.chart_url,'') + '" style="max-width: 100%;"></div>'
                 from
                     ##tempQueryResults t
                 where

@@ -98,6 +98,7 @@ begin
             ,query_id int
             ,grid_row int
             ,grid_column int
+            ,label_header nvarchar(max)
         );
 
         -- populate temp table
@@ -109,6 +110,7 @@ begin
             ,query_id
             ,grid_row
             ,grid_column
+            ,label_header
         )
         select
             id as job_query_grid_id
@@ -117,6 +119,7 @@ begin
             ,query_id
             ,grid_row
             ,grid_column
+            ,label_header
         from
             notiflyer_tbJobQueryGrid
         where
@@ -136,6 +139,7 @@ begin
             ,job_id int
             ,grid_row int
             ,grid_column int
+            ,label_header nvarchar(max)
             ,query_id int
             ,query_select nvarchar(max) default ''
             ,query_from nvarchar(max) default ''
@@ -157,6 +161,7 @@ begin
             ,job_id
             ,grid_row
             ,grid_column
+            ,label_header
             ,query_id
             ,query_select
             ,query_from
@@ -173,6 +178,7 @@ begin
             ,g.job_id
             ,g.grid_row
             ,g.grid_column
+            ,g.label_header
             ,g.query_id
             ,q.query_select
             ,q.query_from
@@ -250,6 +256,7 @@ begin
             ,@job_query_grid_id as int = 0
             ,@grid_row as int = 0
             ,@grid_column as int = 0
+            ,@label_header as nvarchar(max) = ''
             ,@query_id as int = 0
             ,@query_select as nvarchar(max) = ''
             ,@query_from as nvarchar(max) = ''
@@ -311,6 +318,7 @@ begin
             ,job_query_grid_id int
             ,grid_row int
             ,grid_column int
+            ,label_header nvarchar(max)
             ,column_axes_x_axes_label nvarchar(max) 
             ,column_axes_x_axes_json_label nvarchar(max)
             ,column_axes_y_axes_label nvarchar(max)
@@ -330,6 +338,7 @@ begin
                     @job_query_grid_id = q.job_query_grid_id
                     ,@grid_row = q.grid_row
                     ,@grid_column = q.grid_column
+                    ,@label_header = q.label_header
                     ,@query_id = q.query_id
                     ,@query_select = q.query_select
                     ,@query_from = q.query_from

@@ -98,6 +98,7 @@ begin
         ,query_id int default null foreign key references notiflyer_tbQuery(id)
         ,grid_row int default 0
         ,grid_column int default 0
+        ,label_header varchar(max) default ''
     );
 end
 go
