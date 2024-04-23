@@ -125,8 +125,6 @@ begin
         where
             job_id = @job_id;
 
-        select 'job grid config imported successfully..', * from #tempJobQueryGrid;
-
     -- 3. get and store query config from notiflyer_tbQuery for every matching id from notiflyer_tbJobQueryGrid imported in step 2
 
         -- drop temp table if exists

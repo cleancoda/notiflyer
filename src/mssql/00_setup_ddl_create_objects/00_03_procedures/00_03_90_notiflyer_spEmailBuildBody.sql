@@ -25,8 +25,8 @@ create procedure notiflyer_spEmailBuildBody
 
     @log
                 cc  12132023 - generated basic script file
-
-
+    @credits
+                icons - https://icon-icons.com
 */
 (
     @html_full as nvarchar(max) = '' output
@@ -78,6 +78,7 @@ begin
                                     <img src="https://cdn.icon-icons.com/icons2/555/PNG/512/facebook_icon-icons.com_53612.png" alt="Facebook" style="max-width: 32px;">
                                     <img src="https://cdn.icon-icons.com/icons2/555/PNG/512/twitter_icon-icons.com_53611.png" alt="Twitter" style="max-width: 32px;">
                                     <img src="https://cdn.icon-icons.com/icons2/555/PNG/512/instagram_icon-icons.com_53610.png" alt="Instagram" style="max-width: 32px;">
+                                    <p>made with <img src="https://cdn.icon-icons.com/icons2/860/PNG/512/love_icon-icons.com_67808.png" style="max-height: 12px;"> by cleancoda</p>
                                 </div>
                             </div>
                         </body>
@@ -94,8 +95,17 @@ begin
                 set @html_body = @html_body + N'<div class="grid-item">';
 
                 select
-                    -- label header = chart title
-                    @html_body = @html_body + isnull(t.label_header,'') + N'<br>' +  N'<img src="' + isnull(t.chart_url,'') + '" style="max-width: 100%;"></div>'
+                    
+                    @html_body = @html_body 
+                                    -- label header = chart title
+                                    + 
+                                        case when isnull(t.label_header,'') <> '' then
+                                            N'<h2 style="text-align: center;">' + isnull(t.label_header,'') + '</h2>'
+                                        else
+                                            N''
+                                        end
+                                    -- chart url
+                                    +  N'<img src="' + isnull(t.chart_url,'') + '" style="max-width: 100%;"></div>'
                 from
                     ##tempQueryResults t
                 where
