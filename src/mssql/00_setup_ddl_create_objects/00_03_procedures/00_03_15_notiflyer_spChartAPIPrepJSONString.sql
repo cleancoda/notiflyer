@@ -78,7 +78,25 @@ begin
                                 + ','
                                 + '}'
                             + ','
+                            -- options/configurations 
+                            + 'options: {'
+                            + 'plugins: {'
+                                + 'datalabels: {'
+                                    + 'borderWidth: 1,'
+                                    + 'borderRadius: 5,'
+                                    + 'anchor: ''' + 'center' + ''','
+                                    + 'align: ''' + 'center' + ''','
+                                    + 'color: ''' + '#fff' + ''','
+                                    + 'font: {'
+                                    + 'weight: '''+ 'bold' + ''','
+                                    + '},'
+                                +'},'
+                                + '},'
+                            + '},'
                             + '}'
+
+                            
+                            
 
             -- encode string for appending to a url
             -- select
