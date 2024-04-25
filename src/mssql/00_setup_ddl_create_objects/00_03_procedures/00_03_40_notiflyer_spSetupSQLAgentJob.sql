@@ -16,7 +16,7 @@ create procedure notiflyer_spSetupSQLAgentJob
                     ,@returnmessage as nvarchar(max) = '';
                 
                 exec notiflyer_spSetupSQLAgentJob
-                    @job_id = 1
+                    @job_id = 2
                     ,@returnvalue = 0
                     ,@returnmessage = ''
 
@@ -172,7 +172,7 @@ begin
             ,@step_name = @job_step_name
             ,@step_id = 1
             ,@command = @job_step_command
-            ,@database_name = @database_name
+            --,@database_name = @database_name
             -- ,@subsystem = @job_step_subsystem
             -- ,@on_success_action = @job_step_on_success_action
             -- ,@on_fail_action = @job_step_on_fail_action
