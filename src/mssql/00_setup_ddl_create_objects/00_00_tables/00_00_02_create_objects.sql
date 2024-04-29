@@ -64,6 +64,7 @@ begin
         id int identity(1,1) primary key
         ,name varchar(max) default ''
         ,description varchar(max) default ''
+        ,active_yn char(1) default 'n'
         ,email_subject varchar(max) default ''
         ,email_recepient varchar(max) default ''
         ,email_cc varchar(max) default ''
