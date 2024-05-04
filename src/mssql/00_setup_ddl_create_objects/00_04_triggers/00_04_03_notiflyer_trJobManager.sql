@@ -5,7 +5,7 @@ if object_id('notiflyer_trJobManager') is not null
 go
 
 -- drop trigger notiflyer_trJobManager
-alter trigger notiflyer_trJobManager on notiflyer_tbJobManager for insert, update
+create trigger notiflyer_trJobManager on notiflyer_tbJobManager for insert, update
 /*
     @author     cleancoda
     @date       04252024
