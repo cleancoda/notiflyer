@@ -23,12 +23,13 @@ create procedure notiflyer_spEmailConfigureStyle
                 cc  12122023 - generated basic script file
 */
 (
-    ,@returnvalue as int = 0 output
+    @returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
 )
 as
 begin
     begin try
+        select 1;
     end try
     begin catch
         select

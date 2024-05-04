@@ -4,18 +4,18 @@ if object_id('notiflyer_spQueryToChartOrchestrator') is not null
     return;
 go
 
-create procedure notiflyer_spQueryToChartOrchestrator
-/*
-    @author     cleancoda
-    @date       03202024
-    @detail     invoked by job or manually, orchestrates running the query and 
-                converts the data into json for quickchart
-    @sample     
-*/
-(
+-- create procedure notiflyer_spQueryToChartOrchestrator
+-- /*
+--     @author     cleancoda
+--     @date       03202024
+--     @detail     invoked by job or manually, orchestrates running the query and 
+--                 converts the data into json for quickchart
+--     @sample     
+-- */
+-- (
     
-)
-as
-begin
+-- )
+-- as
+-- begin
 
-end
+-- end
