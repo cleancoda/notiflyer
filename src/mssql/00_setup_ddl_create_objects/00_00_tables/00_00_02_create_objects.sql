@@ -9,6 +9,7 @@
 -- TODO: normalization (3NF - every non-key attribute must provide a fact about the key attribute, the whole key, and nothing but the key. - so help me codd.)
 
 -- notiflyer_tbAppLog
+-- track every activity of the application - from create to configuration to job execution
 print 'creating table notiflyer_tbAppLog'
 if object_id('notiflyer_tbAppLog') is not null
 begin
