@@ -8,6 +8,21 @@
 
 -- TODO: normalization (3NF - every non-key attribute must provide a fact about the key attribute, the whole key, and nothing but the key. - so help me codd.)
 
+-- notiflyer_tbAppLog
+print 'creating table notiflyer_tbAppLog'
+if object_id('notiflyer_tbAppLog') is not null
+begin
+    print 'table exists skipping create attempt..'
+end
+else
+begin
+    create table notiflyer_tbLogApp
+    (
+        id int identity(1,1) primary key
+        ,
+    );
+end
+
 -- notiflyer_tbAppConfig
 print 'creating table notiflyer_tbAppConfig'
 if object_id('notiflyer_tbAppConfig') is not null
