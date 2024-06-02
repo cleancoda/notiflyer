@@ -20,7 +20,11 @@ begin
     create table notiflyer_tbLogApp
     (
         id int identity(1,1) primary key
-        ,
+        ,log_datetime smalldatetime default getdate()
+        ,log_description varchar(max) default ''
+        ,log_type char(1) default 'i' -- (i)nfo, (w)arning, (e)rror
+        ,log_source varchar(max) default ''
+        ,log_user varchar(max) default ''
     );
 end
 
