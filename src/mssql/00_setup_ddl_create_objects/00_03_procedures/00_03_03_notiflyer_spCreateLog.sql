@@ -17,13 +17,30 @@ create procedure notiflyer_spCreateLog
                 cc  06022024 - generated basic script file
 */
 (
-    @returnvalue as int = 0 output
+    @log_description varchar(max) = ''
+    ,@log_type char(1) = 'i' -- (i)nfo, (w)arning, (e)rror
+    ,@log_source varchar(max) = ''
+    ,@log_user varchar(max) = ''
+    ,@returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
 )
 as
 begin
     begin try
-        select 1;
+        insert into notiflyer_tbLogApp
+        (
+            log_description
+            ,log_type
+            ,log_source
+            ,log_user
+        )
+        values
+        (
+            @log_description
+            ,@log_type
+            ,@log_source
+            ,@log_user
+        )
     end try
 
     begin catch
