@@ -53,21 +53,21 @@ begin
 end
 else
 begin
-    create table notiflyer_tbQuery
-    (
-        id int identity(1,1) primary key
-        ,name varchar(max) default ''
-        ,type char(1) default 'q'
-        ,query_select varchar(max) default ''
-        ,query_from varchar(max) default ''
-        ,query_where varchar(max) default ''
-        ,query_group_by varchar(max) default ''
-        ,query_order_by varchar(max) default ''
-        ,chart_column_legend varchar(max) default ''
-        ,chart_column_axes_x varchar(max) default ''
-        ,chart_column_axes_y varchar(max) default ''
-        ,chart_graphtype varchar(max) default ''
-    );
+        create table notiflyer_tbQuery
+        (
+            id int identity(1,1) primary key
+            ,name varchar(max) default ''
+            ,type varchar(max) default 'q'
+            ,query_select varchar(max) default ''
+            ,query_from varchar(max) default ''
+            ,query_where varchar(max) default ''
+            ,query_group_by varchar(max) default ''
+            ,query_order_by varchar(max) default ''
+            ,chart_column_legend varchar(max) default ''
+            ,chart_column_axes_x varchar(max) default ''
+            ,chart_column_axes_y varchar(max) default ''
+            ,chart_graph_type varchar(max) default ''
+        );
 end
 go
 
