@@ -20,13 +20,13 @@ begin
         id int identity(1,1) primary key
         ,name varchar(max) default ''
         ,description varchar(max) default ''
-        ,active_yn char(1) default 'n'
+        ,active_yn bit default 0
         ,email_subject varchar(max) default ''
         ,email_recepient varchar(max) default ''
         ,email_cc varchar(max) default ''
         ,email_bcc varchar(max) default ''
         ,email_body_header varchar(max) default ''
-        ,frequency char(1) default 'd'  -- (h)ourly, (d)aily, (w)eekly, (m)onthly
+        ,frequency varchar(max) default 'DAILY'  -- "HOURLY","DAILY", "WEEKLY", "MONTHLY", "YEARLY"
         ,run_time varchar(5) default '02:00' -- job run time hh:mm - follows 24 hours pattern -- hourly jobs will use this as an interval
         ,run_day_monday bit default 0
         ,run_day_tuesday bit default 0
