@@ -8,8 +8,8 @@
 
 -- notiflyer_tbAppLog
 -- track every activity of the application - from create to configuration to job execution
-print 'creating table notiflyer_tbAppLog'
-if object_id('notiflyer_tbAppLog') is not null
+print 'creating table notiflyer_tbLogApp'
+if object_id('notiflyer_tbLogApp') is not null
 begin
     print 'table exists skipping create attempt..'
 end
