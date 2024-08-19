@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# requires sqlcmd to run
+# download - https://learn.microsoft.com/en-us/sql/linux/sql-server-linux-setup-tools?view=sql-server-ver16&tabs=ubuntu-install#install-tools-on-linux
+
 DATABASE='WideWorldImporters'
 USER='SA'
 PASSWORD='<YourNewStrong@Passw0rd>'
