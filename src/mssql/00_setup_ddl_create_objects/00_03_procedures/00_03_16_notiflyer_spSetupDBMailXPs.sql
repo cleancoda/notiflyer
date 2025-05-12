@@ -14,7 +14,7 @@ create procedure notiflyer_spSetupDBMailXPs
                 declare
                     @returnvalue as int = 0
                     ,@returnmessage as nvarchar(255) = '';
-                
+                         
                 exec notiflyer_spSetupDBMailXPs
                     @returnvalue = 0
                     ,@returnmessage = ''

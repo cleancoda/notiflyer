@@ -19,7 +19,7 @@ create procedure notiflyer_spSetupDBMailProfile
                 exec notiflyer_spSetupDBMailProfile
                     @profile_name = 'test'
                     ,@profile_description = 'test'
-                    ,@profile_id = @profile_id
+                    ,@profile_id = @profile_id output
                     ,@returnvalue = 0
                     ,@returnmessage = ''
 
@@ -43,8 +43,8 @@ begin
             msdb.dbo.sysmail_delete_profile_sp
                 @profile_name = @profile_name;
 
+        -- create mail profile
         exec
-        -- add mail profile
             msdb.dbo.sysmail_add_profile_sp
                 @profile_name = @profile_name
                 ,@description = @profile_description

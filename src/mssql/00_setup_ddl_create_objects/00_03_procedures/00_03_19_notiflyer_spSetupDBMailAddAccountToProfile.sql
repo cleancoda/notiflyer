@@ -12,14 +12,14 @@ create procedure notiflyer_spSetupDBMailAddAccountToProfile
     @detail     
     @sample
                 declare
-                    @account_id as int = 1
-                    ,@profile_id as int = 1
+                    @account_name nvarchar(100) = 'emailaccount'
+                    ,@profile_name as nvarchar(255) = 'test'
                     ,@returnvalue as int = 0
                     ,@returnmessage as nvarchar(255) = '';
                 
                 exec notiflyer_spSetupDBMailAddAccountToProfile
-                    @account_id = @account_id
-                    ,@profile_id = @profile_id
+                    @account_name = @account_name
+                    ,@profile_name = @profile_name
                     ,@returnvalue = 0
                     ,@returnmessage = ''
 

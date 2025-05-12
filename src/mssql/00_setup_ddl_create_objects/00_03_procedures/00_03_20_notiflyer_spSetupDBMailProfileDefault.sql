@@ -12,10 +12,12 @@ create procedure notiflyer_spSetupDBMailProfileDefault
     @detail     
     @sample
                 declare
-                    @returnvalue as int = 0
+                    @profile_name nvarchar(50) = 'test'
+                    ,@returnvalue as int = 0
                     ,@returnmessage as nvarchar(255) = '';
                 
                 exec notiflyer_spSetupDBMailProfileDefault
+                    @profile_name = @profile_name
                     ,@returnvalue = 0
                     ,@returnmessage = ''
 

@@ -1,7 +1,13 @@
-delete from notiflyer_tbJobQueryGridParameters;
-delete from notiflyer_tbJobQueryGrid;
-delete from notiflyer_tbQuery;
-delete from notiflyer_tbJobManager;
+
+
+-- truncate table before adding new entries
+/*
+    delete from notiflyer_tbJobQueryGridParameters;
+    delete from notiflyer_tbJobQueryGrid;
+    delete from notiflyer_tbQuery;
+    delete from notiflyer_tbJobManager;
+*/
+
 
 declare
     @jobid as int
@@ -45,7 +51,7 @@ declare
         ,chart_column_legend
         ,chart_column_axes_x
         ,chart_column_axes_y
-        ,chart_graphtype
+        ,chart_graph_type
     )
     select
         'Test Query ' + cast(row_number() over (order by (select null)) as varchar(10))
@@ -113,7 +119,7 @@ declare
         ,chart_column_legend
         ,chart_column_axes_x
         ,chart_column_axes_y
-        ,chart_graphtype
+        ,chart_graph_type
     )
     select
         'Test Query ' + cast(row_number() over (order by (select null)) as varchar(10))

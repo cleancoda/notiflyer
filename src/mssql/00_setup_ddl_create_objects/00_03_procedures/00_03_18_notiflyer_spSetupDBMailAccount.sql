@@ -16,14 +16,15 @@ create procedure notiflyer_spSetupDBMailAccount
                     ,@returnmessage as nvarchar(255) = '';
                 
                 exec notiflyer_spSetupDBMailAccount
-                    @account_name = 'account_name'
-                    ,@email_address = 'example@example.com'
-                    ,@display_name = 'account_display_name'
-                    ,@mail_server_name = 'mail.example.com'
-                    ,@port = 25
-                    ,@username = 'username'
-                    ,@password = 'password'
-                    ,@use_default_credentials bit = 0
+                    @account_name = 'emailaccount'
+                    ,@email_address = 'test@email.com'
+                    ,@display_name = 'test'
+                    ,@mail_server_name = 'mailserver.com'
+                    ,@port = 587
+                    ,@enable_ssl = 1
+                    ,@username = 'test'
+                    ,@password = 'test'
+                    ,@use_default_credentials = 0
                     ,@returnvalue = 0
                     ,@returnmessage = ''
 
@@ -48,10 +49,20 @@ as
 begin
     begin try
 
+        -- check if mail account already exists
+        declare @account_id int = 0;
+        select
+            @account_id = account_id
+        from
+            msdb.dbo.sysmail_account
+        where
+            name = @account_name;
+
         -- drop mail account if exists
-        exec
-            msdb.dbo.sysmail_delete_account_sp
-                @account_name = @account_name;
+        if @account_id is not null
+            exec 
+                msdb.dbo.sysmail_delete_account_sp
+                    @account_name = @account_name;
 
         -- setup a new database mail account
         exec 
@@ -69,6 +80,13 @@ begin
 
     end try
     begin catch
+
+        print 'error occured: ['
+            +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
+            +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
+            +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
+            +  ' ]'
+    
         select
             -- mark staging process as error
             @returnvalue = 1

@@ -62,6 +62,9 @@ where
     -- exclude backup objects
     and ct.name not like '%_backup_%';
 
+-- print drop command
+print @dropcmd;
+
 -- drop constraints
 begin try
     exec(@dropcmd);
@@ -95,6 +98,13 @@ while(@loopcounter <= @rowcounter)
             #notiflyer_tbTempTable
         where   
             rowid = @loopcounter;
+
+        -- print object name
+        print 'object name: ' + @objectname;
+        -- print object type
+        print 'object type: ' + @objecttype;
+        -- print sql command
+        print 'sql command: ' + @sqlcmd;
         
         -- exec cmd if objects found
         if @@rowcount > 0

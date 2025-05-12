@@ -26,7 +26,8 @@ select
 -- drop temp table
 if object_id('tempdb..#tmpNotiflyer_tbBackupObjects') is not null
     begin
-    drop table #tmpNotiflyer_tbBackupObjects;
+        drop table #tmpNotiflyer_tbBackupObjects;
+    end
 -- generate list of objects
 select
     *
@@ -40,5 +41,8 @@ where
     -- exclude backup objects
     and TABLE_NAME not like '_backup_'
 
--- 
-select * from #tmpNotiflyer_tbBackupObjects
+-- list objects
+select
+    *
+from
+    #tmpNotiflyer_tbBackupObjects;

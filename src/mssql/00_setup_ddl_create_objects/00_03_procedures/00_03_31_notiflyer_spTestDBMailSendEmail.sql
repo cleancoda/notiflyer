@@ -12,10 +12,18 @@ create procedure notiflyer_spTestDBMailSendEmail
     @detail     
     @sample
                 declare
-                    @returnvalue as int = 0
+                    @profile_name as nvarchar(50) = 'test'
+                    ,@recipients as nvarchar(max) = ''
+                    ,@body as nvarchar(max) = ''
+                    ,@subject as nvarchar(255) = ''
+                    ,@returnvalue as int = 0
                     ,@returnmessage as nvarchar(255) = '';
                 
                 exec notiflyer_spTestDBMailSendEmail
+                    @profile_name = @profile_name
+                    ,@recipients = @recipients
+                    ,@body = @body
+                    ,@subject = @subject
                     ,@returnvalue = 0
                     ,@returnmessage = ''
 
