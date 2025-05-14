@@ -28,7 +28,7 @@ declare
     select
         'Test Job ' + cast(row_number() over (order by (select null)) as varchar(10))
         ,'Test Subject ' + cast(row_number() over (order by (select null)) as varchar(10))
-        ,'testemail@email.com'
+        ,'pranav.shirodkar@protonmail.com'
         ,'test body header'
         ,'h'
         ,'00:15'
@@ -124,7 +124,7 @@ declare
     select
         'Test Query ' + cast(row_number() over (order by (select null)) as varchar(10))
         ,'q'
-        ,'select c.CustomerName,  sum(l.ExtendedPrice) as TotalInvoiceValue'
+        ,'select top 10 c.CustomerName,  sum(l.ExtendedPrice) as TotalInvoiceValue'
         ,'from Sales.Invoices i left outer join Sales.InvoiceLines l on i.InvoiceID = l.InvoiceID left outer join Sales.Customers c on i.CustomerID = c.CustomerID'
         ,'where i.SalespersonPersonID = @SalespersonPersonID'
         ,'group by c.CustomerName'

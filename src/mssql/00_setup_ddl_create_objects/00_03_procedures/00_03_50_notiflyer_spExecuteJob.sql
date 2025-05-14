@@ -63,7 +63,9 @@ begin
             ,@email_recepient as nvarchar(max) = ''
             ,@email_cc as nvarchar(max) = ''
             ,@email_bcc as nvarchar(max) = ''
-            ,@email_body_header as nvarchar(max) = '';
+            ,@email_body_header as nvarchar(max) = ''
+            ,@email_process_result as int = 0
+            ,@email_output as nvarchar(max) = '';
 
         -- TODO:
         -- automate app config retreival for email profile name
@@ -151,7 +153,7 @@ begin
             ,chart_column_legend nvarchar(max) -- TODO: can be used later for chart legend
             ,chart_column_axes_x nvarchar(max) -- TODO: can be used later for chart axes x
             ,chart_column_axes_y nvarchar(max) -- TODO: can be used later for chart axes y
-            ,chart_graphtype nvarchar(max) -- TODO: can be used later for chart graphtype
+            ,chart_graph_type nvarchar(max) -- TODO: can be used later for chart graphtype
         );
 
         -- populate temp table with job grid config and matching query definition
@@ -171,7 +173,7 @@ begin
             ,chart_column_legend
             ,chart_column_axes_x
             ,chart_column_axes_y
-            ,chart_graphtype
+            ,chart_graph_type
         )
         select
             g.id
@@ -188,7 +190,7 @@ begin
             ,q.chart_column_legend
             ,q.chart_column_axes_x
             ,q.chart_column_axes_y
-            ,q.chart_graphtype
+            ,q.chart_graph_type
         from
             #tempJobQueryGrid g
             left outer join notiflyer_tbQuery q on 
@@ -270,7 +272,7 @@ begin
             ,@chart_column_axes_y_datatype as nvarchar(max) -- TODO: can be used later for chart axes y
             ,@chart_column_axes_x nvarchar(max) -- TODO: can be used later for chart axes x
             ,@chart_column_axes_y nvarchar(max) -- TODO: can be used later for chart axes y
-            ,@chart_graphtype nvarchar(max);
+            ,@chart_graph_type nvarchar(max);
 
         
         -- read results
@@ -348,7 +350,7 @@ begin
                     ,@chart_column_legend = q.chart_column_legend
                     ,@chart_column_axes_x = q.chart_column_axes_x
                     ,@chart_column_axes_y = q.chart_column_axes_y
-                    ,@chart_graphtype = q.chart_graphtype
+                    ,@chart_graph_type = q.chart_graph_type
                 from
                     #tempQuery q
                 where   
@@ -408,11 +410,31 @@ begin
                                 ,@returnvalue = @returnvalue output
                                 ,@returnmessage = @returnmessage output;
 
-                            select
-                                @column_axes_x_datatype as chart_column_axes_x_datatype
-                                ,@column_axes_y_datatype as chart_column_axes_y_datatype
-                                ,@column_axes_x_axes_label as column_axes_x_axes_label
-                                ,@column_axes_y_axes_label as column_axes_y_axes_label;
+                            -- check for errors
+                            if(@returnvalue <> 0)
+                            begin
+
+                                -- add error location
+                                set
+                                    @returnmessage = 'notiflyer_spChartDataPrepare - ' + @returnmessage;
+
+                                -- append the error message to the output
+                                select
+                                    @returnmessage += ' job_id: ' + try_cast(@job_id as nvarchar(max))
+                                                        + ' query_id: ' + try_cast(@query_id as nvarchar(max));
+
+                                -- add to log
+                                exec notiflyer_spCreateLog
+                                    @log_description = @returnmessage
+                                    ,@log_type = 'e'
+                                    ,@log_source = 'notiflyer_spExecuteJob'
+                                    ,@log_user = 'system'
+                                    ,@returnvalue = 0
+                                    ,@returnmessage = '';
+
+                                -- exit procedure
+                                return;
+                            end
 
                             -- convert chart data into json objects
                             exec notiflyer_spChartDataPrepJSONObjects
@@ -420,23 +442,69 @@ begin
                                 ,@column_axes_y_axes_label = @column_axes_y_axes_label
                                 ,@column_axes_x_axes_json_label = @column_axes_x_axes_json_label output
                                 ,@column_axes_y_axes_json_label = @column_axes_y_axes_json_label output
-                                ,@returnvalue = 0
-                                ,@returnmessage = ''
+                                ,@returnvalue = @returnvalue
+                                ,@returnmessage = @returnmessage;
 
-                            select
-                                @column_axes_x_axes_label as column_axes_x_axes_label
-                                ,@column_axes_x_axes_json_label as column_axes_x_axes_json_label
-                                ,@column_axes_y_axes_label as column_axes_y_axes_label
-                                ,@column_axes_y_axes_json_label as column_axes_y_axes_json_label; 
+                            -- check for errors
+                            if(@returnvalue <> 0)
+                            begin
+
+                                -- add error location
+                                set
+                                    @returnmessage = 'notiflyer_spChartDataPrepJSONObjects - ' + @returnmessage;
+
+                                -- append the error message to the output
+                                set
+                                    @returnmessage += ' job_id: ' + try_cast(@job_id as nvarchar(max))
+                                                        + ' query_id: ' + try_cast(@query_id as nvarchar(max));
+
+                                -- add to log
+                                exec notiflyer_spCreateLog
+                                    @log_description = @returnmessage
+                                    ,@log_type = 'e'
+                                    ,@log_source = 'notiflyer_spExecuteJob'
+                                    ,@log_user = 'system'
+                                    ,@returnvalue = 0
+                                    ,@returnmessage = '';
+
+                                -- exit procedure
+                                return;
+                            end
 
                             -- convert into json string
                             exec notiflyer_spChartAPIPrepJSONString
-                                @chart_type = @chart_graphtype
+                                @chart_type = @chart_graph_type
                                 ,@column_axes_x_axes_json_label = @column_axes_x_axes_json_label
                                 ,@column_axes_y_axes_json_label = @column_axes_y_axes_json_label
                                 ,@json_string = @json_string output
                                 ,@returnvalue = 0
                                 ,@returnmessage = '';
+
+                            -- check for errors
+                            if(@returnvalue <> 0)
+                            begin
+
+                                -- add error location
+                                set
+                                    @returnmessage = 'notiflyer_spChartAPIPrepJSONString - ' + @returnmessage;
+
+                                -- append the error message to the output
+                                set
+                                    @returnmessage += ' job_id: ' + try_cast(@job_id as nvarchar(max))
+                                                        + ' query_id: ' + try_cast(@query_id as nvarchar(max));
+
+                                -- add to log
+                                exec notiflyer_spCreateLog
+                                    @log_description = @returnmessage
+                                    ,@log_type = 'e'
+                                    ,@log_source = 'notiflyer_spExecuteJob'
+                                    ,@log_user = 'system'
+                                    ,@returnvalue = 0
+                                    ,@returnmessage = '';
+
+                                -- exit procedure
+                                return;
+                            end
 
                             insert into ##tempQueryResults
                             (
@@ -493,8 +561,34 @@ begin
                 ,@recipients = @email_recepient
                 ,@body = @html_full
                 ,@subject = @email_subject
-                ,@returnvalue = 0
-                ,@returnmessage = 0;
+                ,@returnvalue = @returnvalue output
+                ,@returnmessage = @returnmessage output;
+
+            -- check for errors
+            if(@returnvalue <> 0)
+            begin
+
+                -- add error location
+                set
+                    @returnmessage = 'notiflyer_spDBMailSendEmail - ' + @returnmessage;
+
+                -- append the error message to the output
+                set
+                    @returnmessage += ' job_id: ' + try_cast(@job_id as nvarchar(max))
+                                        + ' query_id: ' + try_cast(@query_id as nvarchar(max));
+
+                -- add to log
+                exec notiflyer_spCreateLog
+                    @log_description = @returnmessage
+                    ,@log_type = 'e'
+                    ,@log_source = 'notiflyer_spExecuteJob'
+                    ,@log_user = 'system'
+                    ,@returnvalue = 0
+                    ,@returnmessage = '';
+
+                -- exit procedure
+                return;
+            end
 
             -- mark success
             select

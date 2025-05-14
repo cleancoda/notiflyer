@@ -33,6 +33,7 @@ begin
             ,log_type
             ,log_source
             ,log_user
+            ,log_datetime
         )
         values
         (
@@ -40,6 +41,7 @@ begin
             ,@log_type
             ,@log_source
             ,@log_user
+            ,getdate()
         )
     end try
 
