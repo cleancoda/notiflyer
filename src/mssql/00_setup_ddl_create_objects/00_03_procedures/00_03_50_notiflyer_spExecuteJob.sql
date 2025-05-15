@@ -309,10 +309,10 @@ begin
             #tempQuery;
 
         -- create temp table to hold query results in json format
-        if object_id('tempdb..##tempQueryResults') is not null
-            drop table ##tempQueryResults;
+        if object_id('tempdb..##tmpnotiflyer_tbQueryResults') is not null
+            drop table ##tmpnotiflyer_tbQueryResults;
 
-        create table ##tempQueryResults
+        create table ##tmpnotiflyer_tbQueryResults
         (
             id int
             ,job_id int
@@ -471,6 +471,9 @@ begin
                                 return;
                             end
 
+                            print 'chart_column_axes_x_axes_label: ' + @column_axes_x_axes_label;
+                            print 'chart_column_axes_y_axes_label: ' + @column_axes_y_axes_label;
+
                             -- convert into json string
                             exec notiflyer_spChartAPIPrepJSONString
                                 @chart_type = @chart_graph_type
@@ -479,6 +482,8 @@ begin
                                 ,@json_string = @json_string output
                                 ,@returnvalue = 0
                                 ,@returnmessage = '';
+
+                            print 'json_string: ' + @json_string;
 
                             -- check for errors
                             if(@returnvalue <> 0)
@@ -506,7 +511,7 @@ begin
                                 return;
                             end
 
-                            insert into ##tempQueryResults
+                            insert into ##tmpnotiflyer_tbQueryResults
                             (
                                 id
                                 ,job_id
@@ -533,7 +538,7 @@ begin
                                 ,@column_axes_x_axes_json_label
                                 ,@column_axes_y_axes_label
                                 ,@column_axes_y_axes_json_label
-                                ,@chart_api_url + dbo.notiflyer_fnUrlEncode(@json_string);
+                                ,@chart_api_url + @json_string;
                         end
                 end try
                 begin catch
@@ -549,7 +554,7 @@ begin
                 end catch
             end          
             
-            -- builds email body in html using contents of ##tempQueryResults;
+            -- builds email body in html using contents of ##tmpnotiflyer_tbQueryResults;
             exec notiflyer_spEmailBuildBody
                 @html_full = @html_full output
                 ,@returnvalue = 0

@@ -41,79 +41,83 @@ create procedure notiflyer_spChartAPIPrepJSONString
 as 
 begin
     begin try
-        
-        -- TODO:
-        -- multiple data series for a single axes
-        -- build json string for required chart api endpoint parameters
-        /*
-            example:
-                {
-                    type: 'bar',
-                    data: {
-                        labels: ['January', 'February', 'March', 'April', 'May'],
-                        datasets: [
-                        { label: 'Dogs', data: [50, 60, 70, 180, 190] },
-                        ],
-                    },
-                }
-        */
+        -- Validate input parameters
+        if @chart_type = '' or @column_axes_x_axes_json_label = '' or @column_axes_y_axes_json_label = ''
+        begin
+            set @returnvalue = 1;
+            set @returnmessage = 'Invalid input: chart_type, column_axes_x_axes_json_label, and column_axes_y_axes_json_label are required.';
+            return;
+        end
+
+        -- check for improperly escaped characters and fix them
+        if @column_axes_x_axes_json_label like '%[^a-zA-Z0-9,:\[\]{}" ]%'
+        begin
+            set @column_axes_x_axes_json_label = replace(@column_axes_x_axes_json_label, '"', '\"');
+            set @column_axes_x_axes_json_label = replace(@column_axes_x_axes_json_label, '\', '\\');
+        end
+
+        if @column_axes_y_axes_json_label like '%[^a-zA-Z0-9,:\[\]{}" ]%'
+        begin
+            set @column_axes_y_axes_json_label = replace(@column_axes_y_axes_json_label, '"', '\"');
+            set @column_axes_y_axes_json_label = replace(@column_axes_y_axes_json_label, '\', '\\');
+        end
+
+        -- Build JSON string for the chart API
         select
-            @json_string = '{ type: "' 
-                                + @chart_type 
-                                + '",'
-                                + 'data: { '
-                                -- x axes labels
-                                    + 'labels: ' 
-                                    -- example: ['January', 'February', 'March', 'April', 'May']
-                                    + @column_axes_x_axes_json_label
-                                    + ','
-                                    -- y axes label + data plot point
-                                    + 'datasets: [ '
-                                        + '{ label: '
-                                        -- example: 'Dogs', data: [50, 60, 70, 180, 190],
-                                        + @column_axes_y_axes_json_label
-                                        + '}'
-                                    + ','
-                                    + ']'
-                                + ','
-                                + '}'
-                            + ','
-                            -- options/configurations 
-                            + 'options: {'
-                            + 'plugins: {'
-                                + 'datalabels: {'
-                                    + 'borderWidth: 1,'
-                                    + 'borderRadius: 5,'
-                                    + 'anchor: ''' + 'center' + ''','
-                                    + 'align: ''' + 'center' + ''','
-                                    + 'color: ''' + '#fff' + ''','
-                                    + 'font: {'
-                                    + 'weight: '''+ 'bold' + ''','
-                                    + '},'
-                                +'},'
-                                + '},'
+            @json_string = '{'
+                            + '"type": "' + @chart_type + '",'
+                            + '"data": {'
+                                + '"labels": ' + @column_axes_x_axes_json_label + ','
+                                + '"datasets": ['
+                                    + '{'
+                                        + '"label": "Dataset",'
+                                        + '"data": ' + @column_axes_y_axes_json_label
+                                    + '}'
+                                + ']'
                             + '},'
+                            + '"options": {'
+                                + '"plugins": {'
+                                    + '"datalabels": {'
+                                        + '"anchor": "end",'
+                                        + '"align": "end",'
+                                        + '"offset": 10,'
+                                        + '"borderWidth": 1,'
+                                        + '"borderRadius": 5,'
+                                        + '"anchor": "center",'
+                                        + '"align": "center",'
+                                        + '"color": "#000",'
+                                        + '"font": {'
+                                            -- + '"weight": "bold"'
+                                            + '"size": 8,'
+                                        + '}'
+                                    + '}'
+                                + '}'
                             + '}'
+                        + '}';
 
-                            
-                            
+        -- Encode the JSON string for appending to a URL
+        select
+            @json_string = dbo.notiflyer_fnUrlEncode(@json_string);
 
-            -- encode string for appending to a url
-            -- select
-            --     @json_string = dbo.notiflyer_fnUrlEncode(@json_string);
+        -- Test the resulting JSON string
+        if @json_string is null or len(@json_string) = 0
+        begin
+            set @returnvalue = 1;
+            set @returnmessage = 'Error: JSON string generation failed.';
+            return;
+        end
 
-            return @json_string;
-
+        -- Mark success
+        set @returnvalue = 0;
+        set @returnmessage = 'JSON string generated and encoded successfully.';
     end try
-
     begin catch
         select
-            -- mark staging process as error
-            @returnvalue = 1
-            ,@returnmessage = 'error occured: ['
-                            +  ' error_line: ' + try_cast(error_line() as nvarchar(max))
-                            +  ' error_number: ' + try_cast(error_number() as nvarchar(max))
-                            +  ' error_message: ' + try_cast(error_message() as nvarchar(max))
-                            +  ' ]'
+            @returnvalue = 1,
+            @returnmessage = 'error occurred: ['
+                            + ' error_line: ' + try_cast(error_line() as nvarchar(max))
+                            + ' error_number: ' + try_cast(error_number() as nvarchar(max))
+                            + ' error_message: ' + try_cast(error_message() as nvarchar(max))
+                            + ' ]';
     end catch
 end

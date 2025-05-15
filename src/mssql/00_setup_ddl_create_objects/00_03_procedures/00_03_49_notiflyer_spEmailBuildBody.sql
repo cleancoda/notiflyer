@@ -50,7 +50,7 @@ begin
             @rows = max(t.grid_row)
             ,@columns = max(t.grid_column)
         from
-            ##tempQueryResults t;
+            ##tmpnotiflyer_tbQueryResults t;
 
         print @rows
         print @columns;
@@ -106,14 +106,14 @@ begin
                                     -- chart url
                                     +  N'<img src="' + isnull(t.chart_url,'') + '" style="max-width: 100%;"></div>'
                 from
-                    ##tempQueryResults t
+                    ##tmpnotiflyer_tbQueryResults t
                 where
                     t.grid_row = @row_counter
                     and t.grid_column = @column_counter;
 
                 select *
                 from
-                    ##tempQueryResults t
+                    ##tmpnotiflyer_tbQueryResults t
                 where   
                     t.grid_row = @row_counter
                     and t.grid_column = @column_counter;
