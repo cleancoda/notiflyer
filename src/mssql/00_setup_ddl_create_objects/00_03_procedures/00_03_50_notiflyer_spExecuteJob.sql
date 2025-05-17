@@ -479,6 +479,7 @@ begin
                                 @chart_type = @chart_graph_type
                                 ,@column_axes_x_axes_json_label = @column_axes_x_axes_json_label
                                 ,@column_axes_y_axes_json_label = @column_axes_y_axes_json_label
+                                ,@chart_column_legend = @chart_column_legend
                                 ,@json_string = @json_string output
                                 ,@returnvalue = 0
                                 ,@returnmessage = '';

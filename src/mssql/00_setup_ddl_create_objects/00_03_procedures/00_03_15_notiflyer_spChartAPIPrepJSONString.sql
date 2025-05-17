@@ -20,6 +20,7 @@ create procedure notiflyer_spChartAPIPrepJSONString
                     @chart_type = 'bar'
                     ,@column_axes_x_axes_json_label = '["2013-10-01","2014-02-01","2014-05-01","2014-06-01","2014-09-01","2015-04-01","2015-07-01","2015-10-01","2016-02-01","2016-04-01"]'
                     ,@column_axes_y_axes_json_label = '"NumOfOrders", data: [25122565,33840707,51614336,54621907,56244441,99612848,121123417,116340715,113902841,137679922]'
+                    ,@chart_column_legend = 'NumOfOrders'
                     ,@json_string = @strop output
                     ,@returnvalue = 0
                     ,@returnmessage = ''
@@ -34,6 +35,7 @@ create procedure notiflyer_spChartAPIPrepJSONString
     @chart_type as nvarchar(max) = ''
     ,@column_axes_x_axes_json_label as nvarchar(max) = ''
     ,@column_axes_y_axes_json_label as nvarchar(max) = ''
+    ,@chart_column_legend as nvarchar(max) = ''
     ,@json_string nvarchar(max) = '' output
     ,@returnvalue as int = 0 output
     ,@returnmessage as nvarchar(255) = '' output
@@ -70,30 +72,49 @@ begin
                                 + '"labels": ' + @column_axes_x_axes_json_label + ','
                                 + '"datasets": ['
                                     + '{'
-                                        + '"label": "Dataset",'
+                                        + '"label": "' + @chart_column_legend + '",'
                                         + '"data": ' + @column_axes_y_axes_json_label
                                     + '}'
                                 + ']'
                             + '},'
                             + '"options": {'
                                 + '"plugins": {'
-                                    + '"datalabels": {'
-                                        + '"anchor": "end",'
-                                        + '"align": "end",'
-                                        + '"offset": 10,'
-                                        + '"borderWidth": 1,'
-                                        + '"borderRadius": 5,'
-                                        + '"anchor": "center",'
-                                        + '"align": "center",'
-                                        + '"color": "#000",'
-                                        + '"font": {'
-                                            -- + '"weight": "bold"'
-                                            + '"size": 8,'
+                                    +   case 
+                                            when @chart_type = 'pie' then
+                                                '"legend": "false",'
+                                                    + '"outlabels": {'
+                                                    + '"text": "%l %p",'
+                                                    + '"color": "white",'
+                                                    + '"stretch": 35,'
+                                                    + '"font": {'
+                                                        + '"resizable": true,'
+                                                        + '"minSize": 12,'
+                                                        + '"maxSize": 18'
+                                                        + '}'
+                                                    + '}'
+                                        else
+                                            + '"datalabels": {'
+                                            + '"anchor": "end",'
+                                            + '"align": "top",'
+                                            + '"offset": 10,'
+                                            + '"borderWidth": 1,'
+                                            +   case 
+                                                    when @chart_type = 'bar' then
+                                                        '"backgroundColor": "rgba(34, 139, 34, 0.6)",' -- Fixed missing quotes
+                                                        + '"borderColor": "rgba(34, 139, 34, 1.0)",' -- Fixed missing quotes
+                                                        + '"borderRadius": 5,'
+                                                end
+                                            + '"color": "#000",'
+                                            + '"font": {'
+                                                + '"size": 8' -- Removed trailing comma
+                                            + '}'
                                         + '}'
-                                    + '}'
+                                        end
                                 + '}'
                             + '}'
                         + '}';
+
+        print 'raw json: ' + @json_string;
 
         -- Encode the JSON string for appending to a URL
         select
