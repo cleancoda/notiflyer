@@ -20,7 +20,7 @@ create procedure notiflyer_spChartAPIPrepJSONString
                     @chart_type = 'bar'
                     ,@column_axes_x_axes_json_label = '["2013-10-01","2014-02-01","2014-05-01","2014-06-01","2014-09-01","2015-04-01","2015-07-01","2015-10-01","2016-02-01","2016-04-01"]'
                     ,@column_axes_y_axes_json_label = '"NumOfOrders", data: [25122565,33840707,51614336,54621907,56244441,99612848,121123417,116340715,113902841,137679922]'
-                    ,@chart_column_legend = 'NumOfOrders'
+                    ,@chart_column_legend = 'TotalSales'
                     ,@json_string = @strop output
                     ,@returnvalue = 0
                     ,@returnmessage = ''
@@ -82,7 +82,7 @@ begin
                                     +   case 
                                             when @chart_type = 'pie' then
                                                 '"legend": "false",'
-                                                    + '"outlabels": {'
+                                                    + '"datalabels": {'
                                                     + '"text": "%l %p",'
                                                     + '"color": "white",'
                                                     + '"stretch": 35,'
@@ -103,6 +103,8 @@ begin
                                                         '"backgroundColor": "rgba(34, 139, 34, 0.6)",' -- Fixed missing quotes
                                                         + '"borderColor": "rgba(34, 139, 34, 1.0)",' -- Fixed missing quotes
                                                         + '"borderRadius": 5,'
+                                                    else
+                                                        ''
                                                 end
                                             + '"color": "#000",'
                                             + '"font": {'

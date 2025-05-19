@@ -471,8 +471,11 @@ begin
                                 return;
                             end
 
+                            print 'chart type: ' + @chart_graph_type;
                             print 'chart_column_axes_x_axes_label: ' + @column_axes_x_axes_label;
                             print 'chart_column_axes_y_axes_label: ' + @column_axes_y_axes_label;
+                            print 'chart_column_axes_x_axes_json_label: ' + @column_axes_x_axes_json_label;
+                            print 'chart_column_axes_y_axes_json_label: ' + @column_axes_y_axes_json_label;
 
                             -- convert into json string
                             exec notiflyer_spChartAPIPrepJSONString
