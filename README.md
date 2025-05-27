@@ -106,7 +106,6 @@ imagine the limitless & potential applications of such a service; from a complex
 
 # 👩‍🏫 documentation
 
-- TODO - add (temporary) documentation
 - TODO - convert documentation to wiki
 
 _----_

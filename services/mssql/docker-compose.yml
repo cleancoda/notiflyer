@@ -1,5 +1,6 @@
 # https://learn.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-ver16&pivots=cs1-bash#connectexternal
 # https://github.com/cleancoda/notiflyer/issues/21#issuecomment-1763401811
+# add restore for sample database
 version: '3'
 services:
   sql-server-db:
