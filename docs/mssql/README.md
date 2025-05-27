@@ -24,26 +24,15 @@ this section will describe the inner workings and setup instructions
 
 ## entity-relationship (er) diagram
 
+<!-- look at issue #86 for original colors -->
+
 ```mermaid
 %%{
   init: {
     'theme': 'base',
     'themeVariables': {
 
-      'primaryColor': '#10002B',
-      'secondaryColor': '#3C096C',
-      'tertiaryColor': '#240046',
-
-      'primaryTextColor': '#ffd60a',
-      'secondaryTextColor': '#ffd60a',
-      'tertiaryTextColor': '#ffd60a',
-
-      'primaryBorderColor': '#f72585',
-      'secondaryBorderColor': '#f72585',
-      'tertiaryBorderColor': '#f72585',
-      'noteBorderColor': '#f72585',
-
-      'lineColor': '#bfd200'
+      
     }
   }
 }%%
@@ -288,6 +277,6 @@ the quickest way to deploy a runnable container in Docker would be to utilize an
 
 #### application first-run configuration
 
-
+to get 
 
 [scroll top](#top)
